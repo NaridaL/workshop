@@ -323,8 +323,8 @@ const plane = makePlane(
 const stepPlane = makePlane(0, 0, field.w, field.h)
 const stabilize = async () => {
   while (field.countUnstable() > 0) {
-    for (let i = 0; i < 100; i++) {
-      for (let ss = 0; ss < 10; ss++) {
+    for (let i = 0; i < 1000; i++) {
+      for (let ss = 0; ss < 1; ss++) {
         texture2.drawTo((gl) => {
           texture.bind(0)
           stepShader.uniforms({ heights: 0 }).draw(stepPlane)
