@@ -14,7 +14,15 @@ module.exports = {
           },
         },
       },
-      { test: /\.glslx|\.vert|\.frag/, use: "raw-loader" },
+      {
+        test: /\.js$/,
+        use: ["source-map-loader"],
+        enforce: "pre",
+      },
+      {
+        test: /\.glslx|\.vert|\.frag/,
+        use: "raw-loader",
+      },
     ],
   },
 

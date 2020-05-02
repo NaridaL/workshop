@@ -2,20 +2,70 @@ import { TSGLContext, Mesh, Shader, Texture } from "tsgl"
 import * as chroma from "chroma.ts"
 import sleep from "sleep-promise"
 import { V } from "ts3dutils"
+import { assert } from "chai"
 
 import directVS from "./directVS.vert"
 import FS from "./FS.frag"
+import stepFS from "./step.frag"
 
 const gl: TSGLContext & WebGL2RenderingContextStrict = TSGLContext.create()
 
+// https://www.redblobgames.com/grids/hexagons/#coordinates
+
+//       ODDR (odd-right) Coords
+// Y
+// ^ 0:2   1:2   2:2
+// |    0:1   1:1   2:0
+// | 0:0   1:0   2:0
+// +------------------> X
+
+//      Cube Coords
+//
+//
+//  -1:2:-1   0:2:-2   1:2:-3
+//        0:1:-1   1:1:-2   2:1:-3
+//   0:0:0    1:0:-1   2:0:-2
+//  --------------------> X
+
 document.body.append(gl.canvas)
+const SQRT3_2 = Math.sqrt(3) / 2
+const ilog = (x: any) => (console.log(x), x)
 
 const oddr_to_px = (col: int, row: int) => {
-  const x = col - 0.5 * (row & 1)
-  const y = (row * Math.sqrt(3)) / 2
+  const x = col + 0.5 * (row & 1)
+  const y = row * SQRT3_2
   return V(x, y, 0)
 }
+const SINK = 255
 
+assert(oddr_to_px(0, 0).equals(V(0, 0)))
+assert(oddr_to_px(1, 0).equals(V(1, 0)))
+assert(oddr_to_px(0, 1).equals(V(0.5, SQRT3_2)))
+
+const cube_distance = (
+  [x1, y1, z1]: [int, int, int],
+  [x2, y2, z2]: [int, int, int]
+) => (Math.abs(x2 - x1) + Math.abs(y2 - y1) + Math.abs(z2 - z1)) / 2
+
+const oddr_distance = (x1: int, y1: int, x2: int, y2: int) =>
+  cube_distance(oddr_to_cube(x1, y1), oddr_to_cube(x2, y2))
+
+const cube_to_oddr = ([x, y, z]: [int, int, int]): [int, int] => {
+  const col = x + (y - (y & 1)) / 2
+  const row = y
+  return [col, row]
+}
+const oddr_to_cube = (col: int, row: int): [int, int, int] => {
+  const x = col - (row >> 1)
+  const y = row
+  const z = -x - y
+  return [x, y, z]
+}
+
+assert.deepEqual(oddr_to_cube(0, 0), [0, 0, -0])
+assert.deepEqual(oddr_to_cube(1, 0), [1, 0, -1])
+assert.deepEqual(oddr_to_cube(0, 1), [0, 1, -1])
+assert.deepEqual(oddr_to_cube(0, 2), [-1, 2, -1])
 class HexSand {
   data: Uint8Array
   public constructor(public w: int, public h: int) {
@@ -29,19 +79,19 @@ class HexSand {
   }
   dualize() {
     for (let i = 0; i < this.h * this.w; i++) {
-      if (255 !== this.data[i]) this.data[i] = 5 - this.data[i]
+      if (SINK !== this.data[i]) this.data[i] = 5 - this.data[i]
     }
     console.log("dualized")
   }
   plus(x: int) {
     for (let i = 0; i < this.h * this.w; i++) {
-      if (255 !== this.data[i]) this.data[i] += x
+      if (SINK !== this.data[i]) this.data[i] += x
     }
     console.log("plus " + x)
   }
   times(x: int) {
     for (let i = 0; i < this.h * this.w; i++) {
-      if (255 !== this.data[i]) this.data[i] *= x
+      if (SINK !== this.data[i]) this.data[i] *= x
     }
     console.log("times " + x)
   }
@@ -52,12 +102,12 @@ class HexSand {
   }
   plusHS(o: HexSand) {
     for (let i = 0; i < this.h * this.w; i++) {
-      if (255 !== this.data[i]) this.data[i] += o.data[i]
+      if (SINK !== this.data[i]) this.data[i] += o.data[i]
     }
   }
   fill(n: int) {
     for (let i = 0; i < this.h * this.w; i++) {
-      if (255 !== this.data[i]) this.data[i] = n
+      if (SINK !== this.data[i]) this.data[i] = n
     }
   }
 
@@ -65,7 +115,7 @@ class HexSand {
     for (let i = 0; i < this.h * this.w; i++) {
       const x = i % this.w
       const y = (i / this.w) | 0
-      if (255 !== this.data[i]) this.data[i] = f(x, y, i)
+      if (SINK !== this.data[i]) this.data[i] = f(x, y, i)
     }
   }
 
@@ -79,26 +129,24 @@ class HexSand {
     return (this.data[y * this.w + x] += value)
   }
   isSink(x: int, y: int): boolean {
-    return this.getOddr(x, y) === 255
+    return this.getOddr(x, y) === SINK
   }
 
-  drawHex(inner: int, outer: int) {
+  drawHex(inner: int, outer: int, value: int) {
     const cx = (this.w / 2) | 0
     const cy = (this.h / 2) | 0
     for (let i = 0; i < this.h * this.w; i++) {
       const x = i % this.w
       const y = (i / this.w) | 0
       if (
-        !(
-          inner <= oddr_distance(cx, cy, x, y) &&
-          oddr_distance(cx, cy, x, y) <= outer
-        )
+        inner <= oddr_distance(cx, cy, x, y) &&
+        oddr_distance(cx, cy, x, y) <= outer
       ) {
-        this.data[i] = 255
+        this.data[i] = value
       }
     }
   }
-  drawTriangle(inner: int, outer: int) {
+  drawTriangle(inner: int, outer: int, value: int) {
     const cx = (this.w / 2) | 0
     const cy = (this.h / 2) | 0
 
@@ -106,12 +154,12 @@ class HexSand {
       const x = i % this.w
       const y = (i / this.w) | 0
       const d = Math.max(...oddr_to_cube(x - cx, y - cy))
-      if (!(inner <= d && d <= outer)) {
-        this.data[i] = 255
+      if (inner <= d && d <= outer) {
+        this.data[i] = value
       }
     }
   }
-  drawCircle(inner: int, outer: int) {
+  drawCircle(inner: int, outer: int, value: int) {
     const cx = (this.w / 2) | 0
     const cy = (this.h / 2) | 0
     const c = oddr_to_px(cx, cy)
@@ -120,8 +168,8 @@ class HexSand {
       const x = i % this.w
       const y = (i / this.w) | 0
       const d = oddr_to_px(x, y).distanceTo(c)
-      if (!(inner <= d && d <= outer)) {
-        this.data[i] = 255
+      if (inner <= d && d <= outer) {
+        this.data[i] = value
       }
     }
   }
@@ -158,28 +206,14 @@ class HexSand {
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("")
   }
-}
 
-const cube_to_oddr = ([x, y, z]: [int, int, int]): [int, int] => {
-  const col = x + (y - (y & 1)) / 2
-  const row = y
-  return [col, row]
+  countUnstable(): int {
+    let unstable = 0
+    for (let i = 0; i < this.w * this.h; i++)
+      unstable += +(SINK !== this.data[i] && this.data[i] >= 6)
+    return unstable
+  }
 }
-const ilog = (x: any) => (console.log(x), x)
-const oddr_to_cube = (col: int, row: int): [int, int, int] => {
-  const x = col - (row + (row & 1)) / 2
-  const y = row
-  const z = -x - y
-  return [x, y, z]
-}
-
-const cube_distance = (
-  [x1, y1, z1]: [int, int, int],
-  [x2, y2, z2]: [int, int, int]
-) => (Math.abs(x2 - x1) + Math.abs(y2 - y1) + Math.abs(z2 - z1)) / 2
-
-const oddr_distance = (x1: int, y1: int, x2: int, y2: int) =>
-  cube_distance(oddr_to_cube(x1, y1), oddr_to_cube(x2, y2))
 
 const colorFg = chroma.scale("yellow", "blue").mode("lab").colors(10, "gl")
 const colorBg = chroma.color("F4F4ED").gl()
@@ -190,16 +224,36 @@ gl.fullscreen()
 console.log(gl.canvas.width, gl.canvas.height)
 
 const shader = Shader.create(directVS, FS)
+const stepShader = Shader.create(directVS, stepFS)
 
-const field = new HexSand(128, 128)
+const field = new HexSand(256, 256)
 const texture = new Texture(field.w, field.h, {
   filter: gl.NEAREST,
   internalFormat: gl.R8UI,
   format: gl.RED_INTEGER,
 })
+const texture2 = new Texture(field.w, field.h, {
+  filter: gl.NEAREST,
+  internalFormat: gl.R8UI,
+  format: gl.RED_INTEGER,
+})
+console.log(
+  "IMPLEMENTATION_COLOR_READ_FORMAT",
+  gl.getParameter(gl.IMPLEMENTATION_COLOR_READ_FORMAT).toString(16)
+)
+console.log(
+  "IMPLEMENTATION_COLOR_READ_TYPE",
+  gl.getParameter(gl.IMPLEMENTATION_COLOR_READ_TYPE).toString(16)
+)
 const upload = () => texture.setData(field.data)
-// field.drawHex(30, 62)
-field.drawCircle(0, 30)
+field.fill(SINK)
+// field.data[1000] = 200
+field.drawHex(20, 100, 0)
+// field.drawCircle(0, 50, 0)
+// field.drawTriangle(50, 65, 0)
+// field.drawTriangle(30, 45, 0)
+// field.drawTriangle(10, 25, 0)
+field.fill(10)
 
 upload()
 
@@ -219,8 +273,8 @@ const forEachNeighbor = async (
   await f(x, y + 1)
   await f(x, y - 1)
   // +- 1, depending on even/odd row
-  await f(x + 1 - (y % 2 | 0) * 2, y + 1)
-  await f(x + 1 - (y % 2 | 0) * 2, y - 1)
+  await f(x + 1 - (y & 1) * 2, y + 1)
+  await f(x + 1 - (y & 1) * 2, y - 1)
 }
 
 const andNeighbors = async (
@@ -244,24 +298,64 @@ const colorHex = async (x: int, y: int, value: int) =>
   await colorHex(30, 11, 3)
   await colorHex(25, 12, 3)
 }
+const makePlane = (x0: int, y0: int, x1: int, y1: int) => {
+  const plane = Mesh.plane({
+    startX: -1,
+    width: 2,
+    startY: -1,
+    height: 2,
+  })
+  plane.coords[0] = [x0, y0]
+  plane.coords[1] = [x1, y0]
+  plane.coords[2] = [x0, y1]
+  plane.coords[3] = [x1, y1]
+  plane.compile()
+  return plane
+}
+
+const plane = makePlane(
+  -0.5,
+  -0.5,
+  field.w,
+  field.w / (gl.canvas.width / gl.canvas.height)
+)
+
+const stepPlane = makePlane(0, 0, field.w, field.h)
+const stabilize = async () => {
+  while (field.countUnstable() > 0) {
+    for (let i = 0; i < 100; i++) {
+      for (let ss = 0; ss < 10; ss++) {
+        texture2.drawTo((gl) => {
+          texture.bind(0)
+          stepShader.uniforms({ heights: 0 }).draw(stepPlane)
+        })
+        texture.swapWith(texture2)
+      }
+      await sleep(10)
+    }
+    texture.downloadData(field.data)
+    console.log("stabilize", field.countUnstable(), await field.calcHash())
+  }
+}
+
 const naive = async () => {
   field.fill(10)
   upload()
   await sleep(2000)
-  await field.asyncStabilize()
+  await stabilize()
   field.dualize()
   upload()
   await sleep(3000)
   field.plus(5)
   upload()
   await sleep(3000)
-  await field.asyncStabilize()
+  await stabilize()
   const zero = field.clone()
   console.log("zero hash", await zero.calcHash())
   return
 
   field.fillf(() => (5 + Math.random() * 3) | 0)
-  await field.asyncStabilize()
+  await stabilize()
   const testF = field.clone()
   console.log("testF hash", await testF.calcHash())
   await sleep(2000)
@@ -274,20 +368,15 @@ const naive = async () => {
   console.log("testF + zero hash", await field.calcHash())
 }
 naive()
-const plane = Mesh.plane({
-  startX: -1,
-  width: 2,
-  startY: -1,
-  height: 2,
-})
 gl.animate(() => {
+  texture.bind(0)
   shader
     .uniforms({
       iResolution: [800, 600],
       colorBg,
       "colorFg[0]": colorFg,
       aspectRatio: gl.canvas.width / gl.canvas.height,
-      height: texture,
+      heights: 0,
     })
     .draw(plane)
 })

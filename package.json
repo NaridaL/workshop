@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack-dev-server --open"
+    "dev": "webpack-dev-server --open",
+    "build": "webpack --mode=production"
   },
   "keywords": [],
   "author": "",
@@ -15,10 +16,13 @@
   },
   "devDependencies": {
     "@sucrase/webpack-loader": "^2.0.0",
+    "@types/chai": "^4.2.11",
+    "chai": "^4.2.0",
     "chroma.ts": "^1.0.9",
     "html-webpack-plugin": "^4.2.1",
     "prettier": "^2.0.5",
     "raw-loader": "^4.0.1",
+    "source-map-loader": "^0.2.4",
     "sucrase": "^3.13.0",
     "ts3dutils": "^1.1.2",
     "tsgl": "^1.1.7",

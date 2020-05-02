@@ -1,12 +1,15 @@
 #version 300 es
 precision mediump float;
 precision mediump usampler2D;
+
+// this shader defines a virtual texture, which renders
+// a hex "(height-)map" saved as ODDR
+
+// texture coordinate to render
 in vec2 coord;
 
-uniform vec2 iResolution;
 uniform vec4 colorBg;
 uniform vec4[10] colorFg;
-uniform float aspectRatio;
 
 const int MAX_MARCHING_STEPS = 255;
 const float MIN_DIST = 0.0;
@@ -14,62 +17,11 @@ const float MAX_DIST = 100.0;
 
 out vec4 fragColor;
 
+// the "map" being rendered. also implicitely defines the
+// size of the texture.
+// width: x is in [-0.5, heights.width], (0, 0) is the center of the first hex
+// height: sqrt(3) / 2 * heights.height
 uniform usampler2D heights;
-
-float EPSILON = 0.0001;
-
-struct Ray{
-	vec3 origin;
-    vec3 direction;
-};
-
-float sphere(vec3 samplePoint) {
-    return length(samplePoint) - 1.;
-}
-
-
-float shortestDistanceToSurface(Ray ray, float start, float end) {
-    float depth = start;
-    for (int i = 0; i < MAX_MARCHING_STEPS; i++) {
-        float dist = sphere(ray.origin + depth * ray.direction);
-        if (dist < EPSILON) {
-            return depth;
-        }
-        depth += dist;
-        if (depth >= end) {
-            return end;
-        }
-    }
-    return end;
-}
-
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
-{
-    fragColor = vec4(1.0);
-    // Scale and bias uv
-    // [0.0, iResolution.x] -> [0.0, 1.0]
-    // [0.0, 1.0] 			-> [-1.0, 1.0]
-    vec2 xy = fragCoord / iResolution.xy;
-	xy = xy * 2.- vec2(1.);
-	xy.x *= iResolution.x/iResolution.y;
-
-    // SphereSDF position at (0,0,0)
-
-    vec3 pixelPos = vec3(xy, 2.); // Image plane at (0,0,2)
-    vec3 eyePos = vec3(0.,0.,5.); // Camera position at (0,0,5)
-    vec3 rayDir = normalize(pixelPos - eyePos);
-
-    float dist = shortestDistanceToSurface(Ray (eyePos, rayDir), MIN_DIST, MAX_DIST);
-
-    // Didn't hit anything
-    if (dist > MAX_DIST - EPSILON) {
-        fragColor = vec4(0.0, 0.0, 0.0, 0.0);
-		return;
-    }
-
-    // Hit on the surface
-    fragColor = vec4(1.0);
-}
 
 vec3 raToHex(vec2 xy) {
 	float hex_t = xy.y / 0.866;
@@ -127,11 +79,9 @@ bool between(float min, float max, float x) {
 void main() {
 	//mainImage(gl_FragColor, coord.xy);
 	float factor = 140.0;
-	vec2 pos2 = coord * factor / vec2(1.0, aspectRatio);
-	vec2 hs = vec2(0.5, 0.866);
+	vec2 pos2 = coord;
 	vec3 hex_pos = raToHex(pos2);
 	// vec2 hex_center = floor(hex_pos + 0.5);
-	vec2 dotCoords = vec2(pos2.x, dot(pos2, hs));
 	vec3 hex_center = hexRound(hex_pos);
 	vec2 center = hexToRa(hex_center);
 	vec2 squarePos = floor(pos2+ 0.5);
@@ -148,7 +98,7 @@ void main() {
 	) {
 	// if (length (pos2 - center) <0.53){
 	// if (length (hex_pos - hex_center) <0.45){
-		ivec2 center2 = cube_to_oddr( ivec3(hex_center) ) - ivec2(5,5);
+		ivec2 center2 = cube_to_oddr( ivec3(hex_center) );
 		uint value = texelFetch(heights,  center2, 0).r;
 		fragColor = value == 255u ? colorBg : colorFg[value];
 	} else {
