@@ -6,7 +6,6 @@ in vec2 coord;
 uniform vec2 iResolution;
 uniform vec4 colorBg;
 uniform vec4[10] colorFg;
-uniform float aspectRatio;
 
 out uvec4 fragColor;
 
@@ -69,19 +68,23 @@ bool between(float min, float max, float x) {
 	return min <= x && x <= max;
 }
 
-uint at(ivec2 p) {
+uint heightAt(ivec2 p) {
 	ivec2 tex_size = textureSize(heights, 0);
 
 	if (p.x < 0 || p.y < 0 || tex_size.x <= p.x || tex_size.y <= p.y) {
-		// point is outside source texture
+		// point is outside source texture, treat as sink
+		return SINK;
+	} else {
+		return texelFetch(heights, p, 0).r;
+	}
+}
+
+uint at(ivec2 p) {
+	uint value = heightAt(p);
+	if (SINK == value) {
 		return 0u;
 	} else {
-		uint value = texelFetch(heights, p, 0).r;
-		if (SINK == value) {
-			return 0u;
-		} else {
-			return value / 6u;
-		}
+		return value / 6u;
 	}
 }
 

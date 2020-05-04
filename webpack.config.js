@@ -5,12 +5,12 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         include: [path.resolve(__dirname, "src")],
         use: {
           loader: "@sucrase/webpack-loader",
           options: {
-            transforms: ["typescript"],
+            transforms: ["typescript", "jsx"],
           },
         },
       },
@@ -20,8 +20,16 @@ module.exports = {
         enforce: "pre",
       },
       {
-        test: /\.glslx|\.vert|\.frag/,
+        test: /\.glslx$|\.vert$|\.frag$/,
         use: "raw-loader",
+      },
+      {
+        test: /\.ttf$/,
+        use: "file-loader",
+      },
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
       },
     ],
   },
@@ -32,7 +40,7 @@ module.exports = {
     }),
   ],
   resolve: {
-    extensions: [".ts", ".js"],
+    extensions: [".ts", ".js", ".tsx", ".jsx"],
     alias: {
       ts3dutils: path.resolve(__dirname, "node_modules", "ts3dutils"),
     },
