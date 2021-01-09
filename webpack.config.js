@@ -37,6 +37,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: "THE WORKSHOP",
+      lang: "en"
     }),
   ],
   resolve: {
@@ -44,5 +45,8 @@ module.exports = {
     alias: {
       ts3dutils: path.resolve(__dirname, "node_modules", "ts3dutils"),
     },
+  },
+  devServer: {
+    historyApiFallback: true,
   },
 }
