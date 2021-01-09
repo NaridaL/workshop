@@ -33,18 +33,33 @@ module.exports = {
       },
     ],
   },
-
   plugins: [
     new HtmlWebpackPlugin({
       title: "THE WORKSHOP",
-      lang: "en"
+      lang: "en",
     }),
   ],
   resolve: {
     extensions: [".ts", ".js", ".tsx", ".jsx"],
     alias: {
-      ts3dutils: path.resolve(__dirname, "node_modules", "ts3dutils"),
+      ts3dutils: path.resolve(
+        __dirname,
+        "node_modules",
+        "ts3dutils",
+        "dist",
+        "index.module.min",
+      ),
+      tsgl: path.resolve(
+        __dirname,
+        "node_modules",
+        "tsgl",
+        "lib",
+        "index.es.min",
+      ),
     },
+  },
+  optimization: {
+    usedExports: true,
   },
   devServer: {
     historyApiFallback: true,

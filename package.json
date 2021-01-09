@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server",
-    "build": "webpack --mode=production"
+    "build": "webpack --mode=production",
+    "clean": "rimraf dist"
   },
   "keywords": [],
   "author": "",
@@ -24,8 +25,9 @@
     "@types/chai": "^4.2.11",
     "@types/loadable__component": "^5.10.0",
     "@types/opentype.js": "^0.7.2",
+    "@types/pdfkit": "^0.10.6",
     "@types/react": "^16.9.34",
-    "@types/react-dom": "^16.9.7",
+    "@types/react-dom": "^16.9.10",
     "@types/react-router-dom": "^5.1.5",
     "chai": "^4.2.0",
     "chroma.ts": "^1.0.9",
@@ -43,7 +45,7 @@
     "style-loader": "^1.2.1",
     "sucrase": "^3.13.0",
     "ts3dutils": "^1.1.2",
-    "tsgl": "^1.1.7",
+    "tsgl": "../nla/tsgl",
     "typescript": "^4.0.3",
     "webgl-strict-types": "^1.0.3",
     "webpack": "^4.43.0",
@@ -52,6 +54,10 @@
   },
   "dependencies": {
     "html-webpack-root-plugin": "^0.10.0",
+    "js-file-download": "^0.4.12",
+    "pdfkit": "^0.11.0",
+    "react-dom-server": "0.0.5",
+    "react-download-link": "^2.3.0",
     "sleep-promise": "^8.0.1",
     "svg-pathdata": "^5.0.5"
   }

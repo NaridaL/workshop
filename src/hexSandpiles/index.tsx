@@ -11,7 +11,6 @@ import directVS from "./directVS.vert"
 import oleo from "./OleoScript-Bold.ttf"
 import FS from "./FS.frag"
 import stepFS from "./step.frag"
-import { Button, Tooltip } from "@material-ui/core"
 
 type int = number
 

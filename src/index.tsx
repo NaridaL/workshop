@@ -1,17 +1,16 @@
-import {
-  Drawer,
-  List,
-  ListItem,
-  CssBaseline,
-  ListItemText,
-  IconButton,
-} from "@material-ui/core"
+import Drawer from "@material-ui/core/Drawer"
+import List from "@material-ui/core/List"
+import ListItem from "@material-ui/core/ListItem"
+import CssBaseline from "@material-ui/core/CssBaseline"
+import ListItemText from "@material-ui/core/ListItemText"
+import IconButton from "@material-ui/core/IconButton"
 import { BrowserRouter, Switch, Route, Redirect, Link } from "react-router-dom"
 import * as ReactDOM from "react-dom"
 import loadable from "@loadable/component"
 import MenuIcon from "@material-ui/icons/Menu"
 import * as React from "react"
 import { useState, useCallback } from "react"
+
 import { ErrorBoundary } from "./ErrorBoundary"
 
 import "./style.css"
@@ -26,7 +25,8 @@ const pages = [
 ]
 
 const AsyncPage = loadable(
-  (props: { page: string }) => import(`./${props.page}/index`),
+  (props: { page: string }) =>
+    import(/* webpackChunkName: "[request]" */ `./${props.page}/index`),
 )
 
 const App = () => {
