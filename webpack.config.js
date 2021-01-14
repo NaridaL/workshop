@@ -27,18 +27,9 @@ module.exports = {
         test: /\.ttf$/,
         use: "file-loader",
       },
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
     ],
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      title: "THE WORKSHOP",
-      lang: "en",
-    }),
-  ],
+  plugins: [new HtmlWebpackPlugin({ template: "./index.html" })],
   resolve: {
     extensions: [".ts", ".js", ".tsx", ".jsx"],
     alias: {
@@ -56,12 +47,31 @@ module.exports = {
         "lib",
         "index.es.min",
       ),
+      pdfkit: path.resolve(
+        __dirname,
+        "node_modules",
+        "pdfkit",
+        "js",
+        "pdfkit.standalone.js",
+      ),
+      // standalone version of blob-stream, to avoid
+      // having to polyfill buffer etc
+      "blob-stream": path.resolve(
+        __dirname,
+        "node_modules",
+        "blob-stream",
+        ".js",
+      ),
     },
+  },
+  node: {
+    global: true,
   },
   optimization: {
     usedExports: true,
   },
   devServer: {
-    historyApiFallback: true,
+    publicPath: "/workshop/dist/",
+    historyApiFallback: { index: "/workshop/dist/index.html" },
   },
 }

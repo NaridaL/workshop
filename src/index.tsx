@@ -9,12 +9,11 @@ import * as ReactDOM from "react-dom"
 import loadable from "@loadable/component"
 import MenuIcon from "@material-ui/icons/Menu"
 import * as React from "react"
+import makeStyles from "@material-ui/core/styles/makeStyles"
+
 import { useState, useCallback } from "react"
 
 import { ErrorBoundary } from "./ErrorBoundary"
-
-import "./style.css"
-import makeStyles from "@material-ui/core/styles/makeStyles"
 
 const pages = [
   { title: "Hex Sandpiles", module: "hexSandpiles" },
@@ -22,12 +21,24 @@ const pages = [
   { title: "Noises", module: "noises" },
   { title: "Delta3D", module: "delta3d" },
   { title: "Paper Prism Box", module: "paperBox1" },
+  { title: "Circle Paper Box", module: "paperBox2" },
 ]
 
 const AsyncPage = loadable(
   (props: { page: string }) =>
     import(/* webpackChunkName: "[request]" */ `./${props.page}/index`),
+  { cacheKey: (props) => props.page },
 )
+
+const useStyles = makeStyles(() => ({
+  "@global": {
+    "html, body, #root": {
+      margin: "0",
+      height: "100%",
+      width: "100%",
+    },
+  },
+}))
 
 const App = () => {
   const [navOpen, setNavOpen] = useState(false)
@@ -35,8 +46,10 @@ const App = () => {
   const onDrawerClose = useCallback(() => setNavOpen(false), [])
   const onHamburgerClick = useCallback(() => setNavOpen(true), [])
 
+  useStyles()
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/workshop/dist/">
       <CssBaseline />
       <Drawer open={navOpen} onClose={onDrawerClose}>
         <List>
@@ -45,6 +58,11 @@ const App = () => {
               <ListItemText>{title}</ListItemText>
             </ListItem>
           ))}
+          <ListItem>
+            <ListItemText>
+              <a href="https://github.com/NaridaL/workshop">Back to Github</a>
+            </ListItemText>
+          </ListItem>
         </List>
       </Drawer>
       <IconButton
@@ -77,7 +95,4 @@ const App = () => {
   )
 }
 
-const root = document.createElement("div")
-root.id = "root"
-document.body.appendChild(root)
-ReactDOM.render(<App />, root)
+ReactDOM.render(<App />, document.getElementById("root"))

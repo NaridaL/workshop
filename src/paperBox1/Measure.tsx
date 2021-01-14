@@ -17,6 +17,7 @@ export function Measure({
 }) {
   const d = V(from).to(V(to))
   const length = d.length()
+  if (length < 0.05) return null
   const textBlank = 3 * children.length
   return (
     <g
