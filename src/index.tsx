@@ -49,7 +49,7 @@ const App = () => {
   useStyles()
 
   return (
-    <BrowserRouter basename="/workshop/dist/">
+    <BrowserRouter basename="/workshop/">
       <CssBaseline />
       <Drawer open={navOpen} onClose={onDrawerClose}>
         <List>
@@ -83,12 +83,9 @@ const App = () => {
             </ErrorBoundary>
           </Route>
         ))}
-        <Route path="/dist">
-          <Redirect to="/hexSandpiles" />
-        </Route>
-        <Route exact path="/">
-          <Redirect to="/hexSandpiles" />
-        </Route>
+        <Redirect from="/dist/:where" to="/:where" />
+        <Redirect exact from="/" to="/hexSandpiles" />
+        <Redirect exact from="/dist" to="/hexSandpiles" />
         <Route path="/">404</Route>
       </Switch>
     </BrowserRouter>

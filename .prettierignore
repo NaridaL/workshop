@@ -1,0 +1,7 @@
+docs
+*.frag
+*.xml
+.vscode
+.idea
+package.json
+package-lock.json

@@ -1,5 +1,6 @@
 const path = require("path")
-const HtmlWebpackPlugin = require("html-webpack-plugin")
+const HtmlPlugin = require("html-webpack-plugin")
+const CopyPlugin = require("copy-webpack-plugin")
 
 module.exports = {
   module: {
@@ -29,7 +30,16 @@ module.exports = {
       },
     ],
   },
-  plugins: [new HtmlWebpackPlugin({ template: "./index.html" })],
+  plugins: [
+    new HtmlPlugin({ template: "./index.html" }),
+    new CopyPlugin({
+      patterns: [{ from: "404.html", to: "." }],
+    }),
+  ],
+  output: {
+    path: path.resolve(__dirname, "docs"),
+    publicPath: "/workshop/",
+  },
   resolve: {
     extensions: [".ts", ".js", ".tsx", ".jsx"],
     alias: {
@@ -71,7 +81,8 @@ module.exports = {
     usedExports: true,
   },
   devServer: {
-    publicPath: "/workshop/dist/",
-    historyApiFallback: { index: "/workshop/dist/index.html" },
+    publicPath: "/workshop/",
+    contentBase: path.join(__dirname, "docs"),
+    historyApiFallback: { index: "/workshop/404.html" },
   },
 }
