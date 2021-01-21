@@ -1,46 +1,29 @@
 import TextField from "@material-ui/core/TextField"
-import SVGtoPDF from "svg-to-pdfkit"
 import Autocomplete from "@material-ui/lab/Autocomplete"
 import Button from "@material-ui/core/Button"
+import Card from "@material-ui/core/Card"
+import CardActionArea from "@material-ui/core/CardActionArea"
+import CardContent from "@material-ui/core/CardContent"
+import CardMedia from "@material-ui/core/CardMedia"
 import Checkbox from "@material-ui/core/Checkbox"
+import FormControl from "@material-ui/core/FormControl"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
+import InputLabel from "@material-ui/core/InputLabel"
+import MenuItem from "@material-ui/core/MenuItem"
+import Select from "@material-ui/core/Select"
 import useTheme from "@material-ui/core/styles/useTheme"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import fileDownload from "js-file-download"
 import * as React from "react"
-
+import { MINUS, round10 } from "ts3dutils"
 import * as ReactDOMServer from "react-dom/server"
-import { BaseDrawing } from "./BaseDrawing"
-import Paper from "@material-ui/core/Paper"
-import { int, MINUS, round10, TAU } from "ts3dutils"
+
+import insideFoldsJpg from "./insideFolds.jpg"
+import { InsideFolds } from "./InsideFolds"
+import { OutsideFolds } from "./OutsideFolds"
 import { useHashState } from "../paperBox1/useHashState"
+import { INCH, PAPER_SIZE_A4, PAPER_SIZES } from "../paperBox1/common"
 
-import IconButton from "@material-ui/core/IconButton"
-
-type PaperSize = [width: number, height: number, name: string]
-const PAPER_SIZES: PaperSize[] = [
-  [841, 1189, "A0"],
-  [594, 841, "A1"],
-  [420, 594, "A2"],
-  [297, 420, "A3"],
-  [210, 297, "A4"],
-  [148, 210, "A5"],
-  [105, 148, "A6"],
-  [74, 105, "A7"],
-  [52, 74, "A8"],
-  [37, 52, "A9"],
-  [26, 37, "A10"],
-  [150, 150, "Origami 15cm"],
-  [100, 100, "Origami 10cm"],
-  [75, 75, "Origami 7.5cm"],
-  [215.9, 279.4, "Letter"],
-  [215.9, 355.6, "Legal"],
-]
-const PAPER_SIZE_A4 = PAPER_SIZES.find(([, , name]) => name.includes("A4"))!
-const openInNewTab = (url: string) => {
-  const newWindow = window.open(url, "_blank", "noopener,noreferrer")
-  if (newWindow) newWindow.opener = null
-}
 const useStyles = makeStyles((theme) => ({
   sidebar: {
     display: "flex",
@@ -52,40 +35,76 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(1),
     },
   },
+  media: {
+    height: "200px",
+  },
 }))
 
 export default () => {
   const [state, setState] = useHashState({
+    variant: "inside" as "inside" | "outside",
+    baseRadius: 20,
+    topRadius: 60,
     radius: 100,
     sides: 6,
   })
 
-  const theme = useTheme()
+  const BaseDrawing: typeof InsideFolds = {
+    inside: InsideFolds,
+    outside: OutsideFolds,
+  }[state.variant]
+
   const classes = useStyles()
 
   const getPrintSVG = () =>
     ReactDOMServer.renderToStaticMarkup(
       <BaseDrawing {...{ ...state, sides: state.sides, print: true }} />,
     ).replace(/\s{2,}/g, " ")
-
+  const baseFileName = `${state.variant}-${state.baseRadius}-${state.topRadius}-${state.radius}-${state.sides}`
   const asSVG = () => {
     const svg = getPrintSVG()
-    fileDownload(svg, "base.svg")
+    fileDownload(svg, baseFileName + ".svg")
   }
-  const asTemplatePDF = async () => {}
+  const asTemplatePDF = async () => {
+    const { svgToPdf } = await import(
+      /* webpackChunkName: "svgToPdf" */ "../paperBox1/svgToPdf"
+    )
+
+    // add your content to the document here, as usual
+    const blob = await svgToPdf({
+      size: ([state.radius * 2, state.radius * 2] as [number, number])
+        .sort(MINUS)
+        .map((x) => round10(x * (72 / INCH), -2)),
+      layout: "landscape",
+      title: "Paper Box Template",
+      author: "Adrian Leonhard",
+      svg: getPrintSVG(),
+    })
+
+    fileDownload(blob, baseFileName + ".pdf")
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
-      <BaseDrawing {...state} />
+      <BaseDrawing {...state} style={{ width: "100%", height: "100%" }} />
       <div className={classes.sidebar}>
-        <Paper style={{ padding: theme.spacing(1) }}>
-          Helper to build{" "}
-          <a href="https://www.paperkawaii.com/video-tutorial-origami-hexagonal-gift-box/">
-            this
-          </a>{" "}
-          box. All measurements are in millimeters. To make a lid, you should
-          increase the sideWidth by 1mm and ~halve the paper height.
-        </Paper>
+        <Card>
+          <CardActionArea>
+            <CardMedia
+              className={classes.media}
+              image={insideFoldsJpg}
+              title="Contemplative Reptile"
+            />
+            <CardContent>
+              Helper to build{" "}
+              <a href="https://www.paperkawaii.com/video-tutorial-origami-hexagonal-gift-box/">
+                this
+              </a>{" "}
+              box. All measurements are in millimeters. To make a lid, you
+              should increase the sideWidth by 1mm and ~halve the paper height.
+            </CardContent>
+          </CardActionArea>
+        </Card>
         <Autocomplete
           disableClearable
           size="small"
@@ -129,20 +148,82 @@ export default () => {
               checked={false}
               onChange={() => {
                 // noinspection JSSuspiciousNameCombination
-                setState((s) => ({ ...s, width: height, height: width }))
+                setState((s) => ({
+                  ...s,
+                  width: height,
+                  height: width,
+                }))
               }}
               color="primary"
             />
           }
           label="Landscape"
         />
+        <FormControl variant="outlined" size="small">
+          <InputLabel id="variant-label">Variant</InputLabel>
+          <Select
+            labelId="variant-label"
+            label="Variant"
+            value={state.variant}
+            onChange={(e) =>
+              setState((s) => ({
+                ...s,
+                variant: e.target.value as any,
+              }))
+            }
+          >
+            <MenuItem value="inside">Inside Folds</MenuItem>
+            <MenuItem value="outside">Outside Folds</MenuItem>
+          </Select>
+        </FormControl>
         <TextField
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1, min: 3, max: 16 }}
+          inputProps={{ step: 1 }}
+          value={state.baseRadius}
+          onChange={(e) =>
+            setState((s) => ({ ...s, baseRadius: +e.target.value }))
+          }
+          label="baseRadius"
+        />
+        <TextField
+          variant="outlined"
+          size="small"
+          type="number"
+          inputProps={{ step: 1 }}
+          value={state.topRadius}
+          onChange={(e) =>
+            setState((s) => ({ ...s, topRadius: +e.target.value }))
+          }
+          label="topRadius"
+        />
+        <TextField
+          variant="outlined"
+          size="small"
+          type="number"
+          inputProps={{ step: 1 }}
+          value={state.radius}
+          onChange={(e) =>
+            setState((s) => ({
+              ...s,
+              radius: +e.target.value,
+            }))
+          }
+          label="Radius"
+        />
+        <TextField
+          variant="outlined"
+          size="small"
+          type="number"
+          inputProps={{ step: 1, min: 4, max: 32 }}
           value={state.sides}
-          onChange={(e) => setState((s) => ({ ...s, sides: +e.target.value }))}
+          onChange={(e) =>
+            setState((s) => ({
+              ...s,
+              sides: +e.target.value,
+            }))
+          }
           label="Sides"
         />
         <Button variant="contained" onClick={asSVG}>

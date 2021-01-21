@@ -16,7 +16,7 @@ import {
   M4,
   removeIndexes,
 } from "ts3dutils"
-import { Mesh, Shader, Texture, TSGLContext } from "tsgl"
+import { Mesh, Shader, Texture, TSGLContext, GL_COLOR } from "tsgl"
 import { Chromable, w3cx11 } from "chroma.ts"
 import * as chroma from "chroma.ts"
 import * as React from "react"

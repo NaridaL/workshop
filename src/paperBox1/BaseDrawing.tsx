@@ -10,16 +10,16 @@ import {
   V3,
 } from "ts3dutils"
 import * as React from "react"
-
-import { fmtdeg, INCH } from "./common"
-import { Measure } from "./Measure"
-import { MeasureAngle } from "./MeasureAngle"
 import { CSSProperties } from "react"
 
-const radiusFromSideWidth = (sides: int, sideWidth: number) =>
-  sideWidth / 2 / Math.sin(TAU / sides / 2)
-const centerToSideFromSideWidth = (sides: int, sideWidth: number) =>
-  sideWidth / 2 / Math.tan(TAU / sides / 2)
+import {
+  centerToSideFromSideWidth,
+  fmtdeg,
+  INCH,
+  radiusFromSideWidth,
+} from "./common"
+import { Measure } from "./Measure"
+import { MeasureAngle } from "./MeasureAngle"
 
 export function BaseDrawing({
   height,

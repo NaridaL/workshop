@@ -4,14 +4,21 @@ import ListItem from "@material-ui/core/ListItem"
 import CssBaseline from "@material-ui/core/CssBaseline"
 import ListItemText from "@material-ui/core/ListItemText"
 import IconButton from "@material-ui/core/IconButton"
-import { BrowserRouter, Switch, Route, Redirect, Link } from "react-router-dom"
+import {
+  useLocation,
+  BrowserRouter,
+  Switch,
+  Route,
+  Redirect,
+  Link,
+} from "react-router-dom"
 import * as ReactDOM from "react-dom"
 import loadable from "@loadable/component"
 import MenuIcon from "@material-ui/icons/Menu"
 import * as React from "react"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 
 import { ErrorBoundary } from "./ErrorBoundary"
 
@@ -22,6 +29,7 @@ const pages = [
   { title: "Delta3D", module: "delta3d" },
   { title: "Paper Prism Box", module: "paperBox1" },
   { title: "Circle Paper Box", module: "paperBox2" },
+  { title: "Tree Fill", module: "treefill", hide: true },
 ]
 
 const AsyncPage = loadable(
@@ -45,6 +53,12 @@ const App = () => {
 
   const onDrawerClose = useCallback(() => setNavOpen(false), [])
   const onHamburgerClick = useCallback(() => setNavOpen(true), [])
+  const currentPage = pages.find(
+    (p) => p.module === document.location.pathname.split("/")[2],
+  )
+  useEffect(() => {
+    document.title = (currentPage?.title ?? "Loading...") + " - Adrian Leonhard"
+  }, [currentPage])
 
   useStyles()
 
@@ -53,11 +67,13 @@ const App = () => {
       <CssBaseline />
       <Drawer open={navOpen} onClose={onDrawerClose}>
         <List>
-          {pages.map(({ title, module }) => (
-            <ListItem component={Link} key={module} to={`/${module}`}>
-              <ListItemText>{title}</ListItemText>
-            </ListItem>
-          ))}
+          {pages
+            .filter(({ hide }) => !hide)
+            .map(({ title, module }) => (
+              <ListItem component={Link} key={module} to={`/${module}`}>
+                <ListItemText>{title}</ListItemText>
+              </ListItem>
+            ))}
           <ListItem>
             <ListItemText>
               <a href="https://github.com/NaridaL/workshop">Back to Github</a>

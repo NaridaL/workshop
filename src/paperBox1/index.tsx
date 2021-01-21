@@ -8,40 +8,20 @@ import useTheme from "@material-ui/core/styles/useTheme"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import fileDownload from "js-file-download"
 import * as React from "react"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import Lock from "@material-ui/icons/Lock"
 import LockOpen from "@material-ui/icons/LockOpen"
 
 import * as ReactDOMServer from "react-dom/server"
 import { BaseDrawing } from "./BaseDrawing"
 import Paper from "@material-ui/core/Paper"
-import { INCH } from "./common"
+import { INCH, PAPER_SIZE_A4, PAPER_SIZES } from "./common"
 import { MINUS, round10, TAU } from "ts3dutils"
 import { useHashState } from "./useHashState"
 
 import IconButton from "@material-ui/core/IconButton"
 import { Grid } from "@material-ui/core"
 
-type PaperSize = [width: number, height: number, name: string]
-const PAPER_SIZES: PaperSize[] = [
-  [841, 1189, "A0"],
-  [594, 841, "A1"],
-  [420, 594, "A2"],
-  [297, 420, "A3"],
-  [210, 297, "A4"],
-  [148, 210, "A5"],
-  [105, 148, "A6"],
-  [74, 105, "A7"],
-  [52, 74, "A8"],
-  [37, 52, "A9"],
-  [26, 37, "A10"],
-  [150, 150, "Origami 15cm"],
-  [100, 100, "Origami 10cm"],
-  [75, 75, "Origami 7.5cm"],
-  [215.9, 279.4, "Letter"],
-  [215.9, 355.6, "Legal"],
-]
-const PAPER_SIZE_A4 = PAPER_SIZES.find(([, , name]) => name.includes("A4"))!
 const openInNewTab = (url: string) => {
   const newWindow = window.open(url, "_blank", "noopener,noreferrer")
   if (newWindow) newWindow.opener = null
@@ -60,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default () => {
-  const [state, setState] = useHashState({
+  const [state, setStateUnchecked] = useHashState({
     width: PAPER_SIZE_A4[1],
     height: PAPER_SIZE_A4[0],
     sides: 6,
@@ -79,18 +59,28 @@ export default () => {
   // lockTopLip
   const topLipMax = Math.floor((height - state.bottomLip - 1) / 2)
   const [lockTopLip, setLockTopLip] = useState(true)
-  if (lockTopLip && topLipMax != state.topLip) {
-    setState((s) => ({ ...s, topLip: topLipMax }))
-  }
 
   // lockBottomLip
   const shapeAngle = TAU / state.sides
   const creaseAngle = shapeAngle / 2
   const bottomLipLockPos = round10(state.sideWidth / Math.tan(creaseAngle), -1)
   const [lockBottomLip, setLockBottomLip] = useState(false)
-  if (lockBottomLip && bottomLipLockPos != state.bottomLip) {
-    setState((s) => ({ ...s, bottomLip: bottomLipLockPos }))
-  }
+
+  const updateState = useCallback(
+    (partialState: Partial<typeof state>) => {
+      setStateUnchecked((s) => {
+        const newState = { ...s, ...partialState }
+        if (lockTopLip && topLipMax != state.topLip) {
+          newState.topLip = topLipMax
+        }
+        if (lockBottomLip && bottomLipLockPos != state.bottomLip) {
+          newState.bottomLip = bottomLipLockPos
+        }
+        return newState
+      })
+    },
+    [setStateUnchecked, lockTopLip, topLipMax, lockBottomLip, bottomLipLockPos],
+  )
 
   const theme = useTheme()
 
@@ -183,17 +173,15 @@ export default () => {
                 ;[min, max] = newValue
               }
               if (landscape) {
-                setState((s) => ({
-                  ...s,
+                updateState({
                   width: max,
                   height: min,
-                }))
+                })
               } else {
-                setState((s) => ({
-                  ...s,
+                updateState({
                   width: min,
                   height: max,
-                }))
+                })
               }
             }}
             getOptionLabel={(val) => {
@@ -208,11 +196,10 @@ export default () => {
                 checked={landscape}
                 onChange={() => {
                   // noinspection JSSuspiciousNameCombination
-                  setState((s) => ({
-                    ...s,
+                  updateState({
                     width: height,
                     height: width,
-                  }))
+                  })
                 }}
                 color="primary"
               />
@@ -225,9 +212,7 @@ export default () => {
             type="number"
             inputProps={{ step: 1, min: 3, max: 16 }}
             value={state.sides}
-            onChange={(e) =>
-              setState((s) => ({ ...s, sides: +e.target.value }))
-            }
+            onChange={(e) => updateState({ sides: +e.target.value })}
             label="Sides"
           />
           <TextField
@@ -236,12 +221,7 @@ export default () => {
             type="number"
             inputProps={{ step: 1, min: 1 }}
             value={state.sideWidth}
-            onChange={(e) =>
-              setState((s) => ({
-                ...s,
-                sideWidth: +e.target.value,
-              }))
-            }
+            onChange={(e) => updateState({ sideWidth: +e.target.value })}
             InputProps={{
               endAdornment: <InputAdornment position="end">mm</InputAdornment>,
             }}
@@ -253,9 +233,7 @@ export default () => {
             type="number"
             inputProps={{ step: 1, min: 0 }}
             value={state.theta}
-            onChange={(e) =>
-              setState((s) => ({ ...s, theta: +e.target.value }))
-            }
+            onChange={(e) => updateState({ theta: +e.target.value })}
             InputProps={{
               endAdornment: <InputAdornment position="end">mm</InputAdornment>,
             }}
@@ -272,14 +250,17 @@ export default () => {
               max: topLipMax,
             }}
             value={state.topLip}
-            onChange={(e) =>
-              setState((s) => ({ ...s, topLip: +e.target.value }))
-            }
+            onChange={(e) => updateState({ topLip: +e.target.value })}
             InputProps={{
               endAdornment: (
                 <>
                   <InputAdornment position="end">mm</InputAdornment>
-                  <IconButton onClick={() => setLockTopLip(!lockTopLip)}>
+                  <IconButton
+                    onClick={() => {
+                      setLockTopLip(!lockTopLip)
+                      updateState({})
+                    }}
+                  >
                     {lockTopLip ? <Lock color="primary" /> : <LockOpen />}
                   </IconButton>
                 </>
@@ -294,17 +275,17 @@ export default () => {
             type="number"
             inputProps={{ step: 1, min: 0 }}
             value={state.bottomLip}
-            onChange={(e) =>
-              setState((s) => ({
-                ...s,
-                bottomLip: +e.target.value,
-              }))
-            }
+            onChange={(e) => updateState({ bottomLip: +e.target.value })}
             InputProps={{
               endAdornment: (
                 <>
                   <InputAdornment position="end">mm</InputAdornment>
-                  <IconButton onClick={() => setLockBottomLip(!lockBottomLip)}>
+                  <IconButton
+                    onClick={() => {
+                      setLockBottomLip(!lockBottomLip)
+                      updateState({})
+                    }}
+                  >
                     {lockBottomLip ? <Lock color="primary" /> : <LockOpen />}
                   </IconButton>
                 </>

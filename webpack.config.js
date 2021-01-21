@@ -22,18 +22,18 @@ module.exports = {
       },
       {
         test: /\.glslx$|\.vert$|\.frag$/,
-        use: "raw-loader",
+        type: "asset/source",
       },
       {
-        test: /\.ttf$/,
-        use: "file-loader",
+        test: /\.(png|svg|jpg|jpeg|gif|ttf)$/i,
+        type: "asset/resource",
       },
     ],
   },
   plugins: [
     new HtmlPlugin({ template: "./index.html" }),
     new CopyPlugin({
-      patterns: [{ from: "404.html", to: "." }],
+      patterns: [{ from: "static", to: "." }],
     }),
   ],
   output: {
@@ -47,8 +47,8 @@ module.exports = {
         __dirname,
         "node_modules",
         "ts3dutils",
-        "dist",
-        "index.module.min",
+        "lib",
+        "index.es.min",
       ),
       tsgl: path.resolve(
         __dirname,

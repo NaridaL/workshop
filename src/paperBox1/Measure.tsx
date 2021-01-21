@@ -1,4 +1,4 @@
-import { DEG, V } from "ts3dutils"
+import { DEG, round10, V, V3 } from "ts3dutils"
 import * as React from "react"
 import { R2 } from "./common"
 
@@ -9,15 +9,18 @@ export function Measure({
   hideRight = false,
   offset = 0,
 }: {
-  from: R2
-  to: R2
-  children: string
+  from: R2 | V3
+  to: R2 | V3
+  children?: string
   hideRight?: boolean
   offset?: number
 }) {
-  const d = V(from).to(V(to))
+  Array.isArray(from) && (from = V(from))
+  Array.isArray(to) && (to = V(to))
+  const d = from.to(to)
   const length = d.length()
   if (length < 0.05) return null
+  children ||= "" + round10(length, -1)
   const textBlank = 3 * children.length
   return (
     <g
