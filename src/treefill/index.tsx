@@ -6,8 +6,8 @@ interface Head {
   dir: number
 }
 const [UP, RIGHT, DOWN, LEFT] = [0, 1, 2, 3]
-const FILLED: "FILLED" = "FILLED"
-const OPEN: "OPEN" = "OPEN"
+const FILLED = "FILLED" as const
+const OPEN = "OPEN" as const
 type GridStatus = "FILLED" | "OPEN"
 class QuadTreeFill {
   private readonly grid: boolean[]
@@ -48,5 +48,6 @@ function build() {
 }
 
 export default function () {
+  throw new Error("helloooo")
   return <div>hi</div>
 }

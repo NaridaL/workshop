@@ -1,33 +1,45 @@
+import Card from "@material-ui/core/Card"
+import CardContent from "@material-ui/core/CardContent"
+import Grid from "@material-ui/core/Grid"
+import Slider from "@material-ui/core/Slider"
+import makeStyles from "@material-ui/core/styles/makeStyles"
+import useTheme from "@material-ui/core/styles/useTheme"
+import TextField from "@material-ui/core/TextField"
+import * as chroma from "chroma.ts"
+import glslify from "glslify"
+import * as React from "react"
+import { ReactElement, useCallback, useEffect, useRef } from "react"
 import {
+  arrayFromFunction,
+  clamp,
+  DEG,
+  emod,
+  ilog,
+  int,
+  lerp,
+  lerpInv,
+  M4,
   V,
   V3,
-  arrayFromFunction,
-  lerp,
-  int,
-  bagRemoveIndex,
-  indexWithMax,
-  Tuple3,
-  unique,
-  withMax,
-  arraySwap,
-  clear,
-  DEG,
-  clamp,
-  M4,
-  removeIndexes,
-  emod,
 } from "ts3dutils"
-import { Mesh, Shader, Texture, TSGLContext } from "tsgl"
-import { Chromable, w3cx11 } from "chroma.ts"
-import * as chroma from "chroma.ts"
-import * as React from "react"
-import { useEffect, useRef } from "react"
+import { GL_COLOR, Mesh, Shader, Texture, TSGLContext } from "tsgl"
 
-const hfcDefault = chroma.color("blue").gl()
+import { useHashState } from "../paperBox1/useHashState"
+import { bandResult } from "./badidea"
 
-const gradients = arrayFromFunction(512, (i) =>
+const gradients = arrayFromFunction(512, () =>
   V3.polar(1, (Math.random() - 0.5) * 2 * Math.PI),
 )
+
+const initialState = {
+  xOffset: 0,
+  yOffset: 0,
+  xScale: 64,
+  yScale: 64,
+  bandCount: 2,
+  a: 0.5,
+}
+type State = typeof initialState
 
 const perlin = (x: number, y: number, o1: boolean) => {
   const x0 = x | 0
@@ -60,8 +72,6 @@ const perlin = (x: number, y: number, o1: boolean) => {
   return lerp(ny0, ny1, o1 ? smoothstep(y - y0) : y - y0)
 }
 
-const sleep = (ms: int) =>
-  new Promise((resolve, reject) => setTimeout(resolve, ms))
 function makeCubicGridMesh(cylinderMesh: Mesh) {
   const cylMeshes: Mesh[] = []
   for (let x = -5; x < 5; x++) {
@@ -86,14 +96,15 @@ function makeCubicGridMesh(cylinderMesh: Mesh) {
   const [first, ...rest] = cylMeshes
   return first.concat(...rest)
 }
+
 function makeTetrahedralGridMesh(cylinderMesh: Mesh) {
   const cylMeshes: Mesh[] = []
 
   const SIN60 = Math.sqrt(3) / 2
   const COS60 = Math.cos(Math.PI / 3)
-  // when a regular tetrahedron is viewed projectively so that two faces are perpendicular
-  // to the viewer, they make an isosceles triangle with sides 1, sin 60°, sin 60°.
-  // gamma is the angle between the two short sides.
+  // when a regular tetrahedron is viewed projectively so that two faces are
+  // perpendicular to the viewer, they make an isosceles triangle with sides
+  // 1, sin 60°, sin 60°. gamma is the angle between the two short sides.
   const gamma = 2 * Math.asin(1 / Math.sqrt(3))
   for (let x = -0; x < 2; x++) {
     for (let y = -0; y < 2; y++) {
@@ -139,10 +150,26 @@ function makeTetrahedralGridMesh(cylinderMesh: Mesh) {
   return first.concat(...rest)
 }
 
-export function quickhull(gl: TSGLContext & WebGL2RenderingContextStrict) {
+export const band = (
+  minValue: number,
+  maxValue: number,
+  bandCount: int,
+  value: number,
+): number =>
+  lerp(
+    minValue,
+    maxValue,
+    Math.floor(lerpInv(minValue, maxValue, value) * 4) / (4 - 1),
+  )
+
+function noises(
+  gl: TSGLContext & WebGL2RenderingContextStrict,
+  colors: { background: GL_COLOR; primary: GL_COLOR; secondary: GL_COLOR },
+  dynamicState: State,
+) {
   let o1 = true
-  const w = 1024,
-    h = 1024
+  const w = 512,
+    h = 512
   const data = new Uint8Array(w * h)
   const tex = new Texture(w, h, {
     format: gl.RED,
@@ -150,26 +177,44 @@ export function quickhull(gl: TSGLContext & WebGL2RenderingContextStrict) {
     internalFormat: gl.R8,
     // filter: gl.NEAREST,
   })
+  const gradientsTex = new Texture(256, 256, {
+    format: gl.RG,
+    type: gl.FLOAT,
+    internalFormat: gl.RG32F,
+    data: V3.packXY(
+      arrayFromFunction(256 * 256, () =>
+        V3.polar(1, (Math.random() - 0.5) * 2 * Math.PI),
+      ),
+    ),
+  })
   const redoTex = () => {
     let min = Infinity,
       max = -Infinity
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
         //data[y * w + x] = ((x + y) / (w + h - 2)) * 255
-        const perl = clamp((perlin(x / 64, y / 64, o1) + 0.5) * 0.8, 0, 1)
+        const perl = clamp(
+          (perlin(
+            dynamicState.xOffset + x / dynamicState.xScale,
+            dynamicState.yOffset + y / dynamicState.yScale,
+            o1,
+          ) +
+            0.5) *
+            0.8,
+          0,
+          1,
+        )
         const v = Math.random()
-        data[y * w + x] = 0.2 < perl && perl < 0.3 ? 0 : 254
+        data[y * w + x] = (Math.floor(perl * 4) / (4 - 1)) * 255
         max = Math.max(max, v)
         min = Math.min(min, v)
       }
     }
     data[0] = 0
-    console.log(data)
     tex.setData(data)
-    console.log("min,max", min, max)
   }
   redoTex()
-  const planeMesh = Mesh.plane()
+  const planeMesh = Mesh.plane({ detail: 128 })
   const sphereMesh = Mesh.sphere(0)
     .computeWireframeFromFlatTrianglesClosedMesh()
     .compile()
@@ -185,65 +230,157 @@ export function quickhull(gl: TSGLContext & WebGL2RenderingContextStrict) {
   // const cubeMesh = Mesh.cube()
   const shader = Shader.create<{ color: "FLOAT_VEC4"; pointSize: "FLOAT" }, {}>(
     `
-	  uniform mat4 ts_ModelViewProjectionMatrix;
-	  attribute vec4 ts_Vertex;
-	  uniform float pointSize;
-	  varying vec4 foo;
-	  void main() {
-		foo = vec4(1.0, 1.0, 1.0, 1.0);
-		gl_Position = ts_ModelViewProjectionMatrix * ts_Vertex;
-		gl_PointSize = pointSize;
-	  }
-	`,
+      uniform mat4 ts_ModelViewProjectionMatrix;
+      attribute vec4 ts_Vertex;
+      uniform float pointSize;
+      varying vec4 foo;
+      void main() {
+        foo = vec4(1.0, 1.0, 1.0, 1.0);
+        gl_Position = ts_ModelViewProjectionMatrix * ts_Vertex;
+        gl_PointSize = pointSize;
+      }
+    `,
     `
-	  precision highp float;
-	  uniform vec4 color;
-	  varying vec4 bar;
-	  void main() {
-		gl_FragColor = color;
-		if (length(gl_PointCoord - vec2(0.5, 0.5)) > 0.5) {
-		  discard;
-		}
-	  }
-	`,
+      precision highp float;
+      uniform vec4 color;
+      varying vec4 bar;
+      void main() {
+        gl_FragColor = color;
+        if (length(gl_PointCoord - vec2(0.5, 0.5)) > 0.5) {
+          discard;
+        }
+      }
+    `,
+  )
+
+  const perlinShader2 = Shader.create<
+    {
+      colorPrimary: "FLOAT_VEC4"
+      colorBg: "FLOAT_VEC4"
+      scale: "FLOAT_VEC2"
+      bandCount: "UNSIGNED_INT"
+    },
+    {}
+  >(
+    `#version 300 es
+      precision highp float;
+      
+      uniform mat4 ts_ModelViewProjectionMatrix;
+      in vec4 ts_Vertex;
+      uniform float pointSize;
+      uniform vec2 scale;
+      uniform vec2 offset;
+      in vec3 ts_TexCoordUVQ;
+      in vec2 ts_TexCoord;
+      out vec3 coordUVQ;
+      out float n;
+      out vec2 coord;
+      void main() {
+        vec2 texCoordAdjusted = offset + ts_TexCoord * scale;
+        n = 0.0;  
+        gl_Position = ts_ModelViewProjectionMatrix * 
+          (ts_Vertex + vec4(0.0, 0.0, n, 0.0));
+        gl_PointSize = pointSize;
+        coordUVQ = ts_TexCoordUVQ;
+        coord = texCoordAdjusted;
+      }
+  `,
+    `#version 300 es
+      precision highp float;
+      
+      ${bandResult}
+      
+      uniform sampler2D texture;
+      uniform vec4 colorPrimary;
+      uniform vec4 colorBg;
+      uniform int bandCount;
+      in float n;
+      in vec2 coord;
+      out vec4 fragColor;
+      void main() {
+        float fraction = (n + 0.5) * 0.5;
+        float banded = floor(fraction * float(bandCount)) / float(bandCount - 1);
+        fragColor = mix(colorBg, colorPrimary, banded);
+        
+        if (length(gl_PointCoord - vec2(0.5, 0.5)) > 0.5) {
+          discard;
+        }
+      }
+    `,
+  )
+  const perlinShader3 = Shader.create<
+    {
+      colorPrimary: "FLOAT_VEC4"
+      colorBg: "FLOAT_VEC4"
+      scale: "FLOAT_VEC2"
+      bandCount: "UNSIGNED_INT"
+    },
+    {}
+  >(
+    `#version 300 es
+      precision highp float;
+      
+      uniform mat4 ts_ModelViewProjectionMatrix;
+      in vec4 ts_Vertex;
+      uniform vec2 scale;
+      uniform vec2 offset;
+      in vec3 ts_TexCoordUVQ;
+      in vec2 ts_TexCoord;
+      out vec3 coordUVQ;
+      out float n;
+      out vec2 coord;
+      void main() {
+        vec2 texCoordAdjusted = offset + ts_TexCoord * scale;
+        gl_Position = ts_ModelViewProjectionMatrix * ts_Vertex;
+        coordUVQ = ts_TexCoordUVQ;
+        coord = texCoordAdjusted;
+      }
+  `,
+    require("./test.glsl"),
   )
   const texShader = Shader.create<
-    { color: "FLOAT_VEC4"; pointSize: "FLOAT"; texture: "SAMPLER_2D" },
+    {
+      colorPrimary: "FLOAT_VEC4"
+      colorBg: "FLOAT_VEC4"
+      pointSize: "FLOAT"
+      texture: "SAMPLER_2D"
+    },
     {}
   >(
     `
-	  uniform mat4 ts_ModelViewProjectionMatrix;
-	  attribute vec4 ts_Vertex;
-	  uniform float pointSize;
-	  attribute vec3 ts_TexCoordUVQ;
-	  attribute vec2 ts_TexCoord;
-	  varying vec4 foo;
-	  varying vec3 coordUVQ;
-	  varying vec2 coord;
-	  void main() {
-		foo = vec4(1.0, 1.0, 1.0, 1.0);
-		gl_Position = ts_ModelViewProjectionMatrix * ts_Vertex;
-		gl_PointSize = pointSize;
-		coordUVQ = ts_TexCoordUVQ;
-		coord = ts_TexCoord;
-	  }
-	`,
+      uniform mat4 ts_ModelViewProjectionMatrix;
+      attribute vec4 ts_Vertex;
+      uniform float pointSize;
+      attribute vec3 ts_TexCoordUVQ;
+      attribute vec2 ts_TexCoord;
+      varying vec4 foo;
+      varying vec3 coordUVQ;
+      varying vec2 coord;
+      void main() {
+        foo = vec4(1.0, 1.0, 1.0, 1.0);
+        gl_Position = ts_ModelViewProjectionMatrix * ts_Vertex;
+        gl_PointSize = pointSize;
+        coordUVQ = ts_TexCoordUVQ;
+        coord = ts_TexCoord;
+      }
+    `,
     `
-	  precision highp float;
-	  uniform sampler2D texture;
-	  uniform vec4 color;
-	  varying vec4 bar;
-	  varying vec3 coordUVQ;
-	  varying vec2 coord;
-	  void main() {
-		gl_FragColor = color;
-		gl_FragColor = texture2D(texture, coordUVQ.xy / coordUVQ.z).rrra
-			+ texture2D(texture, coord).rrra;
-		if (length(gl_PointCoord - vec2(0.5, 0.5)) > 0.5) {
-		  discard;
-		}
-	  }
-	`,
+      precision highp float;
+      uniform sampler2D texture;
+      uniform vec4 colorPrimary;
+      uniform vec4 colorBg;
+      varying vec4 bar;
+      varying vec3 coordUVQ;
+      varying vec2 coord;
+      void main() {
+        float fraction = texture2D(texture, coord).r;
+        gl_FragColor = mix(colorBg, colorPrimary, fraction);
+        
+        if (length(gl_PointCoord - vec2(0.5, 0.5)) > 0.5) {
+          discard;
+        }
+      }
+    `,
   )
 
   const viewState = {
@@ -268,7 +405,7 @@ export function quickhull(gl: TSGLContext & WebGL2RenderingContextStrict) {
   }
   loadViewState()
 
-  gl.clearColor(1, 1, 1, 0)
+  gl.clearColor(...colors.background)
   gl.cullFace(gl.BACK)
 
   // setup camera
@@ -289,11 +426,12 @@ export function quickhull(gl: TSGLContext & WebGL2RenderingContextStrict) {
   cam2()
   gl.pointSize(10)
 
-  gl.enable(gl.CULL_FACE)
+  //gl.enable(gl.CULL_FACE)
+  gl.disable(gl.CULL_FACE)
   gl.enable(gl.DEPTH_TEST)
   gl.enable(gl.BLEND)
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-  let pressedKeys: { [key: string]: boolean } = {}
+  const pressedKeys: { [key: string]: boolean | undefined } = {}
   console.log(gl.canvas)
   gl.canvas.contentEditable = "true" // make canvas focusable
   gl.canvas.focus()
@@ -319,8 +457,8 @@ export function quickhull(gl: TSGLContext & WebGL2RenderingContextStrict) {
   }
   let lastPos = V3.O
   let rot = M4.IDENTITY
-  let zRot: number = 0
-  let yRot: number = 0
+  const zRot = 0
+  const yRot = 0
   gl.canvas.onmousemove2 = function (e) {
     const pagePos = V(e.pageX, e.pageY)
     const delta = lastPos.to(pagePos)
@@ -348,87 +486,207 @@ export function quickhull(gl: TSGLContext & WebGL2RenderingContextStrict) {
     lastPos = pagePos
   }
 
-  return gl.animate(function (abs, _diff) {
-    const speed = new V3(
-      +!!pressedKeys.w - +!!pressedKeys.s,
-      +!!pressedKeys.a - +!!pressedKeys.d,
-      +!!pressedKeys.e - +!!pressedKeys.q + +!!pressedKeys[" "],
-    ).times(0.05)
-    if (!speed.likeO()) {
-      const lookDirZ = viewState.lookDir
+  return Object.assign(
+    gl.animate(function (abs, _diff) {
+      const speed = new V3(
+        +!!pressedKeys.w - +!!pressedKeys.s,
+        +!!pressedKeys.a - +!!pressedKeys.d,
+        +!!pressedKeys.e - +!!pressedKeys.q + +!!pressedKeys[" "],
+      ).times(0.05)
+      if (!speed.likeO()) {
+        const lookDirZ = viewState.lookDir
 
-      viewState.pos = viewState.pos.plus(
-        M4.forSys(lookDirZ, V3.Y.cross(lookDirZ).unit()).transformVector(speed),
-      )
-      saveViewState()
-    }
-    gl.matrixMode(gl.PROJECTION)
-    gl.loadIdentity()
-    gl.perspective(70, gl.canvas.width / gl.canvas.height, 0.1, 1000)
-    gl.lookAt(viewState.pos, viewState.pos.plus(viewState.lookDir), V3.Y)
-    gl.matrixMode(gl.MODELVIEW)
+        viewState.pos = viewState.pos.plus(
+          M4.forSys(lookDirZ, V3.Y.cross(lookDirZ).unit()).transformVector(
+            speed,
+          ),
+        )
+        saveViewState()
+      }
+      gl.matrixMode(gl.PROJECTION)
+      gl.loadIdentity()
+      gl.perspective(70, gl.canvas.width / gl.canvas.height, 0.1, 1000)
+      gl.lookAt(viewState.pos, viewState.pos.plus(viewState.lookDir), V3.Y)
+      gl.matrixMode(gl.MODELVIEW)
 
-    // const angleDeg = (abs / 1000) * 10
-    // const angleDeg = 0
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-    gl.loadIdentity()
-    // gl.rotate(yRot / DEG, 0, 1, 0)
-    // gl.rotate(-zRot / DEG, 0, 0, 1)
-    //gl.multMatrix(rot)
+      // const angleDeg = (abs / 1000) * 10
+      // const angleDeg = 0
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+      gl.loadIdentity()
+      // gl.rotate(yRot / DEG, 0, 1, 0)
+      // gl.rotate(-zRot / DEG, 0, 0, 1)
+      //gl.multMatrix(rot)
 
-    gl.pushMatrix()
+      gl.pushMatrix()
 
-    gl.translate(0.25, -0.5, 0)
-    shader
-      .uniforms({ color: chroma.css("red").gl(), pointSize: 12 })
-      .draw(planeMesh, gl.LINES)
-    tex.bind(0)
-    texShader
-      .uniforms({ color: chroma.css("red").gl(), pointSize: 12, texture: 0 })
-      .draw(planeMesh)
+      gl.translate(0.25, -0.5, 0)
+      // shader
+      //   .uniforms({ color: colors.primary, pointSize: 12 })
+      //   .draw(planeMesh, gl.LINES)
+      tex.bind(0)
+      gradientsTex.bind(1)
+      perlinShader3
+        .uniforms({
+          a: dynamicState.a,
+          colorPrimary: colors.primary,
+          colorSecondary: colors.secondary,
+          colorBg: colors.background,
+          scale: [dynamicState.xScale, dynamicState.yScale],
+          offset: [dynamicState.xOffset, dynamicState.yOffset],
+          bandCount: dynamicState.bandCount,
+          highResTimeStamp: abs,
+          gradients: 1,
+        })
+        .draw(planeMesh)
 
-    gl.popMatrix()
-    gl.pushMatrix()
+      gl.popMatrix()
+      gl.pushMatrix()
 
-    gl.translate(-0.75, 0, 0)
-    gl.scale(0.5)
-    gl.rotate(-90, 1, 0, 0)
-    texShader
-      .uniforms({ color: chroma.css("red").gl(), pointSize: 12, texture: 0 })
-      .draw(sphereMesh)
-    shader
-      .uniforms({ color: chroma.css("red").gl(), pointSize: 12 })
-      .draw(sphereMesh, gl.LINES)
-    gl.popMatrix()
+      gl.translate(-0.75, 0, 0)
+      gl.scale(0.5)
+      gl.rotate(-90, 1, 0, 0)
+      perlinShader3
+        .uniforms({
+          colorPrimary: colors.primary,
+          colorBg: colors.background,
+          pointSize: 12,
+          texture: 0,
+        })
+        .draw(sphereMesh)
+      shader
+        .uniforms({ color: colors.primary, pointSize: 12 })
+        .draw(sphereMesh, gl.LINES)
+      gl.popMatrix()
 
-    shader.uniforms({ color: chroma.css("blue").gl() }).draw(cubicGridMesh)
+      // shader.uniforms({ color: colors.secondary }).draw(cubicGridMesh)
 
-    //shader
-    // .uniforms({
-    //  color: chroma.css("grey").gl(),
-    // pointSize: 10,
-    // })
-    //.drawBuffers(pointMesh.vertexBuffers, undefined, gl.POINTS)
-    //shader.uniforms({ color: [1, 1, 0, 1] }).draw(pointMesh, gl.LINES)
-    //shader.uniforms({ color: [0, 0, 0, 0.5] }).draw(pointMesh, gl.TRIANGLES)
-    // gl.pushMatrix()
-    //gl.translate(30, 0, 0)
-  })
+      //shader
+      // .uniforms({
+      //  color: chroma.css("grey").gl(),
+      // pointSize: 10,
+      // })
+      //.drawBuffers(pointMesh.vertexBuffers, undefined, gl.POINTS)
+      //shader.uniforms({ color: [1, 1, 0, 1] }).draw(pointMesh, gl.LINES)
+      //shader.uniforms({ color: [0, 0, 0, 0.5] }).draw(pointMesh,
+      // gl.TRIANGLES) gl.pushMatrix() gl.translate(30, 0, 0)
+    }),
+    {
+      redoTex,
+    },
+  )
 }
 
-export default () => {
+const useStyles = makeStyles((theme) => ({
+  sidebar: {
+    display: "flex",
+    flexDirection: "column",
+    width: 256,
+    padding: theme.spacing(1),
+    alignItems: "stretch",
+    "& > *": {
+      margin: theme.spacing(1),
+    },
+  },
+  media: {
+    height: 0,
+    paddingTop: "100%", // 1:1
+  },
+}))
+
+function BoundNumberField<T extends string>({
+  state,
+  prop,
+  setStatePartial,
+  ...props
+}: {
+  state: Record<T, number>
+  prop: T
+  setStatePartial: (newPartialState: Record<T, number>) => void
+}) {
+  return (
+    <TextField
+      variant="outlined"
+      size="small"
+      type="number"
+      value={state[prop]}
+      onChange={(e) =>
+        setStatePartial({ [prop]: +e.target.value } as Record<T, number>)
+      }
+      label={prop}
+      {...props}
+    />
+  )
+}
+
+export default (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  const [state, setState] = useHashState(initialState)
+  const setStatePartial = useCallback(
+    (o) => setState((s) => ({ ...s, ...o })),
+    [setState],
+  )
+  const redoTex = useRef<() => void>()
+  const fluid = useRef(Object.assign({}, state))
+
+  const classes = useStyles()
+  const theme = useTheme()
   useEffect(() => {
     const tsgl = TSGLContext.create({ canvas: canvasRef.current! })
     tsgl.fixCanvasRes()
     tsgl.addResizeListener()
-    quickhull(tsgl)
-  }, [])
+    redoTex.current = noises(
+      tsgl,
+      {
+        background: chroma.css(theme.palette.background.default).gl(),
+        primary: chroma.css(theme.palette.primary.main).gl(),
+        secondary: chroma.css(theme.palette.secondary.main).gl(),
+      },
+      fluid.current,
+    ).redoTex
+  }, [
+    theme.palette.background.default,
+    theme.palette.primary.main,
+    theme.palette.secondary.main,
+  ])
+
+  useEffect(() => {
+    Object.assign(fluid.current, state)
+    // redoTex.current!()
+  }, [state])
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <canvas ref={canvasRef} style={{ flexGrow: 1 }} tabIndex={0}></canvas>
-    </div>
+    <Grid container style={{ height: "99%" }}>
+      <Grid item xs={12} md={9}>
+        <div style={{ height: "100%" }}>
+          <canvas
+            ref={canvasRef}
+            style={{ width: "100%", height: "100%" }}
+            tabIndex={0}
+          />
+        </div>
+      </Grid>
+      <Grid item xs={12} md={3} className={classes.sidebar}>
+        <Card>
+          <CardContent>
+            Test with various noise generation functions.
+          </CardContent>
+        </Card>
+        <BoundNumberField {...{ state, setStatePartial }} prop="xOffset" />
+        <BoundNumberField {...{ state, setStatePartial }} prop="yOffset" />
+        <BoundNumberField {...{ state, setStatePartial }} prop="xScale" />
+        <BoundNumberField {...{ state, setStatePartial }} prop="yScale" />
+        <BoundNumberField {...{ state, setStatePartial }} prop="bandCount" />
+        <div>
+          <Slider
+            value={state.a}
+            onChange={(e, a) => setStatePartial({ a })}
+            min={0}
+            max={1}
+            step={0.01}
+          />
+        </div>
+      </Grid>
+    </Grid>
   )
 }

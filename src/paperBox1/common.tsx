@@ -1,19 +1,27 @@
-import { arrayRange, DEG, int, raddd, round10, TAU, V3 } from "ts3dutils"
-import { SVGCommand } from "svg-pathdata/src/types"
-import { ReactNode, SVGProps } from "react"
-import { encodeSVGPath, SVGPathData } from "svg-pathdata"
+import { ReactElement, ReactNode, SVGProps } from "react"
 import * as React from "react"
+import { encodeSVGPath, SVGPathData } from "svg-pathdata"
+import { SVGCommand } from "svg-pathdata/src/types"
+import { arrayRange, DEG, int, raddd, round10, TAU, V3 } from "ts3dutils"
 
 export const INCH = 25.4
-export const fmtdeg = (x: raddd) => "" + round10(x / DEG, -1) + "°"
+export const fmtdeg = (x: raddd): string => "" + round10(x / DEG, -1) + "°"
 export type R2 = [number, number]
 
-export const radiusFromSideWidth = (sides: int, sideWidth: number) =>
+export const radiusFromSideWidth = (sides: int, sideWidth: number): number =>
   sideWidth / 2 / Math.sin(TAU / sides / 2)
-export const centerToSideFromSideWidth = (sides: int, sideWidth: number) =>
-  sideWidth / 2 / Math.tan(TAU / sides / 2)
-export const radiusFromCenterToSide = (sides: int, centerToSide: number) =>
-  centerToSide / Math.cos(TAU / sides / 2)
+export const centerToSideFromSideWidth = (
+  sides: int,
+  sideWidth: number,
+): number => sideWidth / 2 / Math.tan(TAU / sides / 2)
+export const radiusFromCenterToSide = (
+  sides: int,
+  centerToSide: number,
+): number => centerToSide / Math.cos(TAU / sides / 2)
+export const sideWidthFromCenterToSide = (
+  sides: int,
+  centerToSide: number,
+): number => centerToSide * 2 * Math.tan(TAU / sides / 2)
 
 export function Path({
   d,
@@ -31,7 +39,7 @@ export function RegularPolygon({
   sides: int
   radius: number
   startAngle?: number
-} & Omit<SVGProps<SVGPathElement>, "d">) {
+} & Omit<SVGProps<SVGPathElement>, "d">): ReactElement {
   const { x, y } = V3.polar(radius, startAngle)
   return (
     <Path
@@ -65,7 +73,7 @@ export function RotStep({
   children: ReactNode
   count: int
   stepDeg: number
-}) {
+}): ReactElement {
   return (
     <>
       <g id={id}>{children}</g>
@@ -98,6 +106,24 @@ export const PAPER_SIZES: PaperSize[] = [
   [215.9, 279.4, "Letter"],
   [215.9, 355.6, "Legal"],
 ]
+
 export const PAPER_SIZE_A4 = PAPER_SIZES.find(([, , name]) =>
   name.includes("A4"),
 )!
+export function dTpl(
+  strings: TemplateStringsArray,
+  ...exps: (number | V3)[]
+): string {
+  const format = (x: number | V3) =>
+    "number" === typeof x ? "" + x : x.x + "," + x.y
+  let result = strings[0]
+  for (let i = 0; i < exps.length; i++) {
+    result += format(exps[i])
+    result += strings[i + 1]
+  }
+  return result
+}
+export const openInNewTab = (url: string) => {
+  const newWindow = window.open(url, "_blank", "noopener,noreferrer")
+  if (newWindow) newWindow.opener = null
+}

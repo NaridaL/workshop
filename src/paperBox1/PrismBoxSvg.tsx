@@ -1,16 +1,7 @@
-import { encodeSVGPath, SVGPathData } from "svg-pathdata"
-import {
-  arrayFromFunction,
-  arrayRange,
-  DEG,
-  int,
-  round10,
-  TAU,
-  V,
-  V3,
-} from "ts3dutils"
 import * as React from "react"
-import { CSSProperties } from "react"
+import { CSSProperties, ReactElement } from "react"
+import { encodeSVGPath, SVGPathData } from "svg-pathdata"
+import { arrayRange, DEG, round10, TAU, V, V3 } from "ts3dutils"
 
 import {
   centerToSideFromSideWidth,
@@ -21,7 +12,7 @@ import {
 import { Measure } from "./Measure"
 import { MeasureAngle } from "./MeasureAngle"
 
-export function BaseDrawing({
+export function PrismBoxSvg({
   height,
   width,
   topLip = 100,
@@ -41,7 +32,7 @@ export function BaseDrawing({
   sides: number
   print?: boolean
   style?: CSSProperties
-}) {
+}): ReactElement {
   const shapeAngle = TAU / sides
   const creaseAngle = shapeAngle / 2
   const maxBottomLip = sideWidth / Math.tan(creaseAngle)
@@ -140,7 +131,7 @@ export function BaseDrawing({
     ? [0, 0, width, height]
     : [-10, -10, width + 20, height + 30]
 
-  let firstIntersect = bottomLip * Math.tan(theta)
+  const firstIntersect = bottomLip * Math.tan(theta)
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -153,6 +144,7 @@ export function BaseDrawing({
       width={print ? width * (96 / INCH) : svgViewBox[2] + "mm"}
       height={print ? height * (96 / INCH) : svgViewBox[3] + "mm"}
       viewBox={svgViewBox.join(" ")}
+      className="adrian"
     >
       <defs>
         <pattern id="glue" patternUnits="userSpaceOnUse" width="4" height="4">

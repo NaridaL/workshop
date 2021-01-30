@@ -1,1 +1,1 @@
-(self.webpackChunkworkshop=self.webpackChunkworkshop||[]).push([[910],{817:(e,s,r)=>{"use strict";r.r(s),r.d(s,{default:()=>u});var t=r(9526);r(2182);const[l,i,n,o]=[0,1,2,3];function u(){return t.createElement("div",{__self:this,__source:{fileName:"C:\\Users\\aval\\tsdev\\workshop\\src\\treefill\\index.tsx",lineNumber:51}},"hi")}}}]);
+(self.webpackChunkworkshop=self.webpackChunkworkshop||[]).push([[910],{817:(o,e,r)=>{"use strict";r.r(e),r.d(e,{default:()=>t}),r(9526),r(2182);const[s,h,k,n]=[0,1,2,3];function t(){throw new Error("helloooo")}}}]);

@@ -1,15 +1,16 @@
-import { TSGLContext, Mesh, Shader, Texture } from "tsgl"
-import * as chroma from "chroma.ts"
-import sleep from "sleep-promise"
-import { V, mod, M4, V3 } from "ts3dutils"
+import useTheme from "@material-ui/core/styles/useTheme"
 import { assert } from "chai"
-import { load, Font } from "opentype.js"
+import * as chroma from "chroma.ts"
+import { Font, load } from "opentype.js"
 import * as React from "react"
-import { useEffect, useRef } from "react"
+import { ReactElement, useEffect, useRef } from "react"
+import sleep from "sleep-promise"
+import { M4, V } from "ts3dutils"
+import { GL_COLOR, Mesh, Shader, Texture, TSGLContext } from "tsgl"
 
 import directVS from "./directVS.vert"
-import oleo from "./OleoScript-Bold.ttf"
 import FS from "./FS.frag"
+import oleo from "./OleoScript-Bold.ttf"
 import stepFS from "./step.frag"
 
 type int = number
@@ -68,7 +69,6 @@ const andNeighbors = async (
 //  --------------------> X
 
 const SQRT3_2 = Math.sqrt(3) / 2
-const ilog = (x: any) => (console.log(x), x)
 
 const oddr_to_px = (col: int, row: int) => {
   const x = col + 0.5 * (row & 1)
@@ -103,7 +103,7 @@ const oddr_to_cube = (col: int, row: int): [int, int, int] => {
 
 const loadFont = (url: string): Promise<Font> =>
   new Promise((resolve, reject) => {
-    load(url, (error, font) => (error ? reject(error) : resolve(font)))
+    load(url, (error, font) => (error ? reject(error) : resolve(font!)))
   })
 
 assert.deepEqual(oddr_to_cube(0, 0), [0, 0, -0])
@@ -228,7 +228,7 @@ class HexSand {
     // svg.appendChild(canvas)
     // document.body.appendChild(svg)
     const offset = oddr_to_px(oddr_cx, oddr_cy).minus(pathBBSize.div(2))
-    var p = context.getImageData(0, 0, canvas.width, canvas.height).data
+    const p = context.getImageData(0, 0, canvas.width, canvas.height).data
     for (let i = 0; i < this.h * this.w; i++) {
       const x = i % this.w
       const y = (i / this.w) | 0
@@ -459,10 +459,10 @@ class HexSand {
 }
 
 const colorFg = chroma.scale("white", "green").mode("rgb").colors(10, "gl")
-const colorBg = chroma.color("F4F4ED").gl()
-async function setup(canvas: HTMLCanvasElement) {
+async function setup(canvas: HTMLCanvasElement, colorBg: GL_COLOR) {
   const gl: TSGLContext & WebGL2RenderingContextStrict = TSGLContext.create({
     canvas,
+    throwOnError: true,
   }) as any
 
   console.log("gl", gl)
@@ -486,6 +486,7 @@ async function setup(canvas: HTMLCanvasElement) {
   }
 
   const aspect = gl.canvas.width / gl.canvas.height
+  gl.addResizeListener()
   console.log("aspect", aspect)
 
   field.fill(SINK)
@@ -506,7 +507,6 @@ async function setup(canvas: HTMLCanvasElement) {
     .scale(2)
     .scale(1, -1, 1)
     .scale(1 / aspect, 1, 1)
-  console.log("mm\n" + mm.str)
   //   field.drawRect(200, 100, 4)
   // field.drawCircle(0, 50, 0)
   // field.drawTriangle(50, 65, 0)
@@ -589,23 +589,6 @@ async function setup(canvas: HTMLCanvasElement) {
 
   console.log("aspect", aspect)
 
-  const stabilizeIa = async () => {
-    while (field.countUnstable() > 0) {
-      for (let i = 0; i < 1000; i++) {
-        for (let ss = 0; ss < 1; ss++) {
-          texture2.drawTo((gl) => {
-            texture.bind(0)
-            stepShader.uniforms({ heights: 0 }).draw(stepPlane)
-          })
-          texture.swapWith(texture2)
-        }
-        await sleep(10)
-      }
-      texture.downloadData(field.data)
-      console.log("stabilize", field.countUnstable(), await field.calcHash())
-    }
-  }
-
   const naive = async () => {
     field.fill(10)
     field.upload()
@@ -621,28 +604,16 @@ async function setup(canvas: HTMLCanvasElement) {
     const zero = field.clone()
     console.log("zero hash", await zero.calcHash())
     return
-
-    field.fillf(() => (5 + Math.random() * 3) | 0)
-    await stabilize()
-    const testF = field.clone()
-    console.log("testF hash", await testF.calcHash())
-    await sleep(2000)
-
-    console.log("add zero")
-    field.plusHS(zero)
-    await sleep(2000)
-    await field.asyncStabilize()
-
-    console.log("testF + zero hash", await field.calcHash())
   }
-  //   naive()
 }
-export default () => {
+export default (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  const theme = useTheme()
+
   useEffect(() => {
-    setup(canvasRef.current!)
-  }, [])
+    setup(canvasRef.current!, chroma.css(theme.palette.background.default).gl())
+  }, [theme.palette.background.default])
 
   const width = 32
 
@@ -664,7 +635,7 @@ export default () => {
         style={{
           padding: 4,
           display: "flex",
-          backgroundColor: chroma.gl(colorBg).css(),
+          backgroundColor: theme.palette.background.default,
         }}
       >
         {colorFg.map((value, index) => (
@@ -697,7 +668,7 @@ export default () => {
                 justifyContent: "center",
               }}
             >
-              {index}
+              {index === 9 ? "9+" : index}
             </div>
             <div
               style={{
@@ -707,7 +678,7 @@ export default () => {
                   width / 2
                 }px`,
               }}
-            ></div>
+            />
           </div>
         ))}
         {/* <Tooltip title="Calculate Recuring Inverse">
@@ -716,8 +687,6 @@ export default () => {
 		 */}
         <div style={{ textAlign: "right", padding: 10, flexGrow: 1 }}>
           <a href="http://people.reed.edu/~davidp/grant/">Original (square)</a>{" "}
-          by <a href="http://people.reed.edu/~davidp/">Prof. David Perkinson</a>
-          .{" "}
           <a href="https://www.youtube.com/watch?v=1MtEUErz7Gg">
             Explanatory video
           </a>

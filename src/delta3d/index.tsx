@@ -1,30 +1,30 @@
-import {
-  V,
-  V3,
-  arrayFromFunction,
-  lerp,
-  int,
-  bagRemoveIndex,
-  indexWithMax,
-  Tuple3,
-  unique,
-  withMax,
-  arraySwap,
-  clear,
-  DEG,
-  clamp,
-  M4,
-  removeIndexes,
-  emod,
-  PI,
-  TAU,
-  assert,
-} from "ts3dutils"
-import { Mesh, Shader, Texture, TSGLContext, Buffer } from "tsgl"
 import { Chromable, w3cx11 } from "chroma.ts"
 import * as chroma from "chroma.ts"
 import * as React from "react"
 import { useEffect, useRef } from "react"
+import {
+  arrayFromFunction,
+  arraySwap,
+  assert,
+  bagRemoveIndex,
+  clamp,
+  clear,
+  DEG,
+  emod,
+  indexWithMax,
+  int,
+  lerp,
+  M4,
+  PI,
+  removeIndexes,
+  TAU,
+  Tuple3,
+  unique,
+  V,
+  V3,
+  withMax,
+} from "ts3dutils"
+import { Buffer, Mesh, Shader, Texture, TSGLContext } from "tsgl"
 
 const hfcDefault = chroma.color("blue").gl()
 
@@ -198,7 +198,7 @@ export function quickhull(gl: TSGLContext) {
   const spindles: SGN[] = []
   const zAssemblyJoinPoints: SGN[] = []
   const platformJoinPoints: SGN[] = []
-  let joints: SGN[] = []
+  const joints: SGN[] = []
   let platform!: SGN
   const bars: SGN[] = []
   tree.add(
@@ -276,7 +276,7 @@ export function quickhull(gl: TSGLContext) {
     tree.getTransform(zAssemblies[i]).transformPoint(V(-2.5, 0, 0)).xy(),
   ) as [V3, V3, V3]
   function fixJoints() {
-    ;[0, 1, 2].forEach((i) => {
+    [0, 1, 2].forEach((i) => {
       zAssemblies[i].transform = M4.translate(0, 0, viewState.axisPoss[i])
       spindles[i].transform = M4.scale(1, 0.5, 0.5)
         .rotateX((TAU * -viewState.axisPoss[i]) / 0.2)
@@ -381,7 +381,7 @@ export function quickhull(gl: TSGLContext) {
   gl.enable(gl.DEPTH_TEST)
   gl.enable(gl.BLEND)
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-  let pressedKeys: { [key: string]: boolean } = {}
+  const pressedKeys: { [key: string]: boolean } = {}
   console.log(gl.canvas)
   gl.canvas.contentEditable = "true" // make canvas focusable
   gl.canvas.focus()
@@ -403,8 +403,8 @@ export function quickhull(gl: TSGLContext) {
   }
   let lastPos = V3.O
   let rot = M4.IDENTITY
-  let zRot: number = 0
-  let yRot: number = 0
+  const zRot = 0
+  const yRot = 0
   gl.canvas.onmousemove2 = function (e) {
     const pagePos = V(e.pageX, e.pageY)
     const delta = lastPos.to(pagePos)

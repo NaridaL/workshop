@@ -1,26 +1,23 @@
-import {
-  V,
-  V3,
-  arrayFromFunction,
-  lerp,
-  int,
-  bagRemoveIndex,
-  indexWithMax,
-  Tuple3,
-  unique,
-  withMax,
-  arraySwap,
-  clear,
-  DEG,
-  clamp,
-  M4,
-  removeIndexes,
-} from "ts3dutils"
-import { Mesh, Shader, Texture, TSGLContext, GL_COLOR } from "tsgl"
-import { Chromable, w3cx11 } from "chroma.ts"
+import { Chromable } from "chroma.ts"
 import * as chroma from "chroma.ts"
 import * as React from "react"
 import { useEffect, useRef } from "react"
+import {
+  arrayFromFunction,
+  arraySwap,
+  bagRemoveIndex,
+  clamp,
+  DEG,
+  int,
+  M4,
+  removeIndexes,
+  Tuple3,
+  unique,
+  V,
+  V3,
+  withMax,
+} from "ts3dutils"
+import { GL_COLOR, Mesh, Shader, TSGLContext } from "tsgl"
 
 // export function text(text: string, size: number, depth: number = 1, font: opentype.Font = defaultFont) {
 
@@ -290,7 +287,7 @@ function* quickHullAnnotated(points: V3[]): Generator<AnnotationResult> {
   return facets.flatMap((f) => f.triangle)
 }
 
-function magic(gl: TSGLContext) {
+function magic(gl: TSGLContext): () => void {
   // const cubeMesh = Mesh.cube()
   const points = arrayFromFunction(100, () => V3.random())
   // const points = arrayFromFunction(10000, () => {
@@ -302,10 +299,10 @@ function magic(gl: TSGLContext) {
   //   return p
   // })
   // V3.randomUnit().times(lerp(0.3, 0.7, Math.random())))
-  let pointMesh = new Mesh().addIndexBuffer("TRIANGLES")
+  const pointMesh = new Mesh().addIndexBuffer("TRIANGLES")
   pointMesh.vertices.push(...points)
   pointMesh.TRIANGLES.push(...index(points))
-  let pointMesh2 = pointMesh.computeWireframeFromFlatTriangles()
+  const pointMesh2 = pointMesh.computeWireframeFromFlatTriangles()
   console.log(pointMesh2.LINES)
   pointMesh2.compile()
   const shader = Shader.create<{ color: "FLOAT_VEC4"; pointSize: "FLOAT" }, {}>(
@@ -380,7 +377,9 @@ export function quickhull(gl: TSGLContext) {
       .plus(V3.XYZ)
       .times(1 / 2),
   )
-  let startMesh = new Mesh().addIndexBuffer("TRIANGLES").addIndexBuffer("LINES")
+  const startMesh = new Mesh()
+    .addIndexBuffer("TRIANGLES")
+    .addIndexBuffer("LINES")
   startMesh.vertices = points
   const state: {
     description: string
@@ -463,8 +462,8 @@ export function quickhull(gl: TSGLContext) {
   }
   let lastPos = V3.O
   let rot = M4.IDENTITY
-  let zRot: number = 0
-  let yRot: number = 0
+  const zRot = 0
+  const yRot = 0
   gl.canvas.onmousemove = function (e) {
     console.log("onmousemove")
     const pagePos = V(e.pageX, e.pageY)

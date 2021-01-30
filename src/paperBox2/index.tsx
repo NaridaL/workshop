@@ -1,28 +1,28 @@
-import TextField from "@material-ui/core/TextField"
-import Autocomplete from "@material-ui/lab/Autocomplete"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
-import CardActionArea from "@material-ui/core/CardActionArea"
 import CardContent from "@material-ui/core/CardContent"
 import CardMedia from "@material-ui/core/CardMedia"
-import Checkbox from "@material-ui/core/Checkbox"
+import Divider from "@material-ui/core/Divider"
 import FormControl from "@material-ui/core/FormControl"
-import FormControlLabel from "@material-ui/core/FormControlLabel"
+import Grid from "@material-ui/core/Grid"
 import InputLabel from "@material-ui/core/InputLabel"
+import Link from "@material-ui/core/Link"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
-import useTheme from "@material-ui/core/styles/useTheme"
 import makeStyles from "@material-ui/core/styles/makeStyles"
+import TextField from "@material-ui/core/TextField"
+import Tooltip from "@material-ui/core/Tooltip"
 import fileDownload from "js-file-download"
 import * as React from "react"
-import { MINUS, round10 } from "ts3dutils"
+import { ReactElement, useCallback, useState } from "react"
 import * as ReactDOMServer from "react-dom/server"
 
-import insideFoldsJpg from "./insideFolds.jpg"
-import { InsideFolds } from "./InsideFolds"
-import { OutsideFolds } from "./OutsideFolds"
+import { PAPER_SIZE_A4, PaperSize } from "../paperBox1/common"
+import { PaperAutocomplete } from "../paperBox1/PaperAutocomplete"
 import { useHashState } from "../paperBox1/useHashState"
-import { INCH, PAPER_SIZE_A4, PAPER_SIZES } from "../paperBox1/common"
+import { InsideFolds } from "./InsideFolds"
+import insideFoldsJpg from "./insideFolds.jpg"
+import { OutsideFolds } from "./OutsideFolds"
 
 const useStyles = makeStyles((theme) => ({
   sidebar: {
@@ -36,20 +36,26 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   media: {
-    height: "200px",
+    height: 0,
+    paddingTop: "100%", // 1:1
   },
 }))
 
-export default () => {
+export default (): ReactElement => {
   const [state, setState] = useHashState({
     variant: "inside" as "inside" | "outside",
-    baseRadius: 20,
-    topRadius: 60,
+    baseRadius: 30,
+    topRadius: 65,
     radius: 100,
-    sides: 6,
+    sides: 8,
   })
+  const setPartialState = useCallback(
+    (update: Partial<typeof state>) => setState((s) => ({ ...s, ...update })),
+    [setState],
+  )
+  const [paperSize, setPaperSize] = useState(null as PaperSize | null)
 
-  const BaseDrawing: typeof InsideFolds = {
+  const BaseDrawing: typeof OutsideFolds = {
     inside: InsideFolds,
     outside: OutsideFolds,
   }[state.variant]
@@ -58,7 +64,10 @@ export default () => {
 
   const getPrintSVG = () =>
     ReactDOMServer.renderToStaticMarkup(
-      <BaseDrawing {...{ ...state, sides: state.sides, print: true }} />,
+      <BaseDrawing
+        {...{ ...state, sides: state.sides, print: true }}
+        paperSize={paperSize}
+      />,
     ).replace(/\s{2,}/g, " ")
   const baseFileName = `${state.variant}-${state.baseRadius}-${state.topRadius}-${state.radius}-${state.sides}`
   const asSVG = () => {
@@ -72,10 +81,6 @@ export default () => {
 
     // add your content to the document here, as usual
     const blob = await svgToPdf({
-      size: ([state.radius * 2, state.radius * 2] as [number, number])
-        .sort(MINUS)
-        .map((x) => round10(x * (72 / INCH), -2)),
-      layout: "landscape",
       title: "Paper Box Template",
       author: "Adrian Leonhard",
       svg: getPrintSVG(),
@@ -85,80 +90,27 @@ export default () => {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
-      <BaseDrawing {...state} style={{ width: "100%", height: "100%" }} />
-      <div className={classes.sidebar}>
+    <Grid container style={{ width: "100%" }}>
+      <Grid item xs={12} md={10}>
+        <BaseDrawing
+          {...state}
+          paperSize={paperSize}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </Grid>
+      <Grid item xs={12} md={2} className={classes.sidebar}>
         <Card>
-          <CardActionArea>
-            <CardMedia
-              className={classes.media}
-              image={insideFoldsJpg}
-              title="Contemplative Reptile"
-            />
-            <CardContent>
-              Helper to build{" "}
-              <a href="https://www.paperkawaii.com/video-tutorial-origami-hexagonal-gift-box/">
-                this
-              </a>{" "}
-              box. All measurements are in millimeters. To make a lid, you
-              should increase the sideWidth by 1mm and ~halve the paper height.
-            </CardContent>
-          </CardActionArea>
+          <CardMedia
+            className={classes.media}
+            image={insideFoldsJpg}
+            title="Contemplative Reptile"
+          />
+          <CardContent>
+            Helper to build a box from a circular piece of paper. The Inside
+            Folds variant has more difficult folds but has a cleaner overall
+            look.
+          </CardContent>
         </Card>
-        <Autocomplete
-          disableClearable
-          size="small"
-          freeSolo
-          renderInput={(params) => (
-            <TextField {...params} label="Paper Size" variant="outlined" />
-          )}
-          value={PAPER_SIZE_A4}
-          onChange={(e, newValue) => {
-            let min: number, max: number
-            if ("string" === typeof newValue) {
-              const regex = /(\d+(?:\.\d+)?).*?(\d+(?:\.\d+)?)/
-              const [, widthStr, heightStr] = regex.exec(newValue)!
-              ;[min, max] = [+widthStr, +heightStr].sort(MINUS)
-            } else {
-              ;[min, max] = newValue
-            }
-            if (landscape) {
-              setState((s) => ({
-                ...s,
-                width: max,
-                height: min,
-              }))
-            } else {
-              setState((s) => ({
-                ...s,
-                width: min,
-                height: max,
-              }))
-            }
-          }}
-          getOptionLabel={(val) => {
-            const [width, height, name = "custom"] = val
-            return `${name} ${width}x${height}mm`
-          }}
-          options={PAPER_SIZES}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={false}
-              onChange={() => {
-                // noinspection JSSuspiciousNameCombination
-                setState((s) => ({
-                  ...s,
-                  width: height,
-                  height: width,
-                }))
-              }}
-              color="primary"
-            />
-          }
-          label="Landscape"
-        />
         <FormControl variant="outlined" size="small">
           <InputLabel id="variant-label">Variant</InputLabel>
           <Select
@@ -166,10 +118,9 @@ export default () => {
             label="Variant"
             value={state.variant}
             onChange={(e) =>
-              setState((s) => ({
-                ...s,
-                variant: e.target.value as any,
-              }))
+              setPartialState({
+                variant: e.target.value as "inside" | "outside",
+              })
             }
           >
             <MenuItem value="inside">Inside Folds</MenuItem>
@@ -182,9 +133,7 @@ export default () => {
           type="number"
           inputProps={{ step: 1 }}
           value={state.baseRadius}
-          onChange={(e) =>
-            setState((s) => ({ ...s, baseRadius: +e.target.value }))
-          }
+          onChange={(e) => setPartialState({ baseRadius: +e.target.value })}
           label="baseRadius"
         />
         <TextField
@@ -193,9 +142,7 @@ export default () => {
           type="number"
           inputProps={{ step: 1 }}
           value={state.topRadius}
-          onChange={(e) =>
-            setState((s) => ({ ...s, topRadius: +e.target.value }))
-          }
+          onChange={(e) => setPartialState({ topRadius: +e.target.value })}
           label="topRadius"
         />
         <TextField
@@ -204,12 +151,7 @@ export default () => {
           type="number"
           inputProps={{ step: 1 }}
           value={state.radius}
-          onChange={(e) =>
-            setState((s) => ({
-              ...s,
-              radius: +e.target.value,
-            }))
-          }
+          onChange={(e) => setPartialState({ radius: +e.target.value })}
           label="Radius"
         />
         <TextField
@@ -218,21 +160,32 @@ export default () => {
           type="number"
           inputProps={{ step: 1, min: 4, max: 32 }}
           value={state.sides}
-          onChange={(e) =>
-            setState((s) => ({
-              ...s,
-              sides: +e.target.value,
-            }))
-          }
+          onChange={(e) => setPartialState({ sides: +e.target.value })}
           label="Sides"
+        />
+        <Divider />
+        <Card>
+          <CardContent>
+            Set the Print Paper Size on large boxes to get a partial template
+            which can be rotated. See{" "}
+            <Link href="./outsideFoldsLargeTemplate.jpg">this image</Link> for
+            an example.
+          </CardContent>
+        </Card>
+        <PaperAutocomplete
+          label="Print Paper Size"
+          value={paperSize}
+          onChange={setPaperSize}
         />
         <Button variant="contained" onClick={asSVG}>
           Download As SVG
         </Button>
-        <Button variant="contained" onClick={asTemplatePDF}>
-          Template as PDF
-        </Button>
-      </div>
-    </div>
+        <Tooltip title="" placement="left">
+          <Button variant="contained" onClick={asTemplatePDF}>
+            Template as PDF
+          </Button>
+        </Tooltip>
+      </Grid>
+    </Grid>
   )
 }

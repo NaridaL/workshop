@@ -1,30 +1,35 @@
-import SVGtoPDF from "svg-to-pdfkit"
-import PDFDocument from "pdfkit"
 import blobStream from "blob-stream"
+import PDFDocument from "pdfkit"
+import SVGtoPDF from "svg-to-pdfkit"
+import { MINUS, round10 } from "ts3dutils"
+import { INCH } from "./common"
 
 export function svgToPdf({
-  size,
-  layout,
   title,
   author,
   svg,
 }: {
-  size: [widthInPt: number, heightInPt: number]
-  layout: "landscape" | "portrait"
   title: string
   author: string
   svg: string
 }): Promise<Blob> {
   return new Promise<Blob>((resolve, reject) => {
+    const [, widthStr, heightStr] = /.*width="([^"]+)".*?height="([^"]+)"/.exec(
+      svg,
+    )!
+    const [width, height] = [+widthStr, +heightStr].map((x) =>
+      round10((x / 96) * 72, -2),
+    )
+
     const doc = new PDFDocument({
-      size,
+      size: width < height ? [width, height] : [height, width],
       margins: {
         top: 0,
         bottom: 0,
         left: 0,
         right: 0,
       },
-      layout,
+      layout: width <= height ? "portrait" : "landscape",
       info: {
         Title: title,
         Author: author,

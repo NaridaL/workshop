@@ -1,6 +1,7 @@
 const path = require("path")
-const HtmlPlugin = require("html-webpack-plugin")
 const CopyPlugin = require("copy-webpack-plugin")
+const HtmlPlugin = require("html-webpack-plugin")
+const { HotModuleReplacementPlugin } = require("webpack")
 
 module.exports = {
   module: {
@@ -21,8 +22,9 @@ module.exports = {
         enforce: "pre",
       },
       {
-        test: /\.glslx$|\.vert$|\.frag$/,
+        test: /\.glslx$|\.vert$|\.frag$|\.glsl$/,
         type: "asset/source",
+        use: ["glslify-loader"],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif|ttf)$/i,

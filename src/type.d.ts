@@ -85,3 +85,7 @@ declare module "svg-to-pdfkit" {
   }
   export = SVGtoPDF
 }
+
+declare module "glslify" {
+  export default function (strings: TemplateStringsArray): string
+}

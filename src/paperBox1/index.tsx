@@ -1,31 +1,31 @@
-import TextField from "@material-ui/core/TextField"
-import Autocomplete from "@material-ui/lab/Autocomplete"
-import InputAdornment from "@material-ui/core/InputAdornment"
 import Button from "@material-ui/core/Button"
+import Card from "@material-ui/core/Card"
+import CardContent from "@material-ui/core/CardContent"
+import CardMedia from "@material-ui/core/CardMedia"
 import Checkbox from "@material-ui/core/Checkbox"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
-import useTheme from "@material-ui/core/styles/useTheme"
+import Grid from "@material-ui/core/Grid"
+import IconButton from "@material-ui/core/IconButton"
+import InputAdornment from "@material-ui/core/InputAdornment"
+import Link from "@material-ui/core/Link"
 import makeStyles from "@material-ui/core/styles/makeStyles"
-import fileDownload from "js-file-download"
-import * as React from "react"
-import { useCallback, useState } from "react"
+import useTheme from "@material-ui/core/styles/useTheme"
+import TextField from "@material-ui/core/TextField"
 import Lock from "@material-ui/icons/Lock"
 import LockOpen from "@material-ui/icons/LockOpen"
+import fileDownload from "js-file-download"
+import * as React from "react"
+import { ReactElement, useCallback, useState } from "react"
 
 import * as ReactDOMServer from "react-dom/server"
-import { BaseDrawing } from "./BaseDrawing"
-import Paper from "@material-ui/core/Paper"
-import { INCH, PAPER_SIZE_A4, PAPER_SIZES } from "./common"
 import { MINUS, round10, TAU } from "ts3dutils"
+
+import { PAPER_SIZE_A4 } from "./common"
+import hexPrismBoxJpg from "./hexPrismBox.jpg"
+import { PaperAutocomplete } from "./PaperAutocomplete"
+import { PrismBoxSvg } from "./PrismBoxSvg"
 import { useHashState } from "./useHashState"
 
-import IconButton from "@material-ui/core/IconButton"
-import { Grid } from "@material-ui/core"
-
-const openInNewTab = (url: string) => {
-  const newWindow = window.open(url, "_blank", "noopener,noreferrer")
-  if (newWindow) newWindow.opener = null
-}
 const useStyles = makeStyles((theme) => ({
   sidebar: {
     display: "flex",
@@ -37,9 +37,13 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(1),
     },
   },
+  media: {
+    height: 0,
+    paddingTop: "100%", // 1:1
+  },
 }))
 
-export default () => {
+export default (): ReactElement => {
   const [state, setStateUnchecked] = useHashState({
     width: PAPER_SIZE_A4[1],
     height: PAPER_SIZE_A4[0],
@@ -52,9 +56,6 @@ export default () => {
   const landscape = state.width > state.height
   const [width, height] = [state.width, state.height]
   const [min, max] = [width, height].sort(MINUS)
-  const dimensions = PAPER_SIZES.find(
-    ([psWidth, psHeight]) => psWidth === min && psHeight === max,
-  ) ?? [min, max, "custom"]
 
   // lockTopLip
   const topLipMax = Math.floor((height - state.bottomLip - 1) / 2)
@@ -79,7 +80,15 @@ export default () => {
         return newState
       })
     },
-    [setStateUnchecked, lockTopLip, topLipMax, lockBottomLip, bottomLipLockPos],
+    [
+      setStateUnchecked,
+      lockTopLip,
+      topLipMax,
+      state.topLip,
+      state.bottomLip,
+      lockBottomLip,
+      bottomLipLockPos,
+    ],
   )
 
   const theme = useTheme()
@@ -88,7 +97,7 @@ export default () => {
 
   const getPrintSVG = () =>
     ReactDOMServer.renderToStaticMarkup(
-      <BaseDrawing {...{ ...state, print: true }} />,
+      <PrismBoxSvg {...{ ...state, print: true }} />,
     ).replace(/\s{2,}/g, " ")
 
   const asSVG = () => {
@@ -106,10 +115,6 @@ export default () => {
 
     // add your content to the document here, as usual
     const blob = await svgToPdf({
-      size: ([width, height] as [number, number])
-        .sort(MINUS)
-        .map((x) => round10(x * (72 / INCH), -2)),
-      layout: landscape ? "landscape" : "portrait",
       title: "Paper Box Template",
       author: "Adrian Leonhard",
       svg: getPrintSVG(),
@@ -135,7 +140,7 @@ export default () => {
           padding: theme.spacing(2),
         }}
       >
-        <BaseDrawing
+        <PrismBoxSvg
           {...state}
           style={{
             maxWidth: "100%",
@@ -146,49 +151,33 @@ export default () => {
         />
       </Grid>
       <Grid item xs={12} md={2}>
-        <Grid container className={classes.sidebar}>
-          <Paper style={{ padding: theme.spacing(1) }}>
-            Helper to build{" "}
-            <a href="https://www.paperkawaii.com/video-tutorial-origami-hexagonal-gift-box/">
-              this
-            </a>{" "}
-            box. All measurements are in millimeters. To make a lid, you should
-            increase the sideWidth by 1mm and ~halve the paper height.
-          </Paper>
-          <Autocomplete
-            disableClearable
-            size="small"
-            freeSolo
-            renderInput={(params) => (
-              <TextField {...params} label="Paper Size" variant="outlined" />
-            )}
-            value={dimensions}
-            onChange={(e, newValue) => {
-              let min: number, max: number
-              if ("string" === typeof newValue) {
-                const regex = /(\d+(?:\.\d+)?).*?(\d+(?:\.\d+)?)/
-                const [, widthStr, heightStr] = regex.exec(newValue)!
-                ;[min, max] = [+widthStr, +heightStr].sort(MINUS)
-              } else {
-                ;[min, max] = newValue
-              }
-              if (landscape) {
-                updateState({
-                  width: max,
-                  height: min,
-                })
-              } else {
-                updateState({
-                  width: min,
-                  height: max,
-                })
-              }
+        <div className={classes.sidebar}>
+          <Card>
+            <CardMedia
+              className={classes.media}
+              image={hexPrismBoxJpg}
+              title="Hexagonal Prism Box"
+            />
+            <CardContent>
+              Helper to build{" "}
+              <Link href="https://www.paperkawaii.com/video-tutorial-origami-hexagonal-gift-box/">
+                this box
+              </Link>
+              . All measurements are in millimeters. To make a lid, you should
+              increase the sideWidth by 1mm and ~halve the paper height.
+            </CardContent>
+          </Card>
+          <PaperAutocomplete
+            label="Paper Size"
+            value={[min, max, "custom"]}
+            onChange={(newPaperSize) => {
+              const [minWidth, maxHeight] = newPaperSize!
+              updateState(
+                landscape
+                  ? { width: maxHeight, height: minWidth }
+                  : { width: minWidth, height: maxHeight },
+              )
             }}
-            getOptionLabel={(val) => {
-              const [width, height, name = "custom"] = val
-              return `${name} ${width}x${height}mm`
-            }}
-            options={PAPER_SIZES}
           />
           <FormControlLabel
             control={
@@ -299,7 +288,7 @@ export default () => {
           <Button variant="contained" onClick={asTemplatePDF}>
             Template as PDF
           </Button>
-        </Grid>
+        </div>
       </Grid>
     </Grid>
   )
