@@ -21,6 +21,11 @@ declare module "*.jpg" {
   export default path
 }
 
+declare module "*.glsl" {
+  const content: string
+  export = content
+}
+
 declare module "svg-to-pdfkit" {
   import type PDFDocument from "pdfkit"
   /**

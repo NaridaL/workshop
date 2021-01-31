@@ -1,6 +1,6 @@
 import * as React from "react"
 import { CSSProperties, ReactElement } from "react"
-import { DEG, newtonIterate1d, TAU, V, V3 } from "ts3dutils"
+import { newtonIterate1d, TAU, V, V3 } from "ts3dutils"
 
 import {
   dTpl,
@@ -59,7 +59,7 @@ export const OutsideFolds = ({
   const blueStart = V(basePolyRadius, 0).plus(
     V3.polar(topRadius - baseRadius, -creaseAngle),
   )
-  const blueDir = V3.polar(1, -(creaseAngle + creaseAngle - DEG))
+  const blueDir = V3.polar(1, -(creaseAngle + creaseAngle))
   const blueLine = (t: number) => blueStart.plus(blueDir.times(t))
   const blueEndPoint = blueLine(
     newtonIterate1d((t) => blueLine(t).length() - radius, 1, 4),
@@ -223,8 +223,8 @@ export const OutsideFolds = ({
               center={V(basePolyRadius, 0).plus(
                 V3.polar(topRadius - baseRadius, -creaseAngle),
               )}
-              start={-creaseAngle * 2 + DEG}
-              toRel={creaseAngle - DEG}
+              start={-creaseAngle * 2}
+              toRel={creaseAngle}
             />
             <Measure from={[radius, 0]} to={blueEndPoint} />
             <Measure from={blueEndPoint} to={V3.polar(radius, -TAU / sides)} />

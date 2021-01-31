@@ -38,7 +38,7 @@
     "chai": "^4.2.0",
     "chroma.ts": "^1.0.10",
     "copy-webpack-plugin": "^7.0.0",
-    "eslint": "^7.18.0",
+    "eslint": "^7.19.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "glslify-loader": "^2.0.0",

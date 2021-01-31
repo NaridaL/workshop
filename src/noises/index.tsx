@@ -6,7 +6,6 @@ import makeStyles from "@material-ui/core/styles/makeStyles"
 import useTheme from "@material-ui/core/styles/useTheme"
 import TextField from "@material-ui/core/TextField"
 import * as chroma from "chroma.ts"
-import glslify from "glslify"
 import * as React from "react"
 import { ReactElement, useCallback, useEffect, useRef } from "react"
 import {
@@ -14,7 +13,6 @@ import {
   clamp,
   DEG,
   emod,
-  ilog,
   int,
   lerp,
   lerpInv,
@@ -25,7 +23,6 @@ import {
 import { GL_COLOR, Mesh, Shader, Texture, TSGLContext } from "tsgl"
 
 import { useHashState } from "../paperBox1/useHashState"
-import { bandResult } from "./badidea"
 
 const gradients = arrayFromFunction(512, () =>
   V3.polar(1, (Math.random() - 0.5) * 2 * Math.PI),
@@ -162,7 +159,7 @@ export const band = (
     Math.floor(lerpInv(minValue, maxValue, value) * 4) / (4 - 1),
   )
 
-function noises(
+async function noises(
   gl: TSGLContext & WebGL2RenderingContextStrict,
   colors: { background: GL_COLOR; primary: GL_COLOR; secondary: GL_COLOR },
   dynamicState: State,
@@ -288,8 +285,6 @@ function noises(
     `#version 300 es
       precision highp float;
       
-      ${bandResult}
-      
       uniform sampler2D texture;
       uniform vec4 colorPrimary;
       uniform vec4 colorBg;
@@ -299,8 +294,7 @@ function noises(
       out vec4 fragColor;
       void main() {
         float fraction = (n + 0.5) * 0.5;
-        float banded = floor(fraction * float(bandCount)) / float(bandCount - 1);
-        fragColor = mix(colorBg, colorPrimary, banded);
+        fragColor = mix(colorBg, colorPrimary, fraction);
         
         if (length(gl_PointCoord - vec2(0.5, 0.5)) > 0.5) {
           discard;
@@ -336,7 +330,7 @@ function noises(
         coord = texCoordAdjusted;
       }
   `,
-    require("./test.glsl"),
+    (await import("./test.glsl")).default,
   )
   const texShader = Shader.create<
     {
@@ -635,7 +629,7 @@ export default (): ReactElement => {
     const tsgl = TSGLContext.create({ canvas: canvasRef.current! })
     tsgl.fixCanvasRes()
     tsgl.addResizeListener()
-    redoTex.current = noises(
+    noises(
       tsgl,
       {
         background: chroma.css(theme.palette.background.default).gl(),
@@ -643,7 +637,7 @@ export default (): ReactElement => {
         secondary: chroma.css(theme.palette.secondary.main).gl(),
       },
       fluid.current,
-    ).redoTex
+    )
   }, [
     theme.palette.background.default,
     theme.palette.primary.main,
@@ -652,7 +646,6 @@ export default (): ReactElement => {
 
   useEffect(() => {
     Object.assign(fluid.current, state)
-    // redoTex.current!()
   }, [state])
 
   return (

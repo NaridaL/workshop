@@ -107,7 +107,7 @@ export default (): ReactElement => {
           />
           <CardContent>
             Helper to build a box from a circular piece of paper. The Inside
-            Folds variant has more difficult folds but has a cleaner overall
+            Folds variant has more complicated folds but has a cleaner overall
             look.
           </CardContent>
         </Card>
