@@ -1,9 +1,7 @@
-// test
 import loadable from "@loadable/component"
-import { lightGreen, yellow } from "@material-ui/core/colors"
 import CssBaseline from "@material-ui/core/CssBaseline"
 import Drawer from "@material-ui/core/Drawer"
-import IconButton from "@material-ui/core/IconButton"
+import Fab from "@material-ui/core/Fab"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -17,7 +15,6 @@ import MenuIcon from "@material-ui/icons/Menu"
 import * as React from "react"
 import { useCallback, useEffect, useState } from "react"
 import * as ReactDOM from "react-dom"
-
 import { BrowserRouter, Link, Redirect, Route, Switch } from "react-router-dom"
 
 import { ErrorBoundary } from "./ErrorBoundary"
@@ -119,7 +116,8 @@ const App = () => {
           </ListItem>
         </List>
       </Drawer>
-      <IconButton
+      <Fab
+        color="secondary"
         style={{
           position: "absolute",
           top: 16,
@@ -128,7 +126,7 @@ const App = () => {
         onClick={onHamburgerClick}
       >
         <MenuIcon />
-      </IconButton>
+      </Fab>
       <Switch>
         {pages.map(({ module }) => (
           <Route key={module} path={`/${module}`}>

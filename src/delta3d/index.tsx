@@ -276,7 +276,7 @@ export function quickhull(gl: TSGLContext) {
     tree.getTransform(zAssemblies[i]).transformPoint(V(-2.5, 0, 0)).xy(),
   ) as [V3, V3, V3]
   function fixJoints() {
-    [0, 1, 2].forEach((i) => {
+    ;[0, 1, 2].forEach((i) => {
       zAssemblies[i].transform = M4.translate(0, 0, viewState.axisPoss[i])
       spindles[i].transform = M4.scale(1, 0.5, 0.5)
         .rotateX((TAU * -viewState.axisPoss[i]) / 0.2)

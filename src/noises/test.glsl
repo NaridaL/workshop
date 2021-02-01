@@ -28,6 +28,10 @@ const vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
 const vec4 blue = vec4(0.0, 0.0, 1.0, 1.0);
 const vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
 
+float perlin01(vec2 pos) {
+    return unmix(-.68, .68, perlin2D(pos));
+}
+
 void main2() {
     float fraction = (n + 0.5) * 0.5;
     vec4 waves1 = mix(colorBg, colorPrimary,

@@ -9,6 +9,7 @@ import * as chroma from "chroma.ts"
 import * as React from "react"
 import { ReactElement, useCallback, useEffect, useRef } from "react"
 import {
+  absSum,
   arrayFromFunction,
   clamp,
   DEG,
@@ -23,6 +24,7 @@ import {
 import { GL_COLOR, Mesh, Shader, Texture, TSGLContext } from "tsgl"
 
 import { useHashState } from "../paperBox1/useHashState"
+import { buildShaders, shader1 } from "./shaders"
 
 const gradients = arrayFromFunction(512, () =>
   V3.polar(1, (Math.random() - 0.5) * 2 * Math.PI),
@@ -159,7 +161,7 @@ export const band = (
     Math.floor(lerpInv(minValue, maxValue, value) * 4) / (4 - 1),
   )
 
-async function noises(
+function noises(
   gl: TSGLContext & WebGL2RenderingContextStrict,
   colors: { background: GL_COLOR; primary: GL_COLOR; secondary: GL_COLOR },
   dynamicState: State,
@@ -210,7 +212,13 @@ async function noises(
     data[0] = 0
     tex.setData(data)
   }
-  redoTex()
+
+  // const lll = M4.lookAt(V(2, -10, 5), V3.O, V3.Z).times(
+  //     M4.perspective(70, 1, 0.1, 100)
+  // )
+  // console.log("" + llli)
+  // console.log(llli.transformPoint(V(-1, -1, 1)))
+  // redoTex()
   const planeMesh = Mesh.plane({ detail: 128 })
   const sphereMesh = Mesh.sphere(0)
     .computeWireframeFromFlatTrianglesClosedMesh()
@@ -302,36 +310,7 @@ async function noises(
       }
     `,
   )
-  const perlinShader3 = Shader.create<
-    {
-      colorPrimary: "FLOAT_VEC4"
-      colorBg: "FLOAT_VEC4"
-      scale: "FLOAT_VEC2"
-      bandCount: "UNSIGNED_INT"
-    },
-    {}
-  >(
-    `#version 300 es
-      precision highp float;
-      
-      uniform mat4 ts_ModelViewProjectionMatrix;
-      in vec4 ts_Vertex;
-      uniform vec2 scale;
-      uniform vec2 offset;
-      in vec3 ts_TexCoordUVQ;
-      in vec2 ts_TexCoord;
-      out vec3 coordUVQ;
-      out float n;
-      out vec2 coord;
-      void main() {
-        vec2 texCoordAdjusted = offset + ts_TexCoord * scale;
-        gl_Position = ts_ModelViewProjectionMatrix * ts_Vertex;
-        coordUVQ = ts_TexCoordUVQ;
-        coord = texCoordAdjusted;
-      }
-  `,
-    (await import("./test.glsl")).default,
-  )
+  buildShaders()
   const texShader = Shader.create<
     {
       colorPrimary: "FLOAT_VEC4"
@@ -479,7 +458,7 @@ async function noises(
     }
     lastPos = pagePos
   }
-
+  let outputllll = false
   return Object.assign(
     gl.animate(function (abs, _diff) {
       const speed = new V3(
@@ -519,7 +498,20 @@ async function noises(
       //   .draw(planeMesh, gl.LINES)
       tex.bind(0)
       gradientsTex.bind(1)
-      perlinShader3
+
+      const lll = M4.product(
+        M4.perspective(70, 1, 1, 50),
+        M4.lookAt(V(10, 0, 10), V3.O, V3.Z),
+        M4.rotateZ(abs / 10_000),
+      )
+      const llli = lll.inversed()
+      if (!outputllll) {
+        console.log("" + lll)
+        console.log(lll.transformPoint(V3.XYZ.negated()))
+        console.log(lll.transformPoint(V3.XYZ))
+        outputllll = true
+      }
+      shader1
         .uniforms({
           a: dynamicState.a,
           colorPrimary: colors.primary,
@@ -529,7 +521,10 @@ async function noises(
           offset: [dynamicState.xOffset, dynamicState.yOffset],
           bandCount: dynamicState.bandCount,
           highResTimeStamp: abs,
+          secs: abs / 1000,
           gradients: 1,
+          lll,
+          llli,
         })
         .draw(planeMesh)
 
@@ -539,7 +534,7 @@ async function noises(
       gl.translate(-0.75, 0, 0)
       gl.scale(0.5)
       gl.rotate(-90, 1, 0, 0)
-      perlinShader3
+      shader1
         .uniforms({
           colorPrimary: colors.primary,
           colorBg: colors.background,
@@ -627,8 +622,8 @@ export default (): ReactElement => {
   const theme = useTheme()
   useEffect(() => {
     const tsgl = TSGLContext.create({ canvas: canvasRef.current! })
-    tsgl.fixCanvasRes()
-    tsgl.addResizeListener()
+    //tsgl.fixCanvasRes()
+    //tsgl.addResizeListener()
     noises(
       tsgl,
       {
@@ -655,6 +650,8 @@ export default (): ReactElement => {
           <canvas
             ref={canvasRef}
             style={{ width: "100%", height: "100%" }}
+            width={1024}
+            height={1024}
             tabIndex={0}
           />
         </div>
@@ -682,4 +679,8 @@ export default (): ReactElement => {
       </Grid>
     </Grid>
   )
+}
+
+if (module.hot) {
+  module.hot.accept("./shaders")
 }

@@ -1,7 +1,6 @@
-const path = require("path")
-const CopyPlugin = require("copy-webpack-plugin")
-const HtmlPlugin = require("html-webpack-plugin")
-const { HotModuleReplacementPlugin } = require("webpack")
+import * as path from "path"
+import CopyPlugin from "copy-webpack-plugin"
+import HtmlPlugin from "html-webpack-plugin"
 
 module.exports = {
   module: {
@@ -86,5 +85,7 @@ module.exports = {
     publicPath: "/workshop/",
     contentBase: path.join(__dirname, "docs"),
     historyApiFallback: { index: "/workshop/404.html" },
+    hot: true,
   },
+  devtool: "eval",
 }

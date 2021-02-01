@@ -32,10 +32,4 @@ float perlin2D(vec2 xy) {
     return mixx(ny0, ny1, xy.y - y0);
 }
 
-float test(vec2 xy) {
-    vec2 closestGP = round(xy);
-    return float(distance(closestGP, xy) < 0.5)
-    * float(abs(dotGridGradient(closestGP, xy)) < 0.1);
-}
-
 #pragma glslify: export(perlin2D)

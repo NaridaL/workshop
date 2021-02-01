@@ -80,6 +80,8 @@ export function InsideFolds({
       .to(V(radius, 0))
       .angleXY() + creaseAngle,
   )
+  const boxHeight = topRadius - baseRadius
+  const topLip = radius - topRadius
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -105,6 +107,26 @@ export function InsideFolds({
           className="valley"
         />
         {!print && (
+          <g transform="translate(-20 -20) rotate(180)">
+            <path
+              d={dTpl`
+          M${V(baseRadius - topLip, boxHeight * 0.99)}
+          L${V(baseRadius, boxHeight)}
+          L${V(baseRadius, 0)}
+          L${V(-baseRadius, 0)}
+          L${V(-baseRadius, boxHeight)}
+          L${V(topLip - baseRadius, boxHeight * 1.01)}
+          `}
+            />
+            <Measure from={V(baseRadius, 0)} to={V(-baseRadius, 0)} />
+            <Measure from={V(baseRadius, boxHeight)} to={V(baseRadius, 0)} />
+            <Measure
+              from={V(topLip - baseRadius, boxHeight)}
+              to={V(0, boxHeight)}
+            />
+          </g>
+        )}
+        {!print && (
           <>
             <Measure
               offset={-0.5}
@@ -129,6 +151,15 @@ export function InsideFolds({
             >
               radius
             </Measure>
+            <MeasureAngle
+              center={greyStartPoint}
+              start={Math.PI}
+              toRel={creaseAngle}
+            />
+            <Measure
+              from={V3.polar(basePolyRadius, -TAU / sides)}
+              to={V3.polar(basePolyRadius, 0)}
+            />
           </>
         )}
         <RotStep id="foo" count={sides} stepDeg={360 / sides}>
@@ -182,15 +213,6 @@ export function InsideFolds({
           />
         </RotStep>
         <circle r={radius} />
-        <MeasureAngle
-          center={greyStartPoint}
-          start={Math.PI}
-          toRel={creaseAngle}
-        />
-        <Measure
-          from={V3.polar(basePolyRadius, -TAU / sides)}
-          to={V3.polar(basePolyRadius, 0)}
-        />
       </g>
     </svg>
   )

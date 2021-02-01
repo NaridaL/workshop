@@ -194,7 +194,7 @@ export function PrismBoxSvg({
           <Measure from={[0, 0]} to={[sideWidth, 0]}>
             sideWidth
           </Measure>
-          {...arrayRange(1, sides).map((i) => (
+          {arrayRange(1, sides).map((i) => (
             <Measure
               from={[i * sideWidth, 0]}
               to={[(i + 1) * sideWidth, 0]}
@@ -207,7 +207,7 @@ export function PrismBoxSvg({
           <Measure from={[0, height]} to={[firstIntersect, height]}>
             {"" + round10(firstIntersect, -2)}
           </Measure>
-          {...arrayRange(0, sides).map((i) => (
+          {arrayRange(0, sides).map((i) => (
             <Measure
               from={[firstIntersect + i * sideWidth, height]}
               to={[firstIntersect + (i + 1) * sideWidth, height]}
