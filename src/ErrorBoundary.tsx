@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Component, ErrorInfo, ReactNode } from "react"
+import { Component, ErrorInfo, ReactElement, ReactNode } from "react"
 
 export class ErrorBoundary extends Component<{ children?: ReactNode }> {
   state = {
@@ -21,7 +21,7 @@ export class ErrorBoundary extends Component<{ children?: ReactNode }> {
   private static formatShader(
     message: string,
     shaderSource: string,
-  ): JSX.Element {
+  ): ReactElement {
     const errors = [
       ...message.matchAll(/ERROR: \d+:(\d+): (.*)/g),
     ].map(([_, line, message]) => ({ line: +line, message }))

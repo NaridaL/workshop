@@ -66,7 +66,15 @@ const ThemedApp = () => {
       createMuiTheme({
         palette: {
           type: prefersDarkMode ? "dark" : "light",
-          // type: "dark",
+          primary: {
+            main: "#F26430",
+          },
+          secondary: {
+            main: "#685369",
+          },
+        },
+        typography: {
+          fontFamily: "Fira Sans",
         },
       }),
     [prefersDarkMode],

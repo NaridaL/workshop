@@ -1,7 +1,7 @@
 import { Chromable, w3cx11 } from "chroma.ts"
 import * as chroma from "chroma.ts"
 import * as React from "react"
-import { useEffect, useRef } from "react"
+import { ReactElement, useEffect, useRef } from "react"
 import {
   arrayFromFunction,
   arraySwap,
@@ -61,6 +61,7 @@ class SGN {
   children: SGN[] = []
   parent!: SGN
   gimbal?: boolean
+
   public constructor(
     public transform: M4 = M4.IDENTITY,
     public mesh?: Mesh | undefined,
@@ -126,7 +127,7 @@ function trilaterate(
   return sys.transformPoint(pSys)
 }
 
-export function quickhull(gl: TSGLContext) {
+function quickhull(gl: TSGLContext) {
   const viewState = {
     pos: V(0.75, 0, 1),
     lookDir: V(0, 0, -1),
@@ -275,6 +276,7 @@ export function quickhull(gl: TSGLContext) {
   const zBases = [0, 1, 2].map((i) =>
     tree.getTransform(zAssemblies[i]).transformPoint(V(-2.5, 0, 0)).xy(),
   ) as [V3, V3, V3]
+
   function fixJoints() {
     ;[0, 1, 2].forEach((i) => {
       zAssemblies[i].transform = M4.translate(0, 0, viewState.axisPoss[i])
@@ -296,6 +298,7 @@ export function quickhull(gl: TSGLContext) {
         .translate(a)
     }
   }
+
   viewState.axisPoss = posToZOffsets(zBases, V3.O)
   fixJoints()
   // const cubeMesh = Mesh.cube()
@@ -455,6 +458,7 @@ export function quickhull(gl: TSGLContext) {
   function keyDir(plusKey: string, minusKey: string): number {
     return +!!pressedKeys[plusKey] - +!!pressedKeys[minusKey]
   }
+
   const keys = [
     ["u", "j"],
     ["i", "k"],
@@ -519,13 +523,12 @@ export function quickhull(gl: TSGLContext) {
     // })
     //.drawBuffers(pointMesh.vertexBuffers, undefined, gl.POINTS)
     //shader.uniforms({ color: [1, 1, 0, 1] }).draw(pointMesh, gl.LINES)
-    //shader.uniforms({ color: [0, 0, 0, 0.5] }).draw(pointMesh, gl.TRIANGLES)
-    // gl.pushMatrix()
-    //gl.translate(30, 0, 0)
+    //shader.uniforms({ color: [0, 0, 0, 0.5] }).draw(pointMesh,
+    // gl.TRIANGLES) gl.pushMatrix() gl.translate(30, 0, 0)
   })
 }
 
-export default () => {
+export default (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -537,7 +540,7 @@ export default () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <canvas ref={canvasRef} style={{ flexGrow: 1 }} tabIndex={0}></canvas>
+      <canvas ref={canvasRef} style={{ flexGrow: 1 }} tabIndex={0} />
     </div>
   )
 }

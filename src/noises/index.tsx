@@ -24,7 +24,7 @@ import {
 import { GL_COLOR, Mesh, Shader, Texture, TSGLContext } from "tsgl"
 
 import { useHashState } from "../paperBox1/useHashState"
-import { buildShaders, shader1 } from "./shaders"
+import { buildShaders } from "./shaders"
 
 const gradients = arrayFromFunction(512, () =>
   V3.polar(1, (Math.random() - 0.5) * 2 * Math.PI),
@@ -310,7 +310,16 @@ function noises(
       }
     `,
   )
-  buildShaders()
+  let shaders = buildShaders()
+  module.hot &&
+    module.hot.accept("./shaders", () => {
+      console.clear()
+      try {
+        shaders = buildShaders()
+      } catch (e) {
+        console.error(e)
+      }
+    })
   const texShader = Shader.create<
     {
       colorPrimary: "FLOAT_VEC4"
@@ -500,7 +509,7 @@ function noises(
       gradientsTex.bind(1)
 
       const lll = M4.product(
-        M4.perspective(70, 1, 1, 50),
+        M4.perspective(45, 1, 1, 50),
         M4.lookAt(V(10, 0, 10), V3.O, V3.Z),
         M4.rotateZ(abs / 10_000),
       )
@@ -511,7 +520,7 @@ function noises(
         console.log(lll.transformPoint(V3.XYZ))
         outputllll = true
       }
-      shader1
+      shaders.shader1
         .uniforms({
           a: dynamicState.a,
           colorPrimary: colors.primary,
@@ -534,7 +543,7 @@ function noises(
       gl.translate(-0.75, 0, 0)
       gl.scale(0.5)
       gl.rotate(-90, 1, 0, 0)
-      shader1
+      shaders.shader1
         .uniforms({
           colorPrimary: colors.primary,
           colorBg: colors.background,
@@ -622,7 +631,7 @@ export default (): ReactElement => {
   const theme = useTheme()
   useEffect(() => {
     const tsgl = TSGLContext.create({ canvas: canvasRef.current! })
-    //tsgl.fixCanvasRes()
+    // tsgl.fixCanvasRes()
     //tsgl.addResizeListener()
     noises(
       tsgl,
@@ -650,8 +659,8 @@ export default (): ReactElement => {
           <canvas
             ref={canvasRef}
             style={{ width: "100%", height: "100%" }}
-            width={1024}
-            height={1024}
+            width={512}
+            height={512}
             tabIndex={0}
           />
         </div>

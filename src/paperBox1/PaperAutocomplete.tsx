@@ -1,7 +1,7 @@
 import TextField from "@material-ui/core/TextField"
 import Autocomplete from "@material-ui/lab/Autocomplete"
 import * as React from "react"
-import { forwardRef } from "react"
+import { forwardRef, ReactElement } from "react"
 import { MINUS } from "ts3dutils"
 import { PAPER_SIZES, PaperSize } from "./common"
 
@@ -19,7 +19,7 @@ export const PaperAutocomplete = forwardRef(
       label: string
     },
     ref,
-  ): JSX.Element => {
+  ): ReactElement => {
     let paperSize: PaperSize | null = null
     if (value) {
       const [a, b] = value

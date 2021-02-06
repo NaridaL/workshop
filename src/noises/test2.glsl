@@ -4,6 +4,7 @@ precision mediump float;
 #pragma glslify: banded = require(./shaderfunctions/banded.glsl)
 #pragma glslify: between = require(./shaderfunctions/between.glsl)
 #pragma glslify: perlin2D = require(./shaderfunctions/perlin2DTexture.glsl)
+#pragma glslify: simplex2D = require(./shaderfunctions/simplex2DTexture.glsl)
 #pragma glslify: remix = require(./shaderfunctions/remix.glsl)
 #pragma glslify: unmix = require(./shaderfunctions/unmix.glsl)
 #pragma glslify: waves = require(./shaderfunctions/waves.glsl)
@@ -70,7 +71,7 @@ float triSdf(vec2 uv) {
     return max3(hex);
 }
 
-void main() {
+void main2() {
     vec3 uvR = xy2tri(coord);
     vec3 triCenter = triCenter(uvR);
     vec2 centerXY = tri2xy(triCenter);
@@ -86,3 +87,4 @@ void main() {
 
     //fragColor = visualize(blue, red, mod(floor(sheared.x) + floor(sheared.y), 2.0));
 }
+

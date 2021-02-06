@@ -70,9 +70,6 @@ float triSdf(vec2 uv) {
     return max3(hex);
 }
 
-vec2 complexMul(vec2 a, vec2 b) {
-    return vec2(a.x * b.x - a.y * b.y, a.y * b.x + a.x * b.y);
-}
 vec2 fc(vec2 z, vec2 c) {
     return complexMul(z, z) + c;
 }

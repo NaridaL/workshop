@@ -57,7 +57,7 @@ void main2() {
 
 }
 
-void main() {
+void main2() {
     vec3 hex_pos = ra2Hex(coord);
     vec3 hex_center = hexRound(hex_pos);
     vec2 center = hex2Ra(hex_center);

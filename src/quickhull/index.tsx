@@ -1,7 +1,7 @@
 import { Chromable } from "chroma.ts"
 import * as chroma from "chroma.ts"
 import * as React from "react"
-import { useEffect, useRef } from "react"
+import { ReactElement, useEffect, useRef } from "react"
 import {
   arrayFromFunction,
   arraySwap,
@@ -370,7 +370,7 @@ const hfcDefault = chroma.color("blue").gl()
 const sleep = (ms: int) =>
   new Promise((resolve, reject) => setTimeout(resolve, ms))
 
-export function quickhull(gl: TSGLContext) {
+function quickhull(gl: TSGLContext) {
   // const cubeMesh = Mesh.cube()
   const points = arrayFromFunction(1000, () =>
     V3.randomUnit()
@@ -524,7 +524,7 @@ export function quickhull(gl: TSGLContext) {
   })
 }
 
-export default () => {
+export default (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -535,7 +535,7 @@ export default () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <canvas ref={canvasRef} style={{ flexGrow: 1 }} tabIndex={0}></canvas>
+      <canvas ref={canvasRef} style={{ flexGrow: 1 }} tabIndex={0} />
     </div>
   )
 }

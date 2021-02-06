@@ -14,5 +14,5 @@ void main() {
     vec2 texCoordAdjusted = offset + ts_TexCoord * scale;
     gl_Position = ts_ModelViewProjectionMatrix * ts_Vertex;
     coordUVQ = ts_TexCoordUVQ;
-    coord = mix(vec2(-1., -1.), vec2(1., 1.), ts_TexCoord);
+    coord = mix(vec2(-1., -1.), vec2(1., 1.), texCoordAdjusted);
 }

@@ -1,9 +1,6 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint",
-    "import"
-  ],
+  "plugins": ["@typescript-eslint", "import"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -33,9 +30,7 @@
     "no-restricted-imports": [
       "error",
       {
-        "paths": [
-          "@material-ui/core"
-        ]
+        "paths": ["@material-ui/core"]
       }
     ],
     "@typescript-eslint/ban-types": [

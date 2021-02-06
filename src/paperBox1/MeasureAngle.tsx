@@ -1,4 +1,5 @@
 import * as React from "react"
+import { ReactElement } from "react"
 import { raddd, V, V3 } from "ts3dutils"
 import { fmtdeg, R2 } from "./common"
 
@@ -12,7 +13,7 @@ export function MeasureAngle({
   start: raddd
   toRel: raddd
   children?: string
-}) {
+}): ReactElement {
   Array.isArray(center) && (center = V(center))
   const radius = 20
   const startV = V3.polar(radius, start).plus(V(center))

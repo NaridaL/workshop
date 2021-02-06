@@ -23,13 +23,6 @@ export const sideWidthFromCenterToSide = (
   centerToSide: number,
 ): number => centerToSide * 2 * Math.tan(TAU / sides / 2)
 
-export function Path({
-  d,
-  ...props
-}: { d: SVGCommand | SVGCommand[] } & Omit<SVGProps<SVGPathElement>, "d">) {
-  return <path d={encodeSVGPath(d)} {...props} />
-}
-
 export function RegularPolygon({
   sides,
   radius,
@@ -42,22 +35,12 @@ export function RegularPolygon({
 } & Omit<SVGProps<SVGPathElement>, "d">): ReactElement {
   const { x, y } = V3.polar(radius, startAngle)
   return (
-    <Path
-      d={[
-        { type: SVGPathData.MOVE_TO, relative: false, x, y },
-        ...arrayRange(0, sides).map(
-          (i): SVGCommand => {
-            const { x, y } = V3.polar(radius, startAngle + i * (TAU / sides))
-            return {
-              type: SVGPathData.LINE_TO,
-              relative: false,
-              x,
-              y,
-            }
-          },
-        ),
-        { type: SVGPathData.CLOSE_PATH },
-      ]}
+    <path
+      d={dTpl`
+        M${x},${y}
+        ${arrayRange(0, sides).map(
+          (i) => dTpl`L${V3.polar(radius, startAngle + i * (TAU / sides))}`,
+        )}Z`}
       {...props}
     />
   )
@@ -87,6 +70,7 @@ export function RotStep({
     </>
   )
 }
+
 export type PaperSize = [width: number, height: number, name: string]
 export const PAPER_SIZES: PaperSize[] = [
   [841, 1189, "A0"],
@@ -110,12 +94,19 @@ export const PAPER_SIZES: PaperSize[] = [
 export const PAPER_SIZE_A4 = PAPER_SIZES.find(([, , name]) =>
   name.includes("A4"),
 )!
+
 export function dTpl(
   strings: TemplateStringsArray,
-  ...exps: (number | V3)[]
+  ...exps: (number | V3 | string | string[])[]
 ): string {
-  const format = (x: number | V3) =>
-    "number" === typeof x ? "" + x : x.x + "," + x.y
+  const format = (x: number | V3 | string | string[]): string =>
+    "number" === typeof x
+      ? "" + x
+      : "string" === typeof x
+      ? x
+      : Array.isArray(x)
+      ? x.map(format).join(" ")
+      : x.x + "," + x.y
   let result = strings[0]
   for (let i = 0; i < exps.length; i++) {
     result += format(exps[i])
@@ -123,7 +114,8 @@ export function dTpl(
   }
   return result
 }
-export const openInNewTab = (url: string) => {
+
+export const openInNewTab = (url: string): void => {
   const newWindow = window.open(url, "_blank", "noopener,noreferrer")
   if (newWindow) newWindow.opener = null
 }

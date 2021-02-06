@@ -1,5 +1,5 @@
 import * as React from "react"
-import { CSSProperties } from "react"
+import { CSSProperties, ReactElement } from "react"
 import { ilog, newtonIterate1d, TAU, V, V3 } from "ts3dutils"
 
 import {
@@ -38,7 +38,7 @@ export function InsideFolds({
   print?: boolean
   sides: number
   style?: CSSProperties
-}): JSX.Element {
+}): ReactElement {
   const basePolyRadius = radiusFromCenterToSide(sides, baseRadius)
   const topPolyRadius = radiusFromCenterToSide(sides, topRadius)
   const svgViewBox = print

@@ -1,17 +1,21 @@
 import * as React from "react"
+import { ReactElement } from "react"
 import { int, mod, V, V3 } from "ts3dutils"
 
 interface Head {
   pos: V3
   dir: number
 }
+
 const [UP, RIGHT, DOWN, LEFT] = [0, 1, 2, 3]
 const FILLED = "FILLED" as const
 const OPEN = "OPEN" as const
 type GridStatus = "FILLED" | "OPEN"
+
 class QuadTreeFill {
   private readonly grid: boolean[]
   private readonly heads: Head[] = []
+
   constructor(public readonly width: number, public readonly height: number) {
     this.grid = new Array(width * height)
   }
@@ -27,27 +31,34 @@ class QuadTreeFill {
     }
     return this.grid[y * this.width + x] ? FILLED : OPEN
   }
+
   step(): boolean {
     return this.heads.length != 0
   }
+
   turn(dir: int, d: int): int {
     return mod(dir + d, 4)
   }
+
   mov(pos: V3, dir: int) {
     return pos.plus([V3.Y, V3.X, V3.Y.negated(), V3.X.negated()][dir])
   }
 
-  toSVG() {}
+  toSVG() {
+    return null
+  }
 }
 
 function build() {
   const q = new QuadTreeFill(400, 300)
   q.addHead({ pos: V(200, 0), dir: DOWN })
-  for (let i = 0; i < 1000 && q.step(); i++) {}
+  for (let i = 0; i < 1000 && q.step(); i++) {
+    //todo
+  }
   return q
 }
 
-export default function () {
+export default function (): ReactElement {
   throw new Error("helloooo")
   return <div>hi</div>
 }

@@ -1,4 +1,5 @@
 #version 300 es
+
 precision highp float;
 
 #pragma glslify: banded = require(./shaderfunctions/banded.glsl)
@@ -16,6 +17,16 @@ precision highp float;
 #pragma glslify: waves = require(./shaderfunctions/waves.glsl)
 #pragma glslify: rotX = require(./shaderfunctions/rotX.glsl)
 
+#pragma glslify: donut = require(./shaderfunctions/sdf/donut.glsl)
+#pragma glslify: sphere = require(./shaderfunctions/sdf/sphere.glsl)
+#pragma glslify: cylinder = require(./shaderfunctions/sdf/cylinder.glsl)
+#pragma glslify: addChamfer = require(./shaderfunctions/sdf/addChamfer.glsl)
+#pragma glslify: addChamfer = require(./shaderfunctions/sdf/addChamfer.glsl)
+#pragma glslify: addTillet = require(./shaderfunctions/sdf/addTillet.glsl)
+#pragma glslify: block = require(./shaderfunctions/sdf/block.glsl)
+#pragma glslify: add = require(./shaderfunctions/sdf/add.glsl)
+#pragma glslify: sub = require(./shaderfunctions/sdf/sub.glsl)
+
 uniform sampler2D texture;
 uniform float secs;
 uniform mat4 lll;
@@ -31,6 +42,9 @@ in vec2 coord;
 out vec4 fragColor;
 
 const float TAU = 6.283185307179586;
+const float SQRT1_2 = 0.7071067811865476;
+const float SQRT2 = 1.4142135623730951;
+const float PI = 3.141592653589793;
 
 const vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
 const vec4 yellow = vec4(1.0, 1.0, 0.0, 1.0);
@@ -38,9 +52,6 @@ const vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
 const vec4 blue = vec4(0.0, 0.0, 1.0, 1.0);
 const vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
 
-#pragma glslify: donut = require(./shaderfunctions/sdf/donut.glsl)
-#pragma glslify: sphere = require(./shaderfunctions/sdf/sphere.glsl)
-#pragma glslify: cylinder = require(./shaderfunctions/sdf/cylinder.glsl)
 
 float skybox(vec3 p) {
     return 64. - max3(abs(p));
@@ -53,15 +64,7 @@ float perlinSphere(float radius, vec3 p) {
     return length(p) - radius + 0.1 * perlin2D(vec2(0. / 100., 0.) + (vec2(5.)+vec2(alpha, beta))*8.0);
 }
 
-float block(vec3 min, vec3 maxx, vec3 p) {
-    return max(max3(p - maxx), max3(-p + min));
-}
-float sub(float from, float what) {
-    return max(from, -what);
-}
-float add(float a, float b) {
-    return min(a, b);
-}
+
 float cylCircle(vec3 p) {
     float d = 10e9;
     for (int i = 0; i < 10; i++) {
@@ -71,26 +74,31 @@ float cylCircle(vec3 p) {
     return d;
 }
 
-float addWithRadius(float r, float a, float b) {
-    if (a < r && b < r) {
-        return r - distance(vec2(a, b), vec2(r));
-    } else {
-        return min(a ,b);
-    }
+float rblock(float r, vec3 p) {
+    return block(-vec3(r), vec3(r), p);
 }
+
+
+
+float wtf(vec3 p) {
+    vec3 center = p - mod(p, 3.0) + vec3(1.5);
+    return rblock(.4 + .3 * sin(secs+ center.x), p - center);
+}
+
 
 float sdf(vec3 p) {
     float d = skybox(p);
     d = add(d, block(vec3(-5., -5., -1.), vec3(5., 5., 0.), p));
-    d = -addWithRadius(0.1, -d, donut(2., 0.5, p));
-    d = -addWithRadius(0.1, -d, donut(4., 0.5, p));
-    d = add(d, sphere(0.5, p));
+//    d = -addTillet(0.1, -d, donut(2., 0.5, p));
+//    d = -addTillet(0.1, -d, donut(4., 0.5, p));
+    d = -addTillet(.2, -d, block(vec3(-1., -1., -2.), vec3(1., 1., 2.), p));
+//    d = add(d, wtf(p));
     d = add(d, perlinSphere(1., p - vec3(-2.0, 0.0, 3.0)));
 //    d = add(d, cylCircle(p));
 
 //    d = add(d, sphere(p - vec3(3., 3., 0.)));
-    d = sub(d, cylinder(1.3, 4.5, rotX(0./30. * TAU) * p- vec3(2.0, 0.0, 0.0) - vec3(0., 0., -2.25)));
-    d = add(d, cylinder(0.8, 4., rotX(0./30. * TAU) * p- vec3(2.0, 0.0, 0.0) - vec3(0., 0., -2.)));
+    d = sub(d, cylinder(1.3, 4.5, rotX(secs/30. * TAU) * p- vec3(2.0, 0.0, 0.0) - vec3(0., 0., -2.25)));
+//    d = add(d, cylinder(0.8, 4., rotX(secs/30. * TAU) * p- vec3(2.0, 0.0, 0.0) - vec3(0., 0., -2.)));
     d = sub(d, cylCircle(p));
     d -= 0.2;
     return d;
@@ -114,7 +122,7 @@ vec3 sdfNormal(vec3 p) {
 }
 
 void main() {
-    vec3 light = normalize(vec3(-1., -1., -1));
+    vec3 light = normalize(vec3(-1., -2., -3));
 
     vec3 a = vec3(coord, -1.);
     vec3 b = vec3(coord, 1.);
@@ -128,6 +136,7 @@ void main() {
 
     vec3 sunPoint = raymarch(hitWC -light *.1, -light);
     float inSun = float(distance(hitWC, sunPoint) > 50.);
+    inSun=1.;
 
 
     vec3 camPos = aWC;
@@ -139,7 +148,7 @@ void main() {
     float lightIntensity = 0.2 + 0.5*clamp( -dot(light, hitn1),0., 1.) + 0.3*specularLightWeighting;
     fragColor = visualize(blue, red, mix(0.5, 1.0, inSun) * lightIntensity);
     fragColor = mix(colorPrimary, colorBg, mix(0.5, 1.0, inSun) * clamp(lightIntensity, 0., 1.));
-//    fragColor = visualize(blue, red, dWC/20.);
+//    fragColor = visualize(blue, red, dWC/30.);
 //    fragColor = visualize(blue, red, distance(hitWC, sunPoint)/20.);
 //    fragColor = vec4(aWC, 1.0);
 //    fragColor = vec4(coord, 0.0, 1.);

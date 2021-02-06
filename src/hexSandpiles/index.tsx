@@ -463,7 +463,7 @@ async function setup(canvas: HTMLCanvasElement, colorBg: GL_COLOR) {
   const gl: TSGLContext & WebGL2RenderingContextStrict = TSGLContext.create({
     canvas,
     throwOnError: true,
-  }) as any
+  }) as unknown
 
   console.log("gl", gl)
 
