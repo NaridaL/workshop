@@ -2,14 +2,12 @@ import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Grid from "@material-ui/core/Grid"
 import Slider from "@material-ui/core/Slider"
-import makeStyles from "@material-ui/core/styles/makeStyles"
-import useTheme from "@material-ui/core/styles/useTheme"
+import { makeStyles, useTheme } from "@material-ui/core/styles"
 import TextField from "@material-ui/core/TextField"
 import * as chroma from "chroma.ts"
 import * as React from "react"
 import { ReactElement, useCallback, useEffect, useRef } from "react"
 import {
-  absSum,
   arrayFromFunction,
   clamp,
   DEG,
@@ -18,6 +16,7 @@ import {
   lerp,
   lerpInv,
   M4,
+  PI,
   V,
   V3,
 } from "ts3dutils"
@@ -37,6 +36,7 @@ const initialState = {
   yScale: 64,
   bandCount: 2,
   a: 0.5,
+  b: 0.5,
 }
 type State = typeof initialState
 
@@ -508,10 +508,22 @@ function noises(
       tex.bind(0)
       gradientsTex.bind(1)
 
+      const f = (abs / 1000 / 40) % 1
+      //        vec3 spherepos = fromPolar(mix(-6., 6., f), abs(mix(-10., 10., f)) + PI / 2., 0.);
+      const campos = (f: number) =>
+        V3.polar(lerp(-6, 6, f), Math.abs(lerp(-10, 10, f)) + PI / 2, 0.5)
+
       const lll = M4.product(
-        M4.perspective(45, 1, 1, 50),
-        M4.lookAt(V(10, 0, 10), V3.O, V3.Z),
-        M4.rotateZ(abs / 10_000),
+        M4.perspective(70, 1, 0.1, 50),
+        M4.lookAt(
+          campos(f),
+          campos(f + 0.005)
+            .unit()
+            .plus(V(0, 0, 0.2)),
+          V3.Z,
+        ),
+        // M4.lookAt(V(10, 0, 10), V3.O, V3.Z),
+        // M4.rotateZ(abs / 10_000),
       )
       const llli = lll.inversed()
       if (!outputllll) {
@@ -520,9 +532,10 @@ function noises(
         console.log(lll.transformPoint(V3.XYZ))
         outputllll = true
       }
-      shaders.shader1
+      shaders.raymarch
         .uniforms({
           a: dynamicState.a,
+          b: dynamicState.b,
           colorPrimary: colors.primary,
           colorSecondary: colors.secondary,
           colorBg: colors.background,
@@ -532,6 +545,7 @@ function noises(
           highResTimeStamp: abs,
           secs: abs / 1000,
           gradients: 1,
+          //campos,
           lll,
           llli,
         })
@@ -543,7 +557,7 @@ function noises(
       gl.translate(-0.75, 0, 0)
       gl.scale(0.5)
       gl.rotate(-90, 1, 0, 0)
-      shaders.shader1
+      shaders.raymarch
         .uniforms({
           colorPrimary: colors.primary,
           colorBg: colors.background,
@@ -659,8 +673,8 @@ export default (): ReactElement => {
           <canvas
             ref={canvasRef}
             style={{ width: "100%", height: "100%" }}
-            width={512}
-            height={512}
+            width={128}
+            height={128}
             tabIndex={0}
           />
         </div>
@@ -685,6 +699,16 @@ export default (): ReactElement => {
             step={0.01}
           />
         </div>
+        <div>
+          <Slider
+            value={state.b}
+            onChange={(e, b) => setStatePartial({ b })}
+            min={0}
+            max={1}
+            step={0.01}
+          />
+        </div>
+        {state.a}
       </Grid>
     </Grid>
   )

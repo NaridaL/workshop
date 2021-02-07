@@ -30,7 +30,8 @@
     "no-restricted-imports": [
       "error",
       {
-        "paths": ["@material-ui/core"]
+        "paths": ["@material-ui/core", "@material-ui/icons"],
+        "patterns": ["@material-ui/core/styles/*"]
       }
     ],
     "@typescript-eslint/ban-types": [

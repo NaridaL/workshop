@@ -1,30 +1,8 @@
-import { Chromable, w3cx11 } from "chroma.ts"
 import * as chroma from "chroma.ts"
 import * as React from "react"
 import { ReactElement, useEffect, useRef } from "react"
-import {
-  arrayFromFunction,
-  arraySwap,
-  assert,
-  bagRemoveIndex,
-  clamp,
-  clear,
-  DEG,
-  emod,
-  indexWithMax,
-  int,
-  lerp,
-  M4,
-  PI,
-  removeIndexes,
-  TAU,
-  Tuple3,
-  unique,
-  V,
-  V3,
-  withMax,
-} from "ts3dutils"
-import { Buffer, Mesh, Shader, Texture, TSGLContext } from "tsgl"
+import { DEG, int, M4, PI, TAU, V, V3 } from "ts3dutils"
+import { Buffer, Mesh, Shader, TSGLContext } from "tsgl"
 
 const hfcDefault = chroma.color("blue").gl()
 
@@ -94,9 +72,6 @@ class SGN {
 }
 
 const tree = new SGN()
-
-const sleep = (ms: int) =>
-  new Promise((resolve, reject) => setTimeout(resolve, ms))
 
 const rodLength = 12
 
@@ -384,7 +359,7 @@ function quickhull(gl: TSGLContext) {
   gl.enable(gl.DEPTH_TEST)
   gl.enable(gl.BLEND)
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-  const pressedKeys: { [key: string]: boolean } = {}
+  const pressedKeys: { [key: string]: boolean | undefined } = {}
   console.log(gl.canvas)
   gl.canvas.contentEditable = "true" // make canvas focusable
   gl.canvas.focus()

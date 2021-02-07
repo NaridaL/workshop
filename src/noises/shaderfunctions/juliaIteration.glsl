@@ -1,14 +1,14 @@
 const float rSqr = r * r;
 
-uint juliaIteration(vec2 start) {
+vec3 juliaIteration(vec2 start) {
     vec2 p = start;
     for (uint i = uint(0); i < maxit; i++) {
         p = f(p);
         if (dot(p, p) > rSqr) {
-            return i;
+            return vec3(p, float(i));
         }
     }
-    return uint(0);
+    return vec3(p, float(maxit));
 }
 
 #pragma glslify: export(juliaIteration)

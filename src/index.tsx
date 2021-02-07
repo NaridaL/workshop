@@ -6,9 +6,11 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
-import { ThemeProvider } from "@material-ui/core/styles"
-import createMuiTheme from "@material-ui/core/styles/createMuiTheme"
-import makeStyles from "@material-ui/core/styles/makeStyles"
+import {
+  createMuiTheme,
+  makeStyles,
+  ThemeProvider,
+} from "@material-ui/core/styles"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import GitHubIcon from "@material-ui/icons/GitHub"
 import MenuIcon from "@material-ui/icons/Menu"
@@ -26,7 +28,7 @@ const pages = [
   { title: "Delta3D", module: "delta3d" },
   { title: "Paper Prism Box", module: "paperBox1" },
   { title: "Circle Paper Box", module: "paperBox2" },
-  { title: "Tree Fill", module: "treefill", hide: true },
+  { title: "Spirograph", module: "spirograph", hide: true },
 ]
 
 const AsyncPage = loadable(

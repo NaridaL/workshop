@@ -87,5 +87,4 @@ module.exports = {
     historyApiFallback: { index: "/workshop/404.html" },
     hot: true,
   },
-  devtool: "eval",
 }

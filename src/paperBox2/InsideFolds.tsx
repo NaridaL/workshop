@@ -4,14 +4,14 @@ import { ilog, newtonIterate1d, TAU, V, V3 } from "ts3dutils"
 
 import {
   dTpl,
-  INCH,
+  PaperSize,
   radiusFromCenterToSide,
   RegularPolygon,
   RotStep,
-  sideWidthFromCenterToSide,
 } from "../paperBox1/common"
 import { Measure } from "../paperBox1/Measure"
 import { MeasureAngle } from "../paperBox1/MeasureAngle"
+import { Common } from "./Common"
 
 // https://math.stackexchange.com/a/885965/230980
 export function lookUpAngle(
@@ -24,28 +24,18 @@ export function lookUpAngle(
   )
 }
 
-export function InsideFolds({
-  baseRadius,
-  topRadius,
-  radius,
-  print = false,
-  sides,
-  style,
-}: {
+export function InsideFolds(props: {
   baseRadius: number
   topRadius: number
   radius: number
   print?: boolean
   sides: number
   style?: CSSProperties
+  paperSize: PaperSize | null
 }): ReactElement {
+  const { baseRadius, topRadius, radius, print = false, sides } = props
   const basePolyRadius = radiusFromCenterToSide(sides, baseRadius)
   const topPolyRadius = radiusFromCenterToSide(sides, topRadius)
-  const svgViewBox = print
-    ? [-radius, -radius, radius * 2, radius * 2]
-    : [-radius - 10, -radius - 10, radius * 2 + 20, radius * 2 + 20]
-
-  const basePolySideWidth = sideWidthFromCenterToSide(sides, baseRadius)
 
   const creaseAngle = TAU / sides / 2
   const innerAngleToC = lookUpAngle(radius, creaseAngle, basePolyRadius)
@@ -55,11 +45,6 @@ export function InsideFolds({
     // which code makes which line. When printing, no colors.
     return print ? {} : { stroke: color }
   }
-  const xx = lookUpAngle(
-    radius,
-    creaseAngle,
-    topRadius - basePolySideWidth / 2 / Math.tan(creaseAngle / 2),
-  )
 
   const greyStartPoint = V(basePolyRadius, 0).plus(
     V3.polar(topRadius - baseRadius, creaseAngle),
@@ -72,60 +57,14 @@ export function InsideFolds({
   const greyEndpoint = greyLine(
     ilog(newtonIterate1d((t) => greyLine(t).length() - radius, 1, 4)),
   )
-  console.log(greyEndpoint)
-  const greyEndpoint2 = V3.polar(
-    radius,
-    V(basePolyRadius, 0)
-      .plus(V3.polar(topRadius - baseRadius, creaseAngle))
-      .to(V(radius, 0))
-      .angleXY() + creaseAngle,
-  )
-  const boxHeight = topRadius - baseRadius
-  const topLip = radius - topRadius
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      style={{
-        fill: "none",
-        stroke: "#123456",
-        strokeWidth: (2 * INCH) / 300,
-        ...style,
-      }}
-      width={print ? svgViewBox[2] * (96 / INCH) : svgViewBox[2] + "mm"}
-      height={print ? svgViewBox[3] * (96 / INCH) : svgViewBox[3] + "mm"}
-      viewBox={svgViewBox.join(" ")}
-      className="adrian"
-    >
-      <style>
-        {".valley {stroke-dasharray: 1,1;}"}
-        {".mountain {stroke-dasharray: 10,2,1,1,1,2;}"}
-      </style>
+    <Common {...props}>
       <g>
         <RegularPolygon
           radius={basePolyRadius}
           sides={sides}
           className="valley"
         />
-        {!print && (
-          <g transform="translate(-20 -20) rotate(180)">
-            <path
-              d={dTpl`
-          M${V(baseRadius - topLip, boxHeight * 0.99)}
-          L${V(baseRadius, boxHeight)}
-          L${V(baseRadius, 0)}
-          L${V(-baseRadius, 0)}
-          L${V(-baseRadius, boxHeight)}
-          L${V(topLip - baseRadius, boxHeight * 1.01)}
-          `}
-            />
-            <Measure from={V(baseRadius, 0)} to={V(-baseRadius, 0)} />
-            <Measure from={V(baseRadius, boxHeight)} to={V(baseRadius, 0)} />
-            <Measure
-              from={V(topLip - baseRadius, boxHeight)}
-              to={V(0, boxHeight)}
-            />
-          </g>
-        )}
         {!print && (
           <>
             <Measure
@@ -214,6 +153,6 @@ export function InsideFolds({
         </RotStep>
         <circle r={radius} />
       </g>
-    </svg>
+    </Common>
   )
 }

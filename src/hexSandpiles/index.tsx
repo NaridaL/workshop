@@ -1,4 +1,4 @@
-import useTheme from "@material-ui/core/styles/useTheme"
+import { useTheme } from "@material-ui/core/styles"
 import { assert } from "chai"
 import * as chroma from "chroma.ts"
 import { Font, load } from "opentype.js"
@@ -114,8 +114,10 @@ assert.deepEqual(oddr_to_cube(-1, 0), [-1, 0, 1])
 assert.deepEqual(oddr_to_cube(0, -1), [1, -1, 0])
 assert.deepEqual(oddr_to_cube(-1, -1), [0, -1, 1])
 assert.deepEqual(oddr_to_cube(0, -2), [1, -2, 1])
+
 class HexSand {
   readonly data: Uint8Array
+
   public constructor(public readonly w: int, public readonly h: int) {
     this.data = new Uint8Array(w * h)
   }
@@ -125,34 +127,40 @@ class HexSand {
     hs.plusHS(this)
     return hs
   }
+
   dualize() {
     for (let i = 0; i < this.h * this.w; i++) {
       if (SINK !== this.data[i]) this.data[i] = 5 - this.data[i]
     }
     console.log("dualized")
   }
+
   plus(x: int) {
     for (let i = 0; i < this.h * this.w; i++) {
       if (SINK !== this.data[i]) this.data[i] += x
     }
     console.log("plus " + x)
   }
+
   times(x: int) {
     for (let i = 0; i < this.h * this.w; i++) {
       if (SINK !== this.data[i]) this.data[i] *= x
     }
     console.log("times " + x)
   }
+
   setHS(o: HexSand) {
     for (let i = 0; i < this.h * this.w; i++) {
       this.data[i] = o.data[i]
     }
   }
+
   plusHS(o: HexSand) {
     for (let i = 0; i < this.h * this.w; i++) {
       if (SINK !== this.data[i]) this.data[i] += o.data[i]
     }
   }
+
   fill(n: int) {
     for (let i = 0; i < this.h * this.w; i++) {
       if (SINK !== this.data[i]) this.data[i] = n
@@ -170,12 +178,15 @@ class HexSand {
   getOddr(x: int, y: int): int {
     return this.data[y * this.w + x]
   }
+
   setOddr(x: int, y: int, value: int) {
     return (this.data[y * this.w + x] = value)
   }
+
   addOddr(x: int, y: int, value: int): int {
     return (this.data[y * this.w + x] += value)
   }
+
   isSink(x: int, y: int): boolean {
     return this.getOddr(x, y) === SINK
   }
@@ -194,6 +205,7 @@ class HexSand {
       }
     }
   }
+
   async drawText(
     oddr_cx: int,
     oddr_cy: int,
@@ -221,11 +233,9 @@ class HexSand {
     path.draw(context)
     // canvas.setAttribute("d", path)
 
-    // const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-    // svg.setAttribute("fill", "black")
-    // svg.setAttribute("width", "400")
-    // svg.setAttribute("height", "100")
-    // svg.appendChild(canvas)
+    // const svg = document.createElementNS("http://www.w3.org/2000/svg",
+    // "svg") svg.setAttribute("fill", "black") svg.setAttribute("width",
+    // "400") svg.setAttribute("height", "100") svg.appendChild(canvas)
     // document.body.appendChild(svg)
     const offset = oddr_to_px(oddr_cx, oddr_cy).minus(pathBBSize.div(2))
     const p = context.getImageData(0, 0, canvas.width, canvas.height).data
@@ -247,6 +257,7 @@ class HexSand {
       }
     }
   }
+
   drawTriangle(inner: int, outer: int, value: int) {
     const cx = (this.w / 2) | 0
     const cy = (this.h / 2) | 0
@@ -260,6 +271,7 @@ class HexSand {
       }
     }
   }
+
   drawCircle(inner: int, outer: int, value: int) {
     const cx = (this.w / 2) | 0
     const cy = (this.h / 2) | 0
@@ -274,6 +286,7 @@ class HexSand {
       }
     }
   }
+
   drawRect(w: int, h: int, value: int) {
     for (let i = 0; i < this.h * this.w; i++) {
       const x = (i % this.w) - ((this.w / 2) | 0)
@@ -289,6 +302,7 @@ class HexSand {
       }
     }
   }
+
   async asyncStabilizeNoShader() {
     let changed
     do {
@@ -459,6 +473,7 @@ class HexSand {
 }
 
 const colorFg = chroma.scale("white", "green").mode("rgb").colors(10, "gl")
+
 async function setup(canvas: HTMLCanvasElement, colorBg: GL_COLOR) {
   const gl: TSGLContext & WebGL2RenderingContextStrict = TSGLContext.create({
     canvas,
@@ -606,6 +621,7 @@ async function setup(canvas: HTMLCanvasElement, colorBg: GL_COLOR) {
     return
   }
 }
+
 export default (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 

@@ -9,7 +9,7 @@ import InputLabel from "@material-ui/core/InputLabel"
 import Link from "@material-ui/core/Link"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
-import makeStyles from "@material-ui/core/styles/makeStyles"
+import { makeStyles } from "@material-ui/core/styles"
 import TextField from "@material-ui/core/TextField"
 import Tooltip from "@material-ui/core/Tooltip"
 import fileDownload from "js-file-download"
@@ -17,7 +17,7 @@ import * as React from "react"
 import { ReactElement, useCallback, useState } from "react"
 import * as ReactDOMServer from "react-dom/server"
 
-import { PAPER_SIZE_A4, PaperSize } from "../paperBox1/common"
+import { PaperSize } from "../paperBox1/common"
 import { PaperAutocomplete } from "../paperBox1/PaperAutocomplete"
 import { useHashState } from "../paperBox1/useHashState"
 import { InsideFolds } from "./InsideFolds"
@@ -108,7 +108,8 @@ export default (): ReactElement => {
           <CardContent>
             Helper to build a box from a circular piece of paper. The Inside
             Folds variant has more complicated folds but has a cleaner overall
-            look.
+            look. For the outside folds variant, you want or (or even negative)
+            overlap at the top.
           </CardContent>
         </Card>
         <FormControl variant="outlined" size="small">
