@@ -1,4 +1,4 @@
-import { OutlinedInput } from "@material-ui/core"
+import { MenuItem, OutlinedInput, Select } from "@material-ui/core"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
@@ -236,6 +236,7 @@ export default (): ReactElement => {
     undefined as number | undefined,
   )
   const [gp, setGp] = useState(M4.IDENTITY)
+  const [resolution, setResolution] = useState(256)
   const [gpFocused, setGpFocused] = useState(false)
   const [state, setState] = useHashState(initialState)
   const setStatePartial = useCallback(
@@ -259,31 +260,33 @@ export default (): ReactElement => {
   )
   const render = useCallback(
     async ([width, height]) => {
-      const dataUrl = await renderHighRes(
-        [width, height],
-        raymarchSetup,
-        (gl, shared) => {
-          const camMatrix = M4.product(
-            M4.perspective(70, width / height, 0.1, 50),
-            FlyCameraController.fromShortString(state.cam),
-          )
+      const url = URL.createObjectURL(
+        await renderHighRes(
+          [width, height],
+          raymarchSetup,
+          (gl, shared) => {
+            const camMatrix = M4.product(
+              M4.perspective(70, width / height, 0.1, 50),
+              FlyCameraController.fromShortString(state.cam),
+            )
 
-          raymarchRender(
-            gl,
-            shared,
-            camMatrix,
-            colors,
-            state,
-            2000,
-            gp.getTranslation(),
-          )
-        },
-        setRenderProgress,
+            raymarchRender(
+              gl,
+              shared,
+              camMatrix,
+              colors,
+              state,
+              2000,
+              gp.getTranslation(),
+            )
+          },
+          setRenderProgress,
+        ),
       )
       setRenderProgress(undefined)
-      openInNewTab(dataUrl)
+      openInNewTab(url)
     },
-    [colors, state],
+    [gp, colors, state],
   )
   useEffect(() => {
     console.log("creating context")
@@ -302,7 +305,9 @@ export default (): ReactElement => {
       setPart,
       setGp,
     )
-    return raymarchRef.current?.teardown
+    return () => {
+      raymarchRef.current?.teardown()
+    }
   }, [])
   useEffect(() => {
     state.cam &&
@@ -342,8 +347,8 @@ export default (): ReactElement => {
               height: "100%",
               cursor: part === NONE ? "move" : "grab",
             }}
-            width={256}
-            height={256}
+            width={resolution}
+            height={resolution}
             tabIndex={0}
           />
         </div>
@@ -352,6 +357,13 @@ export default (): ReactElement => {
         <Card>
           <CardContent>Raymarching demo.</CardContent>
         </Card>
+        <Select
+          onChange={(e) => setResolution(+(e.target.value as string))}
+          value={resolution}
+        >
+          <MenuItem value={256}>256x256</MenuItem>
+          <MenuItem value={512}>512x512</MenuItem>
+        </Select>
         <BoundNumberField
           {...{ state, setStatePartial }}
           prop="a"

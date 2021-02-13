@@ -477,7 +477,7 @@ const colorFg = chroma.scale("white", "green").mode("rgb").colors(10, "gl")
 async function setup(canvas: HTMLCanvasElement, colorBg: GL_COLOR) {
   const gl: TSGLContext & WebGL2RenderingContextStrict = TSGLContext.create({
     canvas,
-    throwOnError: true,
+    throwOnError: false,
   }) as unknown
 
   console.log("gl", gl)

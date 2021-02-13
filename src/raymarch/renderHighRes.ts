@@ -6,7 +6,7 @@ export async function renderHighRes<T>(
   setup: (gl: TSGLContext) => T,
   render: (gl: TSGLContext, shared: T) => void,
   onProgress?: (done0to1: number) => void,
-): Promise<string> {
+): Promise<Blob> {
   onProgress?.(0)
   await sleep(10)
   const canvas = document.createElement("canvas")
@@ -31,6 +31,7 @@ export async function renderHighRes<T>(
       onProgress?.(donePixels / (width * height))
     }
   }
-  await sleep(2000)
-  return canvas.toDataURL()
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject("error")), "png"),
+  )
 }
