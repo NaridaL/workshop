@@ -12,7 +12,7 @@ out float n;
 out vec2 coord;
 void main() {
     vec2 texCoordAdjusted = offset + ts_TexCoord * scale;
-    gl_Position = ts_ModelViewProjectionMatrix * ts_Vertex;
+    gl_Position = ts_Vertex;
     coordUVQ = ts_TexCoordUVQ;
-    coord = mix(vec2(-1., -1.), vec2(1., 1.), texCoordAdjusted);
+    coord = ts_TexCoord;
 }

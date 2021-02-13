@@ -69,10 +69,10 @@ export default (): ReactElement => {
     (partialState: Partial<typeof state>) => {
       setStateUnchecked((s) => {
         const newState = { ...s, ...partialState }
-        if (lockTopLip && topLipMax != state.topLip) {
+        if (lockTopLip && topLipMax !== state.topLip) {
           newState.topLip = topLipMax
         }
-        if (lockBottomLip && bottomLipLockPos != state.bottomLip) {
+        if (lockBottomLip && bottomLipLockPos !== state.bottomLip) {
           newState.bottomLip = bottomLipLockPos
         }
         return newState

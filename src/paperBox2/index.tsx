@@ -12,6 +12,7 @@ import Select from "@material-ui/core/Select"
 import { makeStyles } from "@material-ui/core/styles"
 import TextField from "@material-ui/core/TextField"
 import Tooltip from "@material-ui/core/Tooltip"
+import { Alert } from "@material-ui/lab"
 import fileDownload from "js-file-download"
 import * as React from "react"
 import { ReactElement, useCallback, useState } from "react"
@@ -21,8 +22,9 @@ import { PaperSize } from "../paperBox1/common"
 import { PaperAutocomplete } from "../paperBox1/PaperAutocomplete"
 import { useHashState } from "../paperBox1/useHashState"
 import { InsideFolds } from "./InsideFolds"
-import insideFoldsJpg from "./insideFolds.jpg"
+import insideFoldsImg from "./insideFolds.jpg"
 import { OutsideFolds } from "./OutsideFolds"
+import outsideFoldsLargeTemplateImg from "./outsideFoldsLargeTemplate.jpg"
 
 const useStyles = makeStyles((theme) => ({
   sidebar: {
@@ -89,6 +91,9 @@ export default (): ReactElement => {
     fileDownload(blob, baseFileName + ".pdf")
   }
 
+  const topLip = state.radius - state.topRadius
+  const topOverlap = topLip - state.baseRadius
+
   return (
     <Grid container style={{ width: "100%" }}>
       <Grid item xs={12} md={10}>
@@ -102,14 +107,13 @@ export default (): ReactElement => {
         <Card>
           <CardMedia
             className={classes.media}
-            image={insideFoldsJpg}
+            image={insideFoldsImg}
             title="Contemplative Reptile"
           />
           <CardContent>
             Helper to build a box from a circular piece of paper. The Inside
             Folds variant has more complicated folds but has a cleaner overall
-            look. For the outside folds variant, you want or (or even negative)
-            overlap at the top.
+            look.
           </CardContent>
         </Card>
         <FormControl variant="outlined" size="small">
@@ -164,13 +168,19 @@ export default (): ReactElement => {
           onChange={(e) => setPartialState({ sides: +e.target.value })}
           label="Sides"
         />
+        {state.variant === "inside" && topOverlap > 0 && (
+          <Alert severity="warning">
+            For the inside folds variant, you want no (or even negative) overlap
+            at the top.
+          </Alert>
+        )}
         <Divider />
         <Card>
           <CardContent>
             Set the Print Paper Size on large boxes to get a partial template
             which can be rotated. See{" "}
-            <Link href="./outsideFoldsLargeTemplate.jpg">this image</Link> for
-            an example.
+            <Link href={outsideFoldsLargeTemplateImg}>this image</Link> for an
+            example.
           </CardContent>
         </Card>
         <PaperAutocomplete

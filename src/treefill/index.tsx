@@ -33,7 +33,7 @@ class QuadTreeFill {
   }
 
   step(): boolean {
-    return this.heads.length != 0
+    return this.heads.length !== 0
   }
 
   turn(dir: int, d: int): int {

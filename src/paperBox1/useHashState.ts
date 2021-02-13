@@ -43,6 +43,8 @@ const defaultDeserialize = (
       return undefined
     } else if ("null" === v) {
       return null
+    } else if ("" === v) {
+      return ""
     } else if (!isNaN(+v)) {
       return +v
     } else {
@@ -88,7 +90,8 @@ export function useHashState<S extends {}>(
       )
     }, wait)
   }
-  updateHashRef.current!(state)
+  useEffect(() => updateHashRef.current!(state), [state])
+
   useEffect(() => {
     const onHashChange: (e: HashChangeEvent) => void = () => {
       setState(createInitialState())

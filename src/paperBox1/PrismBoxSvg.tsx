@@ -37,18 +37,16 @@ export function PrismBoxSvg({
   const creaseAngle = shapeAngle / 2
   const maxBottomLip = sideWidth / Math.tan(creaseAngle)
   //const bottomLip = maxBottomLip
-  const calc = Math.atan(sideWidth / bottomLip)
   const rightTabWidth = width - sides * sideWidth
 
   const intersect = Math.tan(creaseAngle) * bottomLip
 
   const theta = thetaDeg * DEG
-  const fontScale = 2
 
   const boxHeight = height - bottomLip - topLip
   const radius = radiusFromSideWidth(sides, sideWidth)
   const centerToSide = centerToSideFromSideWidth(sides, sideWidth)
-  const boxWidth = centerToSide + (sides % 2 == 0 ? centerToSide : radius)
+  const boxWidth = centerToSide + (sides % 2 === 0 ? centerToSide : radius)
 
   const valley = encodeSVGPath([
     // bottom lip horizontal
@@ -289,7 +287,7 @@ export function PrismBoxSvg({
                   radius,
                   (TAU / sides) * i + (Math.PI - TAU / sides / 2),
                 )
-                return (0 == i ? "M" : "L") + p.x + "," + p.y
+                return (0 === i ? "M" : "L") + p.x + "," + p.y
               })
               .join(" ")} Z`}
           />

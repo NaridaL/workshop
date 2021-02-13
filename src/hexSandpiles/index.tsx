@@ -322,7 +322,7 @@ class HexSand {
         }
       }
       await sleep(10)
-    } while (changed != 0)
+    } while (changed !== 0)
     console.log("stabilized")
     await sleep(2000)
   }

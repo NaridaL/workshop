@@ -108,7 +108,7 @@ function makeTetrahedralGridMesh(cylinderMesh: Mesh) {
   for (let x = -0; x < 2; x++) {
     for (let y = -0; y < 2; y++) {
       for (let z = -0; z < 1; z++) {
-        const dx = x + (y % 2 == 0 ? 0 : COS60)
+        const dx = x + (y % 2 === 0 ? 0 : COS60)
         cylMeshes.push(
           cylinderMesh.transform(
             M4.scale(1, 0.01, 0.01).translate(dx, y * SIN60, z * SIN60),
@@ -379,7 +379,7 @@ function noises(
     )
   }
   const loadViewState = () => {
-    if (null != localStorage.getItem("viewState")) {
+    if (null !== localStorage.getItem("viewState")) {
       const json = JSON.parse(localStorage.getItem("viewState")!)
       viewState.pos = V3.fromArray(json.pos)
       viewState.lookDir = V3.fromArray(json.lookDir)

@@ -1,23 +1,23 @@
 #version 300 es
 precision highp float;
 
-#pragma glslify: banded = require(./shaderfunctions/banded.glsl)
-#pragma glslify: between = require(./shaderfunctions/between.glsl)
-#pragma glslify: simplex2D = require(./shaderfunctions/simplex2DTexture.glsl)
-#pragma glslify: remix = require(./shaderfunctions/remix.glsl)
-#pragma glslify: complexMul = require(./shaderfunctions/complexMul.glsl)
-#pragma glslify: complexDiv = require(./shaderfunctions/complexDiv.glsl)
-#pragma glslify: complexPow = require(./shaderfunctions/complexPow.glsl)
-#pragma glslify: unmix = require(./shaderfunctions/unmix.glsl)
-#pragma glslify: waves = require(./shaderfunctions/waves.glsl)
-#pragma glslify: visualize = require(./shaderfunctions/visualize.glsl)
-#pragma glslify: ra2Hex = require(./shaderfunctions/ra2Hex.glsl)
-#pragma glslify: hex2Ra = require(./shaderfunctions/hex2Ra.glsl)
-#pragma glslify: hexRound = require(./shaderfunctions/hexRound.glsl)
-#pragma glslify: fromPolar = require(./shaderfunctions/fromPolar.glsl)
-#pragma glslify: toPolar = require(./shaderfunctions/toPolar.glsl)
-#pragma glslify: hexSdf = require(./shaderfunctions/hexSdf.glsl)
-#pragma glslify: rotY = require(./shaderfunctions/rotY.glsl)
+#pragma glslify: banded = require(../shaderfunctions/banded.glsl)
+#pragma glslify: between = require(../shaderfunctions/between.glsl)
+#pragma glslify: simplex2D = require(../shaderfunctions/simplex2DTexture.glsl)
+#pragma glslify: remix = require(../shaderfunctions/remix.glsl)
+#pragma glslify: complexMul = require(../shaderfunctions/complexMul.glsl)
+#pragma glslify: complexDiv = require(../shaderfunctions/complexDiv.glsl)
+#pragma glslify: complexPow = require(../shaderfunctions/complexPow.glsl)
+#pragma glslify: unmix = require(../shaderfunctions/unmix.glsl)
+#pragma glslify: waves = require(../shaderfunctions/waves.glsl)
+#pragma glslify: visualize = require(../shaderfunctions/visualize.glsl)
+#pragma glslify: ra2Hex = require(../shaderfunctions/ra2Hex.glsl)
+#pragma glslify: hex2Ra = require(../shaderfunctions/hex2Ra.glsl)
+#pragma glslify: hexRound = require(../shaderfunctions/hexRound.glsl)
+#pragma glslify: fromPolar = require(../shaderfunctions/fromPolar.glsl)
+#pragma glslify: toPolar = require(../shaderfunctions/toPolar.glsl)
+#pragma glslify: hexSdf = require(../shaderfunctions/hexSdf.glsl)
+#pragma glslify: rotY = require(../shaderfunctions/rotY.glsl)
 
 uniform sampler2D texture;
 uniform vec4 colorPrimary;
@@ -63,7 +63,7 @@ vec2 flf(vec2 z) {
     return complexDiv(vec2(1., 0.) - z3 / 6., complexSqr(z - z2 / 2.)) + vec2(-a, b);
 }
 
-#pragma glslify: julia = require(./shaderfunctions/juliaIteration.glsl, r=2., f=f, maxit=20u)
+#pragma glslify: julia = require(../shaderfunctions/juliaIteration.glsl, r=2., f=f, maxit=20u)
 
 void main() {
     vec3 res = julia(coord);

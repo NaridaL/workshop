@@ -58,7 +58,7 @@ class SGN {
 
   public getTransform(sgn: SGN): M4 {
     let result = sgn.transform
-    while (sgn.parent != this) {
+    while (sgn.parent !== this) {
       sgn = sgn.parent
       result = sgn.transform.times(result)
     }
@@ -119,7 +119,7 @@ function quickhull(gl: TSGLContext) {
     )
   }
   const loadViewState = () => {
-    if (null != localStorage.getItem("viewState")) {
+    if (null !== localStorage.getItem("viewState")) {
       const json = JSON.parse(localStorage.getItem("viewState")!)
       viewState.pos = V3.fromArray(json.pos)
       viewState.lookDir = V3.fromArray(json.lookDir)

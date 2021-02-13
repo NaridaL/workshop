@@ -1,8 +1,7 @@
 import blobStream from "blob-stream"
 import PDFDocument from "pdfkit"
 import SVGtoPDF from "svg-to-pdfkit"
-import { MINUS, round10 } from "ts3dutils"
-import { INCH } from "./common"
+import { round10 } from "ts3dutils"
 
 export function svgToPdf({
   title,

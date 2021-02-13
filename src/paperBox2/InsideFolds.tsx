@@ -46,16 +46,13 @@ export function InsideFolds(props: {
     return print ? {} : { stroke: color }
   }
 
-  const greyStartPoint = V(basePolyRadius, 0).plus(
+  const redStartPoint = V(basePolyRadius, 0).plus(
     V3.polar(topRadius - baseRadius, creaseAngle),
   )
-  const greyDir = V3.polar(
-    1,
-    greyStartPoint.to(V(radius, 0)).angleXY() + creaseAngle,
-  )
-  const greyLine = (t: number) => greyStartPoint.plus(greyDir.times(t))
-  const greyEndpoint = greyLine(
-    ilog(newtonIterate1d((t) => greyLine(t).length() - radius, 1, 4)),
+  const redDir = V3.X
+  const redLine = (t: number) => redStartPoint.plus(redDir.times(t))
+  const redEndpoint = redLine(
+    newtonIterate1d((t) => redLine(t).length() - radius, 1, 4),
   )
   return (
     <Common {...props}>
@@ -91,7 +88,7 @@ export function InsideFolds(props: {
               radius
             </Measure>
             <MeasureAngle
-              center={greyStartPoint}
+              center={redStartPoint}
               start={Math.PI}
               toRel={creaseAngle}
             />
@@ -114,8 +111,15 @@ export function InsideFolds(props: {
                 M${basePolyRadius},0
                 L${V3.polar(radius, innerAngleToC)}
                 M${basePolyRadius},0
-                l${V3.polar(topRadius - baseRadius, creaseAngle)}`}
+                L${redStartPoint}`}
             className="valley"
+            style={highlight("blue")}
+          />
+          <path
+            d={dTpl`
+                M${redStartPoint}
+                L${V3.polar(radius, -innerAngleToC)}`}
+            className="mountain"
             style={highlight("blue")}
           />
           <path
@@ -138,17 +142,10 @@ export function InsideFolds(props: {
           />
           <path
             d={dTpl`
-                M${greyStartPoint}
-                L${V(radius, 0)}`}
+                M${redStartPoint}
+                L${redEndpoint}`}
             className="valley"
             style={highlight("red")}
-          />
-          <path
-            d={dTpl`
-                M${greyStartPoint}
-                L${greyEndpoint}`}
-            className="valley"
-            style={highlight("grey")}
           />
         </RotStep>
         <circle r={radius} />

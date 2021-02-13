@@ -1,7 +1,9 @@
 import loadable from "@loadable/component"
+import AppBar from "@material-ui/core/AppBar"
+import Button from "@material-ui/core/Button"
 import CssBaseline from "@material-ui/core/CssBaseline"
 import Drawer from "@material-ui/core/Drawer"
-import Fab from "@material-ui/core/Fab"
+import IconButton from "@material-ui/core/IconButton"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -11,6 +13,7 @@ import {
   makeStyles,
   ThemeProvider,
 } from "@material-ui/core/styles"
+import Toolbar from "@material-ui/core/Toolbar"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import GitHubIcon from "@material-ui/icons/GitHub"
 import MenuIcon from "@material-ui/icons/Menu"
@@ -25,7 +28,8 @@ const pages = [
   { title: "Hex Sandpiles", module: "hexSandpiles" },
   { title: "Quickhull Animation", module: "quickhull" },
   { title: "Noises", module: "noises" },
-  { title: "Delta3D", module: "delta3d" },
+  { title: "Raymarching", module: "raymarch" },
+  { title: "Delta3D", module: "delta3d", hide: true },
   { title: "Paper Prism Box", module: "paperBox1" },
   { title: "Circle Paper Box", module: "paperBox2" },
   { title: "Spirograph", module: "spirograph", hide: true },
@@ -126,17 +130,20 @@ const App = () => {
           </ListItem>
         </List>
       </Drawer>
-      <Fab
-        color="secondary"
-        style={{
-          position: "absolute",
-          top: 16,
-          left: 16,
-        }}
-        onClick={onHamburgerClick}
-      >
-        <MenuIcon />
-      </Fab>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={onHamburgerClick}
+          >
+            <MenuIcon />
+          </IconButton>
+          <h2> {currentPage?.title ?? "Loading..."}</h2>
+        </Toolbar>
+      </AppBar>
+
       <Switch>
         {pages.map(({ module }) => (
           <Route key={module} path={`/${module}`}>

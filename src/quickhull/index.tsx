@@ -455,7 +455,7 @@ function quickhull(gl: TSGLContext) {
       0,
       state.length - 1,
     )
-    if (newMi != mi) {
+    if (newMi !== mi) {
       mi = newMi
       console.log(mi, state[mi].description, state[mi].cd)
     }

@@ -1,17 +1,17 @@
 #version 300 es
 precision mediump float;
 
-#pragma glslify: banded = require(./shaderfunctions/banded.glsl)
-#pragma glslify: between = require(./shaderfunctions/between.glsl)
-#pragma glslify: perlin2D = require(./shaderfunctions/perlin2DTexture.glsl)
-#pragma glslify: remix = require(./shaderfunctions/remix.glsl)
-#pragma glslify: unmix = require(./shaderfunctions/unmix.glsl)
-#pragma glslify: waves = require(./shaderfunctions/waves.glsl)
-#pragma glslify: visualize = require(./shaderfunctions/visualize.glsl)
-#pragma glslify: ra2Hex = require(./shaderfunctions/ra2Hex.glsl)
-#pragma glslify: hex2Ra = require(./shaderfunctions/hex2Ra.glsl)
-#pragma glslify: hexRound = require(./shaderfunctions/hexRound.glsl)
-#pragma glslify: hexSdf = require(./shaderfunctions/hexSdf.glsl)
+#pragma glslify: banded = require(../shaderfunctions/banded.glsl)
+#pragma glslify: between = require(../shaderfunctions/between.glsl)
+#pragma glslify: perlin2D = require(../shaderfunctions/perlin2DTexture.glsl)
+#pragma glslify: remix = require(../shaderfunctions/remix.glsl)
+#pragma glslify: unmix = require(../shaderfunctions/unmix.glsl)
+#pragma glslify: waves = require(../shaderfunctions/waves.glsl)
+#pragma glslify: visualize = require(../shaderfunctions/visualize.glsl)
+#pragma glslify: ra2Hex = require(../shaderfunctions/ra2Hex.glsl)
+#pragma glslify: hex2Ra = require(../shaderfunctions/hex2Ra.glsl)
+#pragma glslify: hexRound = require(../shaderfunctions/hexRound.glsl)
+#pragma glslify: hexSdf = require(../shaderfunctions/hexSdf.glsl)
 
 uniform sampler2D texture;
 uniform vec4 colorPrimary;

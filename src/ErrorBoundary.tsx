@@ -29,7 +29,7 @@ export class ErrorBoundary extends Component<{ children?: ReactNode }> {
       <pre style={{ fontSize: "small" }}>
         {shaderSource.split(/\r\n|\r|\n/).flatMap((line, lineIndex) => {
           const lineNo = lineIndex + 1
-          const lineError = errors.find((e) => e.line == lineNo)
+          const lineError = errors.find((e) => e.line === lineNo)
           return [
             <div
               key={lineNo}
