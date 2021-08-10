@@ -23,6 +23,15 @@ export function lookUpAngle(
     Math.PI / 2 - lookUpAngle2 - Math.acos((r2 / r) * Math.sin(lookUpAngle2))
   )
 }
+export function lookUpRadius(
+  angle: number,
+  lookUpAngle2: number,
+  r2: number,
+): number {
+  return (
+    r2 / Math.cos(angle - Math.PI / 2 + lookUpAngle2) / Math.sin(lookUpAngle2)
+  )
+}
 
 export function InsideFolds(props: {
   baseRadius: number

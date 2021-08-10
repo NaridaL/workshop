@@ -2,8 +2,8 @@ import Grid from "@material-ui/core/Grid"
 import { useTheme } from "@material-ui/core/styles"
 import * as React from "react"
 import { ReactElement, useEffect, useRef } from "react"
-import { DEG, PI, V3 } from "ts3dutils"
-import { lookUpAngle } from "../paperBox2/InsideFolds"
+import { DEG, M4, mod, PI, V, V3 } from "ts3dutils"
+import { lookUpAngle, lookUpRadius } from "../paperBox2/InsideFolds"
 
 class Circle {
   constructor(public readonly radius: number) {}
@@ -14,6 +14,27 @@ class Circle {
 
   radiusForAngle(angle: number) {
     return this.radius
+  }
+}
+function _circle(radius: number) {
+  return function (x: number) {
+    const angle = x / radius
+    return [V3.polar(radius, angle), V3.polar(1, angle + PI / 2)]
+  }
+}
+function _squarcle(radius: number, d: number) {
+  const alpha = lookUpAngle(radius, 45 * DEG, d)
+  const sideLength = alpha * 2 * radius
+  console.log(sideLength, alpha / DEG)
+  return function (x: number) {
+    const quarterCount = Math.floor(x / sideLength)
+    let quarterRest = x % sideLength
+    if (quarterRest > sideLength / 2) quarterRest -= sideLength
+    return [
+      // M4.rotateZ(quarterCount * (Math.PI / 2)).transformVector(
+      V(d - radius, 0).plus(V3.polar(radius, quarterRest / radius)),
+      // ),
+    ]
   }
 }
 
@@ -43,21 +64,31 @@ class Squarcle {
 
     return (quarterCount * PI) / 2 + alpha
   }
+
+  radiusForAngle(angle: number) {
+    angle = angle % (PI / 2)
+    if (angle > PI / 4) angle = angle - PI / 2
+    return lookUpRadius(angle, 45 * DEG, this.d)
+  }
 }
 
 // const shape = new Circle(1 / 3.14)
 const shape = new Squarcle(0.5, 0.4)
+// const _shape = _circle(2)
+const _shape = _squarcle(2, 1.8)
 
 function line(s: number) {
   const outerRadius = 1.5
   const shapeAngle = shape.angleForDistance(s * outerRadius)
-  const shapeRadius = shape.radiusForAngle(s * outerRadius)
+  const shapeRadius = shape.radiusForAngle(s / outerRadius)
   const shapeCenter = V3.polar(outerRadius - shapeRadius, s)
   return [
     //
     // V3.polar(outerRadius, Math.min(s, TAU)),
     // shapeCenter,
-    shapeCenter.plus(V3.polar(0.2, shapeAngle)),
+    _shape(s)[0],
+    // V3.polar(shapeRadius, shapeAngle),
+    // shapeCenter.plus(V3.polar(0.2, shapeAngle)),
     shapeCenter.plus(V3.polar(-0.2, shapeAngle)),
     // shapeCenter.plus(V3.polar(0.2, innerCircleAngle)),
     // shapeCenter.plus(V3.polar(0.4, innerCircleAngle + TAU / 3)),
@@ -78,7 +109,7 @@ function startAnim(context: CanvasRenderingContext2D, colors: string[]) {
 
   function paint(highResTimeStamp: number) {
     for (; lastTime < highResTimeStamp; lastTime += 1) {
-      const s = lastTime / 100.0
+      const s = lastTime / 1000.0
       const newPoints = line(s)
 
       for (let i = 0; i < lastPoints.length; i++) {

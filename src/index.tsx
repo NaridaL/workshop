@@ -23,6 +23,7 @@ import * as ReactDOM from "react-dom"
 import { BrowserRouter, Link, Redirect, Route, Switch } from "react-router-dom"
 
 import { ErrorBoundary } from "./ErrorBoundary"
+import { isDev } from "./utils/isDev"
 
 const pages = [
   { title: "Hex Sandpiles", module: "hexSandpiles" },
@@ -33,6 +34,7 @@ const pages = [
   { title: "Paper Prism Box", module: "paperBox1" },
   { title: "Circle Paper Box", module: "paperBox2" },
   { title: "Spirograph", module: "spirograph", hide: true },
+  { title: "Tiles", module: "tiles", hide: true },
 ]
 
 const AsyncPage = loadable(
@@ -112,7 +114,7 @@ const App = () => {
       <Drawer open={navOpen} onClose={onDrawerClose}>
         <List onClick={() => setNavOpen(false)}>
           {pages
-            .filter(({ hide }) => !hide)
+            .filter(({ hide }) => isDev() || !hide)
             .map(({ title, module }) => (
               <ListItem button component={Link} key={module} to={`/${module}`}>
                 <ListItemText>{title}</ListItemText>
