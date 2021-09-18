@@ -1,6 +1,7 @@
 import * as path from "path"
 import CopyPlugin = require("copy-webpack-plugin")
 import HtmlPlugin = require("html-webpack-plugin")
+import { EnvironmentPlugin } from "webpack"
 
 module.exports = {
   module: {
@@ -35,6 +36,10 @@ module.exports = {
     new HtmlPlugin({ template: "./index.html" }),
     new CopyPlugin({
       patterns: [{ from: "static", to: "." }],
+    }),
+    new EnvironmentPlugin({
+      GIT_HASH: process.env.GITHUB_SHA ?? "000000",
+      BUILD_TIME: new Date().toISOString(),
     }),
   ],
   output: {

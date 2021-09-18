@@ -73,6 +73,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
+const GIT_HASH = process.env.GIT_HASH!
+const BUILD_TIME = new Date(process.env.BUILD_TIME!)
+
 const ThemedApp = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
 
@@ -140,6 +143,21 @@ const App = () => {
               <GitHubIcon />
             </ListItemIcon>
             <ListItemText>Github</ListItemText>
+          </ListItem>
+          <ListItem
+            sx={{
+              fontSize: "smaller",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
+          >
+            <div>
+              SHA1{" "}
+              <a href={"https://github.com/NaridaL/workshop/tree/" + GIT_HASH}>
+                {GIT_HASH!.substring(0, 6)}
+              </a>
+            </div>
+            <div>BUILT {BUILD_TIME.toISOString().substring(0, 16)}</div>
           </ListItem>
         </List>
       </Drawer>
