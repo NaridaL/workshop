@@ -12,7 +12,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run fmt && npm run lint -- --fix && npm run build && git add ."
+      "pre-commit": "npm run fmt && npm run lint -- --fix && git add ."
     }
   },
   "repository": "github:NaridaL/workshop",

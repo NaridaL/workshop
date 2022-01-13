@@ -774,7 +774,7 @@ export default (): ReactElement => {
   }, [state.cam])
   useEffect(() => {
     raymarchRef.current?.updateShader(
-      edFragShader.replace(/RMHit sdf\(vec3 p\) {.*/, makeShader(model)),
+      edFragShader.replace(/RMHit sdf\(vec3 p\) {[\s\S]*?}/, makeShader(model)),
     )
   }, [model])
 

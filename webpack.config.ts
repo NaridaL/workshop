@@ -21,7 +21,7 @@ module.exports = {
         enforce: "pre",
       },
       {
-        test: /\.glslx$|\.vert$|\.frag$|\.glsl$/,
+        test: /\.glslx?$|\.vert$|\.frag$/,
         type: "asset/source",
         use: ["glslify-loader"],
       },
@@ -38,7 +38,6 @@ module.exports = {
     }),
   ],
   output: {
-    path: path.resolve(__dirname, "docs"),
     publicPath: "/workshop/",
   },
   resolve: {
@@ -82,10 +81,6 @@ module.exports = {
     usedExports: true,
   },
   devServer: {
-    static: {
-      publicPath: "/workshop/",
-      directory: path.join(__dirname, "docs"),
-    },
     historyApiFallback: { index: "/workshop/404.html" },
     hot: true,
   },
