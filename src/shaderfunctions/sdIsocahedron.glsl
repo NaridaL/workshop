@@ -15,22 +15,22 @@ const vec3 n3 = normalize(cross(c, a));
 // isocahedral symmetry
 // cf. https://en.wikipedia.org/wiki/Regular_icosahedron
 float isocahedralSymmetry(float s, vec3 p) {
-    // we use a rotation where the icosahedron is symmetric
-    // in all three coordinate planes, and reduce the problem
-    // to the +++ octant
-    p = abs(p);
+  // we use a rotation where the icosahedron is symmetric
+  // in all three coordinate planes, and reduce the problem
+  // to the +++ octant
+  p = abs(p);
 
-    if (dot(p, n1) < 0.) {
-        p += -2.0 * dot(p, n1) * n1;
-    }
-    if (dot(p, n2) < 0.) {
-        p += -2.0 * dot(p, n2) * n2;
-    }
-    if (dot(p, n3) < 0.) {
-        p += -2.0 * dot(p, n3) * n3;
-    }
-    vec3 vxyz=normalize(vec3(1.));
-    return dot(vxyz, p)- s;
-//    return sdSphere(0.96, p-vec3(s));
+  if (dot(p, n1) < 0.0) {
+    p += -2.0 * dot(p, n1) * n1;
+  }
+  if (dot(p, n2) < 0.0) {
+    p += -2.0 * dot(p, n2) * n2;
+  }
+  if (dot(p, n3) < 0.0) {
+    p += -2.0 * dot(p, n3) * n3;
+  }
+  vec3 vxyz = normalize(vec3(1.0));
+  return dot(vxyz, p) - s;
+  //    return sdSphere(0.96, p-vec3(s));
 }
 #pragma glslify: export(isocahedralSymmetry)
