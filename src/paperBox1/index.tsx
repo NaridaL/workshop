@@ -1,17 +1,18 @@
-import Button from "@material-ui/core/Button"
-import Card from "@material-ui/core/Card"
-import CardContent from "@material-ui/core/CardContent"
-import CardMedia from "@material-ui/core/CardMedia"
-import Checkbox from "@material-ui/core/Checkbox"
-import FormControlLabel from "@material-ui/core/FormControlLabel"
-import Grid from "@material-ui/core/Grid"
-import IconButton from "@material-ui/core/IconButton"
-import InputAdornment from "@material-ui/core/InputAdornment"
-import Link from "@material-ui/core/Link"
-import { makeStyles, useTheme } from "@material-ui/core/styles"
-import TextField from "@material-ui/core/TextField"
-import Lock from "@material-ui/icons/Lock"
-import LockOpen from "@material-ui/icons/LockOpen"
+import Lock from "@mui/icons-material/Lock"
+import LockOpen from "@mui/icons-material/LockOpen"
+import Button from "@mui/material/Button"
+import Card from "@mui/material/Card"
+import CardContent from "@mui/material/CardContent"
+import CardMedia from "@mui/material/CardMedia"
+import Checkbox from "@mui/material/Checkbox"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import Grid from "@mui/material/Grid"
+import IconButton from "@mui/material/IconButton"
+import InputAdornment from "@mui/material/InputAdornment"
+import Link from "@mui/material/Link"
+import { useTheme } from "@mui/material/styles";
+import TextField from "@mui/material/TextField"
+import makeStyles from '@mui/styles/makeStyles';
 import fileDownload from "js-file-download"
 import * as React from "react"
 import { ReactElement, useCallback, useState } from "react"
@@ -247,7 +248,7 @@ export default (): ReactElement => {
                       setLockTopLip(!lockTopLip)
                       updateState({})
                     }}
-                  >
+                    size="large">
                     {lockTopLip ? <Lock color="primary" /> : <LockOpen />}
                   </IconButton>
                 </>
@@ -272,7 +273,7 @@ export default (): ReactElement => {
                       setLockBottomLip(!lockBottomLip)
                       updateState({})
                     }}
-                  >
+                    size="large">
                     {lockBottomLip ? <Lock color="primary" /> : <LockOpen />}
                   </IconButton>
                 </>
@@ -289,5 +290,5 @@ export default (): ReactElement => {
         </div>
       </Grid>
     </Grid>
-  )
+  );
 }

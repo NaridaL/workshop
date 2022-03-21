@@ -1,5 +1,5 @@
-import TextField from "@material-ui/core/TextField"
-import Autocomplete from "@material-ui/lab/Autocomplete"
+import Autocomplete from '@mui/material/Autocomplete'
+import TextField from "@mui/material/TextField"
 import * as React from "react"
 import { forwardRef, ReactElement } from "react"
 import { MINUS } from "ts3dutils"
@@ -56,6 +56,6 @@ export const PaperAutocomplete = forwardRef(
         }}
         options={PAPER_SIZES}
       />
-    )
+    );
   },
 )

@@ -1,9 +1,10 @@
-import Card from "@material-ui/core/Card"
-import CardContent from "@material-ui/core/CardContent"
-import Grid from "@material-ui/core/Grid"
-import Slider from "@material-ui/core/Slider"
-import { makeStyles, useTheme } from "@material-ui/core/styles"
-import TextField from "@material-ui/core/TextField"
+import Card from "@mui/material/Card"
+import CardContent from "@mui/material/CardContent"
+import Grid from "@mui/material/Grid"
+import Slider from "@mui/material/Slider"
+import { useTheme } from "@mui/material/styles";
+import TextField from "@mui/material/TextField"
+import makeStyles from '@mui/styles/makeStyles';
 import * as chroma from "chroma.ts"
 import * as React from "react"
 import { ReactElement, useCallback, useEffect, useRef } from "react"

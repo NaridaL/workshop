@@ -1,4 +1,4 @@
-import { useTheme } from "@material-ui/core/styles"
+import { useTheme } from "@mui/material/styles"
 import { assert } from "chai"
 import * as chroma from "chroma.ts"
 import { Font, load } from "opentype.js"

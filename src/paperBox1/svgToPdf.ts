@@ -47,5 +47,5 @@ export function svgToPdf({
       resolve(stream.toBlob("application/pdf"))
     })
     stream.on("error", reject)
-  })
+  });
 }

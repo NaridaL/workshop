@@ -1,21 +1,18 @@
 import loadable from "@loadable/component"
-import AppBar from "@material-ui/core/AppBar"
-import CssBaseline from "@material-ui/core/CssBaseline"
-import Drawer from "@material-ui/core/Drawer"
-import IconButton from "@material-ui/core/IconButton"
-import List from "@material-ui/core/List"
-import ListItem from "@material-ui/core/ListItem"
-import ListItemIcon from "@material-ui/core/ListItemIcon"
-import ListItemText from "@material-ui/core/ListItemText"
-import {
-  createTheme,
-  makeStyles,
-  ThemeProvider,
-} from "@material-ui/core/styles"
-import Toolbar from "@material-ui/core/Toolbar"
-import useMediaQuery from "@material-ui/core/useMediaQuery"
-import GitHubIcon from "@material-ui/icons/GitHub"
-import MenuIcon from "@material-ui/icons/Menu"
+import GitHubIcon from "@mui/icons-material/GitHub"
+import MenuIcon from "@mui/icons-material/Menu"
+import AppBar from "@mui/material/AppBar"
+import CssBaseline from "@mui/material/CssBaseline"
+import Drawer from "@mui/material/Drawer"
+import IconButton from "@mui/material/IconButton"
+import List from "@mui/material/List"
+import ListItem from "@mui/material/ListItem"
+import ListItemIcon from "@mui/material/ListItemIcon"
+import ListItemText from "@mui/material/ListItemText"
+import { adaptV4Theme, createTheme, StyledEngineProvider, Theme, ThemeProvider } from "@mui/material/styles";
+import Toolbar from "@mui/material/Toolbar"
+import useMediaQuery from "@mui/material/useMediaQuery"
+import makeStyles from '@mui/styles/makeStyles';
 import * as React from "react"
 import { useCallback, useEffect, useState } from "react"
 import * as ReactDOM from "react-dom"
@@ -23,6 +20,13 @@ import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom"
 
 import { ErrorBoundary } from "./ErrorBoundary"
 import { isDev } from "./utils/isDev"
+
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
 
 const pages = [
   { title: "Hex Sandpiles", module: "hexSandpiles" },
@@ -70,9 +74,9 @@ const ThemedApp = () => {
 
   const theme = React.useMemo(
     () =>
-      createTheme({
+      createTheme(adaptV4Theme({
         palette: {
-          type: prefersDarkMode ? "dark" : "light",
+          mode: prefersDarkMode ? "dark" : "light",
           primary: {
             main: "#F26430",
           },
@@ -83,16 +87,18 @@ const ThemedApp = () => {
         typography: {
           fontFamily: "Fira Sans",
         },
-      }),
+      })),
     [prefersDarkMode],
   )
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
-  )
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <App />
+      </ThemeProvider>
+    </StyledEngineProvider>
+  );
 }
 const App = () => {
   const [navOpen, setNavOpen] = useState(false)
@@ -138,7 +144,7 @@ const App = () => {
             color="inherit"
             aria-label="menu"
             onClick={onHamburgerClick}
-          >
+            size="large">
             <MenuIcon />
           </IconButton>
           <h2> {currentPage?.title ?? "Loading..."}</h2>
@@ -166,7 +172,7 @@ const App = () => {
         <Route path="/">404</Route>
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
 ReactDOM.render(<ThemedApp />, document.getElementById("root"))

@@ -1,12 +1,13 @@
-import Button from "@material-ui/core/Button"
-import Checkbox from "@material-ui/core/Checkbox"
-import FormControlLabel from "@material-ui/core/FormControlLabel"
-import Grid from "@material-ui/core/Grid"
-import MenuItem from "@material-ui/core/MenuItem"
-import Select from "@material-ui/core/Select"
-import { makeStyles, useTheme } from "@material-ui/core/styles"
-import TextField from "@material-ui/core/TextField"
-import { StyleRules } from "@material-ui/styles/withStyles/withStyles"
+import Button from "@mui/material/Button"
+import Checkbox from "@mui/material/Checkbox"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import Grid from "@mui/material/Grid"
+import MenuItem from "@mui/material/MenuItem"
+import Select from "@mui/material/Select"
+import { useTheme } from "@mui/material/styles";
+import TextField from "@mui/material/TextField"
+import makeStyles from '@mui/styles/makeStyles';
+import { StyleRules } from "@mui/styles/withStyles/withStyles"
 import React, {
   ReactElement,
   useCallback,
