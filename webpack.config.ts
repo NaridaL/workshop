@@ -82,8 +82,10 @@ module.exports = {
     usedExports: true,
   },
   devServer: {
-    publicPath: "/workshop/",
-    contentBase: path.join(__dirname, "docs"),
+    static: {
+      publicPath: "/workshop/",
+      directory: path.join(__dirname, "docs"),
+    },
     historyApiFallback: { index: "/workshop/404.html" },
     hot: true,
   },
