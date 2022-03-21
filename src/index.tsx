@@ -1,6 +1,5 @@
 import loadable from "@loadable/component"
 import AppBar from "@material-ui/core/AppBar"
-import Button from "@material-ui/core/Button"
 import CssBaseline from "@material-ui/core/CssBaseline"
 import Drawer from "@material-ui/core/Drawer"
 import IconButton from "@material-ui/core/IconButton"
@@ -20,7 +19,7 @@ import MenuIcon from "@material-ui/icons/Menu"
 import * as React from "react"
 import { useCallback, useEffect, useState } from "react"
 import * as ReactDOM from "react-dom"
-import { BrowserRouter, Link, Redirect, Route, Switch } from "react-router-dom"
+import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom"
 
 import { ErrorBoundary } from "./ErrorBoundary"
 import { isDev } from "./utils/isDev"
@@ -146,19 +145,26 @@ const App = () => {
         </Toolbar>
       </AppBar>
 
-      <Switch>
+      <Routes>
         {pages.map(({ module }) => (
-          <Route key={module} path={`/${module}`}>
-            <ErrorBoundary>
-              <AsyncPage page={module} />
-            </ErrorBoundary>
-          </Route>
+          <Route
+            key={module}
+            path={`/${module}`}
+            element={
+              <ErrorBoundary>
+                <AsyncPage page={module} />
+              </ErrorBoundary>
+            }
+          />
         ))}
-        <Redirect from="/dist/:where" to="/:where" />
-        <Redirect exact from="/" to="/hexSandpiles" />
-        <Redirect exact from="/dist" to="/hexSandpiles" />
+        <Route
+          path="/dist/:where"
+          element={<Navigate replace to="/:where" />}
+        />
+        <Route path="/" element={<Navigate replace to="/hexSandpiles" />} />
+        <Route path="/dist" element={<Navigate replace to="/hexSandpiles" />} />
         <Route path="/">404</Route>
-      </Switch>
+      </Routes>
     </BrowserRouter>
   )
 }
