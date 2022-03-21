@@ -159,7 +159,9 @@ export class EGizmoController {
   private mousemove = (e: MouseEvent) => {
     const pagePos = V(e.offsetX, e.offsetY)
 
-    const boundingClientRect = (e.target as HTMLCanvasElement).getBoundingClientRect()
+    const boundingClientRect = (
+      e.target as HTMLCanvasElement
+    ).getBoundingClientRect()
     boundingClientRect.width
     const mouseLineWC = getMouseLine(
       pagePos,

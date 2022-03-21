@@ -11,8 +11,8 @@ out vec3 coordUVQ;
 out float n;
 out vec2 coord;
 void main() {
-    vec2 texCoordAdjusted = offset + ts_TexCoord * scale;
-    gl_Position = ts_Vertex;
-    coordUVQ = ts_TexCoordUVQ;
-    coord = ts_TexCoord;
+  vec2 texCoordAdjusted = offset + ts_TexCoord * scale;
+  gl_Position = ts_Vertex;
+  coordUVQ = ts_TexCoordUVQ;
+  coord = ts_TexCoord;
 }

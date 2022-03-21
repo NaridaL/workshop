@@ -22,9 +22,9 @@ export class ErrorBoundary extends Component<{ children?: ReactNode }> {
     message: string,
     shaderSource: string,
   ): ReactElement {
-    const errors = [
-      ...message.matchAll(/ERROR: \d+:(\d+): (.*)/g),
-    ].map(([_, line, message]) => ({ line: +line, message }))
+    const errors = [...message.matchAll(/ERROR: \d+:(\d+): (.*)/g)].map(
+      ([_, line, message]) => ({ line: +line, message }),
+    )
     return (
       <pre style={{ fontSize: "small" }}>
         {shaderSource.split(/\r\n|\r|\n/).flatMap((line, lineIndex) => {
