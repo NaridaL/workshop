@@ -95,7 +95,7 @@ export default (): ReactElement => {
 
   const getPrintSVG = () =>
     ReactDOMServer.renderToStaticMarkup(
-      <PrismBoxSvg {...{ ...state, print: true }} />,
+      <PrismBoxSvg {...state} print={true} />,
     ).replace(/\s{2,}/g, " ")
 
   const asSVG = () => {

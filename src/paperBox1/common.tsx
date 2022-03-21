@@ -81,7 +81,7 @@ export function RotStep({
   )
 }
 
-export type PaperSize = [width: number, height: number, name: string]
+export type PaperSize = [widthMM: number, heightMM: number, name: string]
 export const PAPER_SIZES: PaperSize[] = [
   [841, 1189, "A0"],
   [594, 841, "A1"],

@@ -194,6 +194,7 @@ export function PrismBoxSvg({
           </Measure>
           {arrayRange(1, sides).map((i) => (
             <Measure
+              key={i}
               from={[i * sideWidth, 0]}
               to={[(i + 1) * sideWidth, 0]}
               hideRight
@@ -207,6 +208,7 @@ export function PrismBoxSvg({
           </Measure>
           {arrayRange(0, sides).map((i) => (
             <Measure
+              key={i}
               from={[firstIntersect + i * sideWidth, height]}
               to={[firstIntersect + (i + 1) * sideWidth, height]}
               hideRight

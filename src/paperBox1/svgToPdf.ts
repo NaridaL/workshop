@@ -13,7 +13,7 @@ export function svgToPdf({
   svg: string
 }): Promise<Blob> {
   return new Promise<Blob>((resolve, reject) => {
-    const [, widthStr, heightStr] = /.*width="([^"]+)".*?height="([^"]+)"/.exec(
+    const [, widthStr, heightStr] = /width="([^"]+)".*?height="([^"]+)"/.exec(
       svg,
     )!
     const [width, height] = [+widthStr, +heightStr].map((x) =>

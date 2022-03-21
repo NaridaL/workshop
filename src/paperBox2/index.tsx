@@ -66,10 +66,7 @@ export default (): ReactElement => {
 
   const getPrintSVG = () =>
     ReactDOMServer.renderToStaticMarkup(
-      <BaseDrawing
-        {...{ ...state, sides: state.sides, print: true }}
-        paperSize={paperSize}
-      />,
+      <BaseDrawing {...state} print={true} paperSize={paperSize} />,
     ).replace(/\s{2,}/g, " ")
   const baseFileName = `${state.variant}-${state.baseRadius}-${state.topRadius}-${state.radius}-${state.sides}`
   const asSVG = () => {
