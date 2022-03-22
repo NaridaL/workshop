@@ -76,7 +76,7 @@
     "source-map-loader": "^3.0.1",
     "sucrase": "^3.20.3",
     "ts3dutils": "^1.1.6",
-    "tsgl": "../nla/tsgl",
+    "tsgl": "^1.1.9",
     "typescript": "^4.6.2",
     "webgl-strict-types": "^1.0.5",
     "webpack": "^5.70.0",
