@@ -29,14 +29,17 @@ const vec4 blue = vec4(0.0, 0.0, 1.0, 1.0);
 const vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
 
 float simplex01(vec2 pos) {
-    return unmix(-.68, .68, simplex2D(pos));
+  return unmix(-0.68, 0.68, simplex2D(pos));
 }
 
 void main() {
-    float f = mix (simplex2D(coord), simplex2D(coord * 4.), a);
-    float f2 = simplex2D(coord);
+  float f = mix(simplex2D(coord), simplex2D(coord * 4.0), a);
+  float f2 = simplex2D(coord);
 
-
-    fragColor = mix(colorBg, colorPrimary, banded(bandCount, unmix(-.35, .35, f2)));
-//    fragColor = mix(fragColor, colorSecondary, float(between(0.0, 1., f)));
+  fragColor = mix(
+    colorBg,
+    colorPrimary,
+    banded(bandCount, unmix(-0.35, 0.35, f2))
+  );
+  //    fragColor = mix(fragColor, colorSecondary, float(between(0.0, 1., f)));
 }

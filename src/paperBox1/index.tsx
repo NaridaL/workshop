@@ -10,9 +10,9 @@ import Grid from "@mui/material/Grid"
 import IconButton from "@mui/material/IconButton"
 import InputAdornment from "@mui/material/InputAdornment"
 import Link from "@mui/material/Link"
-import { useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
-import makeStyles from '@mui/styles/makeStyles';
+import makeStyles from "@mui/styles/makeStyles"
 import fileDownload from "js-file-download"
 import * as React from "react"
 import { ReactElement, useCallback, useState } from "react"
@@ -248,7 +248,8 @@ export default (): ReactElement => {
                       setLockTopLip(!lockTopLip)
                       updateState({})
                     }}
-                    size="large">
+                    size="large"
+                  >
                     {lockTopLip ? <Lock color="primary" /> : <LockOpen />}
                   </IconButton>
                 </>
@@ -273,7 +274,8 @@ export default (): ReactElement => {
                       setLockBottomLip(!lockBottomLip)
                       updateState({})
                     }}
-                    size="large">
+                    size="large"
+                  >
                     {lockBottomLip ? <Lock color="primary" /> : <LockOpen />}
                   </IconButton>
                 </>
@@ -290,5 +292,5 @@ export default (): ReactElement => {
         </div>
       </Grid>
     </Grid>
-  );
+  )
 }

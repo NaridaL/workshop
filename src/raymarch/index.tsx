@@ -5,9 +5,9 @@ import Grid from "@mui/material/Grid"
 import MenuItem from "@mui/material/MenuItem"
 import OutlinedInput from "@mui/material/OutlinedInput"
 import Select, { SelectProps } from "@mui/material/Select"
-import { useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
-import makeStyles from '@mui/styles/makeStyles';
+import makeStyles from "@mui/styles/makeStyles"
 import aesthetically from "aesthetically"
 import * as chroma from "chroma.ts"
 import { debounce } from "lodash"

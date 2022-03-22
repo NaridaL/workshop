@@ -1,4 +1,4 @@
-import Autocomplete from '@mui/material/Autocomplete'
+import Autocomplete from "@mui/material/Autocomplete"
 import TextField from "@mui/material/TextField"
 import * as React from "react"
 import { forwardRef, ReactElement } from "react"
@@ -56,6 +56,6 @@ export const PaperAutocomplete = forwardRef(
         }}
         options={PAPER_SIZES}
       />
-    );
+    )
   },
 )

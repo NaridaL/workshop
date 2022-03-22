@@ -38,81 +38,81 @@ const vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
 // where u is horizontal, v is south-west to north-east
 // and R is wether the it is in the right triangle
 vec3 xy2tri(vec2 xy) {
-    float v = xy.y / 0.866;
-    float u = xy.x - v / 2.0;
-    float R = float(
-        (mod(u + v, 2.0) > 1.0)
-        != (mod(floor(u) + floor(v), 2.0) == 1.0));
-    return vec3(u, v, R);
+  float v = xy.y / 0.866;
+  float u = xy.x - v / 2.0;
+  float R = float(
+    mod(u + v, 2.0) > 1.0 != (mod(floor(u) + floor(v), 2.0) == 1.0)
+  );
+  return vec3(u, v, R);
 }
 vec3 triCenter(vec3 uvR) {
-    vec3 base = floor(uvR);
-    vec2 centerOffset = mix(vec2(1./3.), vec2(2./3.), uvR.z);
-    return base + vec3(centerOffset, 0.0);
+  vec3 base = floor(uvR);
+  vec2 centerOffset = mix(vec2(1.0 / 3.0), vec2(2.0 / 3.0), uvR.z);
+  return base + vec3(centerOffset, 0.0);
 }
 vec2 tri2xy(vec3 uvR) {
-    float y = uvR.t * 0.866;
-    float x = uvR.s + uvR.t / 2.0;
-    return vec2(x, y);
+  float y = uvR.t * 0.866;
+  float x = uvR.s + uvR.t / 2.0;
+  return vec2(x, y);
 }
 
 mat2 rot2(float angle) {
-    float c = cos(angle), s = sin(angle);
-    return mat2(c, -s, s, c);
+  float c = cos(angle),
+    s = sin(angle);
+  return mat2(c, -s, s, c);
 }
 
 float perlin01(vec2 pos) {
-    return unmix(-.68, .68, perlin2D(pos));
+  return unmix(-0.68, 0.68, perlin2D(pos));
 }
 
 float triSdf(vec2 uv) {
-    vec3 hex = vec3(uv.x, uv.y, -uv.x - uv.y);
-    return max3(hex);
+  vec3 hex = vec3(uv.x, uv.y, -uv.x - uv.y);
+  return max3(hex);
 }
 
 vec2 fc(vec2 z, vec2 c) {
-    return complexMul(z, z) + c;
+  return complexMul(z, z) + c;
 }
 
 float mandelbrot(vec2 c) {
-    vec2 z = vec2(0);
-    for (int i = 0; i < bandCount * 2; i++) {
-        z = fc(z, c);
-    }
-    return length(z);
+  vec2 z = vec2(0);
+  for (int i = 0; i < bandCount * 2; i++) {
+    z = fc(z, c);
+  }
+  return length(z);
 }
 vec2 mandelbrotz(vec2 c) {
-    vec2 z = vec2(0);
-    for (int i = 0; i < bandCount * 2; i++) {
-        z = fc(z, c);
-    }
-    return z;
+  vec2 z = vec2(0);
+  for (int i = 0; i < bandCount * 2; i++) {
+    z = fc(z, c);
+  }
+  return z;
 }
 
 int mandelbrotcount(vec2 c) {
-    vec2 z = vec2(0);
-    int i;
-    for (i = 0; i < bandCount * 2; i++) {
-        z = fc(z, c);
-        if (length(z) > 1024.0) {
-            break;
-        }
+  vec2 z = vec2(0);
+  int i;
+  for (i = 0; i < bandCount * 2; i++) {
+    z = fc(z, c);
+    if (length(z) > 1024.0) {
+      break;
     }
-    return i;
+  }
+  return i;
 }
 
-
 void main() {
-    vec2 cc = (coord/(pow(10.0, a*10.0))- vec2(0.5301, 0.5)) ;
-    vec2 f = mandelbrotz(cc);
-    float inside = float(length(f) < 1024.0);
-    int c = mandelbrotcount(cc);
+  vec2 cc = coord / pow(10.0, a * 10.0) - vec2(0.5301, 0.5);
+  vec2 f = mandelbrotz(cc);
+  float inside = float(length(f) < 1024.0);
+  int c = mandelbrotcount(cc);
 
-//    fragColor =
-//        visualize(blue, red, f / 1000.0);
+  //    fragColor =
+  //        visualize(blue, red, f / 1000.0);
 
-//    fragColor = vec4(f.xy, 0.0, 1.0);
-    float val = pow(float(c )/float(bandCount), 1./2.);
-    fragColor = mix(colorBg, colorPrimary, val);
-//    fragColor = visualize(blue, red, val);
+  //    fragColor = vec4(f.xy, 0.0, 1.0);
+  float val = pow(float(c) / float(bandCount), 1.0 / 2.0);
+  fragColor = mix(colorBg, colorPrimary, val);
+  //    fragColor = visualize(blue, red, val);
 }

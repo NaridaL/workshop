@@ -4,9 +4,9 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid from "@mui/material/Grid"
 import MenuItem from "@mui/material/MenuItem"
 import Select from "@mui/material/Select"
-import { useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
-import makeStyles from '@mui/styles/makeStyles';
+import makeStyles from "@mui/styles/makeStyles"
 import { StyleRules } from "@mui/styles/withStyles/withStyles"
 import React, {
   ReactElement,

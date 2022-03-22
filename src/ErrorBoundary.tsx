@@ -57,7 +57,7 @@ export class ErrorBoundary extends Component<{ children?: ReactNode }> {
           ].filter(Boolean)
         })}
       </pre>
-    );
+    )
   }
 
   render(): ReactNode {

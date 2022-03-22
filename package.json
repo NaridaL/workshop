@@ -21,7 +21,17 @@
   "license": "ISC",
   "prettier": {
     "semi": false,
-    "trailingComma": "all"
+    "trailingComma": "all",
+    "overrides": [
+      {
+        "files": [
+          "*.frag"
+        ],
+        "options": {
+          "parser": "glsl-parser"
+        }
+      }
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",

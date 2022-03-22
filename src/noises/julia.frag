@@ -38,41 +38,43 @@ const float GOLDEN_RATIO = 1.61803398875;
 
 const vec2 c = vec2(-0.4, 0.6);
 vec2 f(vec2 z) {
-
-//    return complexMul(z, z) + fromPolar(0.7885,(a + b/50.)*6.);
-    return complexMul(z, z) + fromPolar(0.7885,secs/2.);
-//    return complexMul(z, z)  + fromPolar(0.7885,4.);
+  //    return complexMul(z, z) + fromPolar(0.7885,(a + b/50.)*6.);
+  return complexMul(z, z) + fromPolar(0.7885, secs / 2.0);
+  //    return complexMul(z, z)  + fromPolar(0.7885,4.);
 }
 
 vec2 complexSqr(vec2 z) {
-    return complexMul(z, z);
+  return complexMul(z, z);
 }
 vec2 f2(vec2 z) {
-    const float n = 8.;
-    return complexDiv(1. + (n - 1.) * complexPow(z, n), n * complexPow(z, n - 1.));
+  const float n = 8.0;
+  return complexDiv(
+    1.0 + (n - 1.0) * complexPow(z, n),
+    n * complexPow(z, n - 1.0)
+  );
 }
 
 vec2 f3(vec2 z) {
-    vec2 z2 = complexMul(z, z);
-    vec2 z3 = complexMul(z2, z);
-    return complexDiv(vec2(1., 0.) + 2. * z3, 3. * z2);
+  vec2 z2 = complexMul(z, z);
+  vec2 z3 = complexMul(z2, z);
+  return complexDiv(vec2(1.0, 0.0) + 2.0 * z3, 3.0 * z2);
 }
 vec2 flf(vec2 z) {
-    vec2 z2 = complexMul(z, z);
-    vec2 z3 = complexMul(z2, z);
-    return complexDiv(vec2(1., 0.) - z3 / 6., complexSqr(z - z2 / 2.)) + vec2(-a, b);
+  vec2 z2 = complexMul(z, z);
+  vec2 z3 = complexMul(z2, z);
+  return complexDiv(vec2(1.0, 0.0) - z3 / 6.0, complexSqr(z - z2 / 2.0)) +
+  vec2(-a, b);
 }
 
 #pragma glslify: julia = require(../shaderfunctions/juliaIteration.glsl, r=2., f=f, maxit=20u)
 
 void main() {
-    vec3 res = julia(coord);
-    float f = res.z / 20.;
+  vec3 res = julia(coord);
+  float f = res.z / 20.0;
 
-//    fragColor = mix(colorBg, colorPrimary, banded(bandCount, unmix(-.35, .35, f2)));
-    fragColor = mix(colorBg, colorPrimary, min(banded(bandCount, f), 1.));
-    fragColor = vec4(res, 1.0);
-//    fragColor = visualize(f);
-//    fragColor = visualize(float(i == 1000u));
-
+  //    fragColor = mix(colorBg, colorPrimary, banded(bandCount, unmix(-.35, .35, f2)));
+  fragColor = mix(colorBg, colorPrimary, min(banded(bandCount, f), 1.0));
+  fragColor = vec4(res, 1.0);
+  //    fragColor = visualize(f);
+  //    fragColor = visualize(float(i == 1000u));
 }

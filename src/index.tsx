@@ -9,10 +9,16 @@ import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
-import { adaptV4Theme, createTheme, StyledEngineProvider, Theme, ThemeProvider } from "@mui/material/styles";
+import {
+  adaptV4Theme,
+  createTheme,
+  StyledEngineProvider,
+  Theme,
+  ThemeProvider,
+} from "@mui/material/styles"
 import Toolbar from "@mui/material/Toolbar"
 import useMediaQuery from "@mui/material/useMediaQuery"
-import makeStyles from '@mui/styles/makeStyles';
+import makeStyles from "@mui/styles/makeStyles"
 import * as React from "react"
 import { useCallback, useEffect, useState } from "react"
 import * as ReactDOM from "react-dom"
@@ -21,12 +27,10 @@ import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom"
 import { ErrorBoundary } from "./ErrorBoundary"
 import { isDev } from "./utils/isDev"
 
-
-declare module '@mui/styles/defaultTheme' {
+declare module "@mui/styles/defaultTheme" {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
 }
-
 
 const pages = [
   { title: "Hex Sandpiles", module: "hexSandpiles" },
@@ -74,20 +78,22 @@ const ThemedApp = () => {
 
   const theme = React.useMemo(
     () =>
-      createTheme(adaptV4Theme({
-        palette: {
-          mode: prefersDarkMode ? "dark" : "light",
-          primary: {
-            main: "#F26430",
+      createTheme(
+        adaptV4Theme({
+          palette: {
+            mode: prefersDarkMode ? "dark" : "light",
+            primary: {
+              main: "#F26430",
+            },
+            secondary: {
+              main: "#685369",
+            },
           },
-          secondary: {
-            main: "#685369",
+          typography: {
+            fontFamily: "Fira Sans",
           },
-        },
-        typography: {
-          fontFamily: "Fira Sans",
-        },
-      })),
+        }),
+      ),
     [prefersDarkMode],
   )
 
@@ -98,7 +104,7 @@ const ThemedApp = () => {
         <App />
       </ThemeProvider>
     </StyledEngineProvider>
-  );
+  )
 }
 const App = () => {
   const [navOpen, setNavOpen] = useState(false)
@@ -144,7 +150,8 @@ const App = () => {
             color="inherit"
             aria-label="menu"
             onClick={onHamburgerClick}
-            size="large">
+            size="large"
+          >
             <MenuIcon />
           </IconButton>
           <h2> {currentPage?.title ?? "Loading..."}</h2>
@@ -172,7 +179,7 @@ const App = () => {
         <Route path="/">404</Route>
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
 
 ReactDOM.render(<ThemedApp />, document.getElementById("root"))
