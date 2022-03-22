@@ -1,6 +1,6 @@
 import * as path from "path"
-import CopyPlugin from "copy-webpack-plugin"
-import HtmlPlugin from "html-webpack-plugin"
+import CopyPlugin = require("copy-webpack-plugin")
+import HtmlPlugin = require("html-webpack-plugin")
 
 module.exports = {
   module: {
