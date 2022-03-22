@@ -10,10 +10,8 @@
     "build": "rimraf docs && webpack --mode=production",
     "fmt": "prettier --write ."
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run fmt && npm run lint -- --fix && git add ."
-    }
+  "simple-git-hooks": {
+    "pre-commit": "npm run fmt && npm run lint -- --fix && git add ."
   },
   "repository": "github:NaridaL/workshop",
   "keywords": [],
@@ -67,13 +65,13 @@
     "glslify": "^7.1.1",
     "glslify-loader": "^2.0.0",
     "html-webpack-plugin": "^5.5.0",
-    "husky": "^7.0.4",
     "opentype.js": "^1.3.4",
     "prettier": "^2.6.0",
     "prettier-plugin-glsl": "^0.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.2",
+    "simple-git-hooks": "^2.7.0",
     "source-map-loader": "^3.0.1",
     "sucrase": "^3.20.3",
     "ts3dutils": "^1.1.6",
