@@ -112,8 +112,9 @@ void main() {
   // if (max(d.x, max(d.y, 0.0)) < 0.45) {
   // if (length(pos2 - squarePos) < 0.5) {
   float d = hex_sdf(hex_d);
-  if (between(0.0, 0.425, d)) // || length(pos2 - center) < 0.2
-  {
+  if (
+    between(0.0, 0.425, d) // || length(pos2 - center) < 0.2
+  ) {
     // if (length (pos2 - center) <0.53){
     // if (length (hex_pos - hex_center) <0.45){
     ivec2 center2 = cube_to_oddr(ivec3(hex_center));
