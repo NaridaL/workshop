@@ -50,14 +50,15 @@ void main2() {
   float band = banded(3.0, perl01);
   float isTop = float(band == 1.0);
   float isBottom = float(band == 0.0);
-  fragColor = waves2 * isTop +
-  waves2 * isBottom +
-  (1.0 - isTop - isBottom) *
-    mix(
-      colorBg,
-      colorPrimary,
-      banded(float(bandCount), unmix(0.333, 0.666, perl01))
-    );
+  fragColor =
+    waves2 * isTop +
+    waves2 * isBottom +
+    (1.0 - isTop - isBottom) *
+      mix(
+        colorBg,
+        colorPrimary,
+        banded(float(bandCount), unmix(0.333, 0.666, perl01))
+      );
   //        + vec4(0.0, 0.0, 0.0, 1.0) * float(between(0.0, 0.3, perl));
   // fragColor = mix(colorBg, colorPrimary, banded(float(bandCount), perl01));
   // fragColor = visualize(blue, red, perl01);

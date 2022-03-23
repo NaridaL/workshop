@@ -67,7 +67,10 @@ const vec4 blue = vec4(0.0, 0.0, 1.0, 1.0);
 const vec4 purple = vec4(0.5, 0.0, 0.5, 1.0);
 const vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
 
-struct RMHit {float distance;vec4 color;} ;
+struct RMHit {
+  float distance;
+  vec4 color;
+} ;
 RMHit mixa(RMHit a, RMHit b, float t) {
   return RMHit(mix(a.distance, b.distance, t), mix(a.color, b.color, t));
 }
@@ -228,9 +231,8 @@ float queen(vec3 p) {
   d += 0.16 * p.z;
   d -= -c * (1.0 - pow(sin01(b + p.z * 2.5), 1.5));
   d += 0.1 * normalize(p.xy).x * smoothstep(2.0, 0.5, p.z);
-  d += 0.02 *
-  sin(15.0 * atan(p.y, p.x) - p.z * 5.0) *
-  smoothstep(2.0, 0.5, p.z);
+  d +=
+    0.02 * sin(15.0 * atan(p.y, p.x) - p.z * 5.0) * smoothstep(2.0, 0.5, p.z);
   //    float d = sdCappedCylinder(a, b, p);
   d = max(d, -p.z);
   d = max(d, p.z - 4.0);
@@ -324,7 +326,11 @@ float ambientOcclusion(vec3 pWC, vec3 n1WC) {
   return clamp(distance / k, 0.0, 1.0);
 }
 
-struct RMResult {float distance;vec3 pos;vec4 color;} ;
+struct RMResult {
+  float distance;
+  vec3 pos;
+  vec4 color;
+} ;
 RMResult raymarching2(vec3 start, vec3 dir1) {
   vec3 pos = start;
   RMHit hit;

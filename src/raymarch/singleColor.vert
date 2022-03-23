@@ -7,6 +7,7 @@ in vec3 ts_Normal;
 in vec4 ts_Vertex;
 
 void main() {
-  gl_Position = ts_ModelViewProjectionMatrix *
-  (ts_Vertex + normalOffset * vec4(ts_Normal, 0.0));
+  gl_Position =
+    ts_ModelViewProjectionMatrix *
+    (ts_Vertex + normalOffset * vec4(ts_Normal, 0.0));
 }
