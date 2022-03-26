@@ -69,7 +69,7 @@ const vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
 struct RMHit {
   float distance;
   vec4 color;
-} ;
+};
 RMHit mixa(RMHit a, RMHit b, float t) {
   return RMHit(mix(a.distance, b.distance, t), mix(a.color, b.color, t));
 }
@@ -222,7 +222,7 @@ struct RMResult {
   float distance;
   vec3 pos;
   vec4 color;
-} ;
+};
 RMResult raymarching2(vec3 start, vec3 dir1) {
   vec3 pos = start;
   RMHit hit;
