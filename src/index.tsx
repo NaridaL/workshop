@@ -10,7 +10,6 @@ import ListItem from "@mui/material/ListItem"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import {
-  adaptV4Theme,
   createTheme,
   StyledEngineProvider,
   Theme,
@@ -81,22 +80,20 @@ const ThemedApp = () => {
 
   const theme = React.useMemo(
     () =>
-      createTheme(
-        adaptV4Theme({
-          palette: {
-            mode: prefersDarkMode ? "dark" : "light",
-            primary: {
-              main: "#F26430",
-            },
-            secondary: {
-              main: "#685369",
-            },
+      createTheme({
+        palette: {
+          mode: prefersDarkMode ? "dark" : "light",
+          primary: {
+            main: "#F26430",
           },
-          typography: {
-            fontFamily: "Fira Sans",
+          secondary: {
+            main: "#685369",
           },
-        }),
-      ),
+        },
+        typography: {
+          fontFamily: "Fira Sans",
+        },
+      }),
     [prefersDarkMode],
   )
 

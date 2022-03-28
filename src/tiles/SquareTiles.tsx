@@ -8,12 +8,14 @@ export function SquareTiles({
   x: w,
   y: h,
   a,
+  ordered,
   randomClassCount,
   ...props
 }: {
   x: number
   y: number
   a: number
+  ordered: boolean
   randomClassCount: int
 } & SVGAttributes<SVGElement>): ReactElement {
   const sr = seedrandom("X")
