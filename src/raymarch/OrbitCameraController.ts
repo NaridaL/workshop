@@ -79,7 +79,9 @@ export class OrbitCameraController {
     })
   }
 
-  blur = (): void => {}
+  blur = (): void => {
+    // TODO
+  }
 
   unregisterListeners(): void {
     this.unregister?.()

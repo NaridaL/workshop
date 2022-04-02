@@ -171,6 +171,7 @@ function raymarch(
 
   return {
     updateShader(newShader) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       shared.shaders.ed = Shader.create(require("./raymarch.vert"), newShader)
     },
     teardown: gl.animate(function (abs, _diff) {
@@ -439,7 +440,9 @@ function ExpandEditor({
 }
 
 class GizmoControl {
-  take(startPos: _XV3, onChange: (newValue: _XV3, oldValue: _XV3) => void) {}
+  take(startPos: _XV3, onChange: (newValue: _XV3, oldValue: _XV3) => void) {
+    // TODO
+  }
 }
 
 function Vec3Editor({
