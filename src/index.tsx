@@ -19,7 +19,7 @@ import Toolbar from "@mui/material/Toolbar"
 import useMediaQuery from "@mui/material/useMediaQuery"
 import makeStyles from "@mui/styles/makeStyles"
 import * as React from "react"
-import { useCallback, useEffect, useState } from "react"
+import { StrictMode, useCallback, useEffect, useState } from "react"
 import * as ReactDOM from "react-dom"
 import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom"
 
@@ -100,8 +100,10 @@ const ThemedApp = () => {
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <App />
+        <StrictMode>
+          <CssBaseline />
+          <App />
+        </StrictMode>
       </ThemeProvider>
     </StyledEngineProvider>
   )
