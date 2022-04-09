@@ -10,7 +10,7 @@
       "groupName": "all non-major dev dependencies",
       "groupSlug": "all-dev-minor-patch",
     }
-  ]
+  ],
   "schedule": [
     "every weekend"
   ]
