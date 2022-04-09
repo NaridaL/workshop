@@ -8,7 +8,7 @@
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all non-major dev dependencies",
-      "groupSlug": "all-dev-minor-patch",
+      "groupSlug": "all-dev-minor-patch"
     }
   ],
   "schedule": [
