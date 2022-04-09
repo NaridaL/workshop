@@ -2,6 +2,15 @@
   "extends": [
     "config:base"
   ],
+   "packageRules": [
+    {
+      "matchPackagePatterns": ["*"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dev dependencies",
+      "groupSlug": "all-dev-minor-patch",
+    }
+  ]
   "schedule": [
     "every weekend"
   ]
