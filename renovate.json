@@ -1,8 +1,6 @@
 {
-  "extends": [
-    "config:base"
-  ],
-   "packageRules": [
+  "extends": ["config:base"],
+  "packageRules": [
     {
       "matchPackagePatterns": ["*"],
       "matchDepTypes": ["devDependencies"],
@@ -11,7 +9,5 @@
       "groupSlug": "all-dev-minor-patch"
     }
   ],
-  "schedule": [
-    "every weekend"
-  ]
+  "schedule": ["every weekend"]
 }
