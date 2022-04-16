@@ -1,18 +1,19 @@
 import * as path from "path"
-import CopyPlugin = require("copy-webpack-plugin")
-import HtmlPlugin = require("html-webpack-plugin")
-import { EnvironmentPlugin } from "webpack"
+import CopyPlugin from "copy-webpack-plugin"
+import HtmlPlugin from "html-webpack-plugin"
+import { Configuration, EnvironmentPlugin } from "webpack"
+import "webpack-dev-server"
 
-module.exports = {
+const config: Configuration = {
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         include: [path.resolve(__dirname, "src")],
         use: {
-          loader: "@sucrase/webpack-loader",
+          loader: "ts-loader",
           options: {
-            transforms: ["typescript", "jsx"],
+            transpileOnly: true,
           },
         },
       },
@@ -22,7 +23,16 @@ module.exports = {
         enforce: "pre",
       },
       {
-        test: /\.glslx?$|\.vert$|\.frag$/,
+        test: /\.cc\.(glslx?|vert|frag)$/,
+        use: {
+          loader: "val-loader",
+          options: {
+            executableFile: path.resolve(__dirname, "cc-glsl-loader.mjs"),
+          },
+        },
+      },
+      {
+        test: /(?<!\.cc)\.(glslx?|vert|frag)$/,
         type: "asset/source",
         use: ["glslify-loader"],
       },
@@ -38,7 +48,7 @@ module.exports = {
       patterns: [{ from: "static", to: "." }],
     }),
     new EnvironmentPlugin({
-      GIT_HASH: process.env.GITHUB_SHA ?? "000000",
+      GIT_HASH: process.env.GITHUB_SHA ?? "??????",
       BUILD_TIME: new Date().toISOString(),
     }),
   ],
@@ -90,3 +100,5 @@ module.exports = {
     hot: true,
   },
 }
+
+export default config
