@@ -19,7 +19,7 @@ import Toolbar from "@mui/material/Toolbar"
 import useMediaQuery from "@mui/material/useMediaQuery"
 import * as React from "react"
 import { StrictMode, useCallback, useEffect, useState } from "react"
-import * as ReactDOM from "react-dom"
+import { createRoot } from "react-dom/client"
 import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom"
 
 import { ErrorBoundary } from "./ErrorBoundary"
@@ -194,4 +194,5 @@ const App = () => {
   )
 }
 
-ReactDOM.render(<ThemedApp />, document.getElementById("root"))
+const root = createRoot(document.getElementById("root")!)
+root.render(<ThemedApp />)
