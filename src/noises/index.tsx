@@ -4,7 +4,6 @@ import Grid from "@mui/material/Grid"
 import Slider from "@mui/material/Slider"
 import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
-import makeStyles from "@mui/styles/makeStyles"
 import * as chroma from "chroma.ts"
 import * as React from "react"
 import { ReactElement, useCallback, useEffect, useRef } from "react"
@@ -589,23 +588,6 @@ function noises(
   )
 }
 
-const useStyles = makeStyles((theme) => ({
-  sidebar: {
-    display: "flex",
-    flexDirection: "column",
-    width: 256,
-    padding: theme.spacing(1),
-    alignItems: "stretch",
-    "& > *": {
-      margin: theme.spacing(1),
-    },
-  },
-  media: {
-    height: 0,
-    paddingTop: "100%", // 1:1
-  },
-}))
-
 function BoundNumberField<T extends string>({
   state,
   prop,
@@ -642,7 +624,6 @@ export default (): ReactElement => {
   const redoTex = useRef<() => void>()
   const fluid = useRef(Object.assign({}, state))
 
-  const classes = useStyles()
   const theme = useTheme()
   useEffect(() => {
     const tsgl = TSGLContext.create({ canvas: canvasRef.current! })
@@ -680,7 +661,20 @@ export default (): ReactElement => {
           />
         </div>
       </Grid>
-      <Grid item xs={12} md={3} className={classes.sidebar}>
+      <Grid
+        item
+        xs={12}
+        md={3}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          padding: 2,
+          alignItems: "stretch",
+          // "& > *": { margin: 1 },
+          gap: 2,
+        }}
+      >
         <Card>
           <CardContent>
             Test with various noise generation functions.

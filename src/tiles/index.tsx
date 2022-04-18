@@ -1,3 +1,4 @@
+import { GlobalStyles } from "@mui/material"
 import Button from "@mui/material/Button"
 import Checkbox from "@mui/material/Checkbox"
 import FormControlLabel from "@mui/material/FormControlLabel"
@@ -6,8 +7,6 @@ import MenuItem from "@mui/material/MenuItem"
 import Select from "@mui/material/Select"
 import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
-import makeStyles from "@mui/styles/makeStyles"
-import { StyleRules } from "@mui/styles/withStyles/withStyles"
 import React, {
   ReactElement,
   useCallback,
@@ -28,13 +27,17 @@ import { TriangleTiles } from "./TriangleTiles"
 const MAX_SHAPES = 3 // .c0, .c1, ... denote the different shapes (with
 // different path lengths)
 const RANDOM_CLASS_COUNT = 20
-type SR = StyleRules<{
-  animation: string
-  shapeLengths: (number | undefined)[]
-}>
-const useStyles = makeStyles((theme) => {
-  return {
-    "@global": {
+
+const tilesStyles = ({
+  animation,
+  strokeWidth,
+  strokeLinejoin,
+  strokeLinecap,
+  fill,
+  shapeLengths,
+}) => (
+  <GlobalStyles
+    styles={{
       "@keyframes dash": {
         to: {
           strokeDashoffset: 0,
@@ -49,16 +52,16 @@ const useStyles = makeStyles((theme) => {
           // fill: "#eee",
         },
       },
-      ...arrayRange(0, MAX_SHAPES).reduce((prev: SR, i) => {
-        prev[`.c${i}`] = ({ shapeLengths }) => ({
+      ...arrayRange(0, MAX_SHAPES).reduce((prev, i) => {
+        prev[`.c${i}`] = {
           strokeDasharray: shapeLengths[i],
           strokeDashoffset: shapeLengths[i],
-        })
+        }
         return prev
       }, {}),
-      ...arrayRange(0, RANDOM_CLASS_COUNT).reduce((prev: SR, i) => {
+      ...arrayRange(0, RANDOM_CLASS_COUNT).reduce((prev, i) => {
         const time = 1 + (i / RANDOM_CLASS_COUNT) * 3 + "s"
-        prev[`.r${i}, .r${i} path`] = ({ animation, fill }) => ({
+        prev[`.r${i}, .r${i} path`] = {
           animation: [
             `dash 3s ${animation} forwards`,
             fill && `popp ${time} step-end forwards`,
@@ -66,38 +69,38 @@ const useStyles = makeStyles((theme) => {
             .filter(Boolean)
             .join(","),
           animationDelay: i * 0.1 + "s",
-        })
+        }
         return prev
       }, {}),
-    },
-    svgg: ({ strokeWidth, strokeLinejoin, strokeLinecap, fill }) => ({
-      fill: "none",
-      // strokeDasharray: "120 120",
-      // strokeDashoffset: 120,
-      "& > *": {
-        fill: fill ? "orange" : undefined,
-        fillOpacity: 0.5,
-        stroke: "orange",
-        strokeWidth,
-        strokeLinecap,
-        strokeLinejoin,
-        strokePosition: "inside",
+      ".svgg": {
+        fill: "none",
+        // strokeDasharray: "120 120",
+        // strokeDashoffset: 120,
+        "& > *": {
+          fill: fill ? "orange" : undefined,
+          fillOpacity: 0.5,
+          stroke: "orange",
+          strokeWidth,
+          strokeLinecap,
+          strokeLinejoin,
+          strokePosition: "inside",
+        },
+        "& > .s0, & > .color1": {
+          // fill: "red",
+          stroke: "red",
+        },
+        "& > .s1, & > .color2": {
+          // fill: "blue",
+          stroke: "blue",
+        },
+        "& > .s2, & > .color3": {
+          // fill: "green",
+          stroke: "green",
+        },
       },
-      "& > .s0, & > .color1": {
-        // fill: "red",
-        stroke: "red",
-      },
-      "& > .s1, & > .color2": {
-        // fill: "blue",
-        stroke: "blue",
-      },
-      "& > .s2, & > .color3": {
-        // fill: "green",
-        stroke: "green",
-      },
-    }),
-  }
-})
+    }}
+  />
+)
 
 const PATTERNS = [
   SquareTiles,
@@ -112,7 +115,6 @@ const PATTERNS = [
 export default function (): ReactElement {
   const [x, setX] = useState(0)
   const [shapeLengths, setShapeLengths] = useState([] as (number | undefined)[])
-  const theme = useTheme()
   const svgContainerRef = useRef<HTMLDivElement | null>(null)
   const [state, setState] = useHashState({
     type: PATTERNS[0].name,
@@ -141,14 +143,14 @@ export default function (): ReactElement {
     )
   }, [Pattern, state.a])
 
-  const classes = useStyles({ ...state, shapeLengths })
   return (
     <Grid container style={{ minHeight: "calc(100vh - 65px)" }} spacing={1}>
+      {tilesStyles({ ...state, shapeLengths })}
       <Grid item xs={12} md={10} ref={svgContainerRef}>
         <Pattern
           viewBox="0 0 20 20"
           randomClassCount={RANDOM_CLASS_COUNT}
-          className={classes.svgg}
+          className="svgg"
           x={20}
           y={20}
           width="100%"

@@ -1,6 +1,7 @@
 import loadable from "@loadable/component"
 import GitHubIcon from "@mui/icons-material/GitHub"
 import MenuIcon from "@mui/icons-material/Menu"
+import { GlobalStyles } from "@mui/material"
 import AppBar from "@mui/material/AppBar"
 import CssBaseline from "@mui/material/CssBaseline"
 import Drawer from "@mui/material/Drawer"
@@ -12,12 +13,10 @@ import ListItemText from "@mui/material/ListItemText"
 import {
   createTheme,
   StyledEngineProvider,
-  Theme,
   ThemeProvider,
 } from "@mui/material/styles"
 import Toolbar from "@mui/material/Toolbar"
 import useMediaQuery from "@mui/material/useMediaQuery"
-import makeStyles from "@mui/styles/makeStyles"
 import * as React from "react"
 import { StrictMode, useCallback, useEffect, useState } from "react"
 import * as ReactDOM from "react-dom"
@@ -25,11 +24,6 @@ import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom"
 
 import { ErrorBoundary } from "./ErrorBoundary"
 import { isDev } from "./utils/isDev"
-
-declare module "@mui/styles/defaultTheme" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
 
 const pages = [
   { title: "Hex Sandpiles", module: "hexSandpiles" },
@@ -49,28 +43,30 @@ const AsyncPage = loadable(
   { cacheKey: (props) => props.page },
 )
 
-const useStyles = makeStyles((theme) => ({
-  "@global": {
-    "html, body, #root": {
-      margin: "0",
-      height: "100%",
-      width: "100%",
-    },
-    "#root": {
-      backgroundColor: theme.palette.background.default,
-    },
+const appGlobalStyles = (
+  <GlobalStyles
+    styles={(theme) => ({
+      "html, body, #root": {
+        margin: "0",
+        height: "100%",
+        width: "100%",
+      },
+      "#root": {
+        backgroundColor: theme.palette.background.default,
+      },
 
-    "svg.adrian": {
-      "& *": {
-        stroke: theme.palette.text.primary,
+      "svg.adrian": {
+        "& *": {
+          stroke: theme.palette.text.primary,
+        },
+        "& text": {
+          stroke: "none",
+          fill: theme.palette.text.primary,
+        },
       },
-      "& text": {
-        stroke: "none",
-        fill: theme.palette.text.primary,
-      },
-    },
-  },
-}))
+    })}
+  />
+)
 
 const GIT_HASH = process.env.GIT_HASH!
 const BUILD_TIME = new Date(process.env.BUILD_TIME!)
@@ -102,6 +98,7 @@ const ThemedApp = () => {
       <ThemeProvider theme={theme}>
         <StrictMode>
           <CssBaseline />
+          {appGlobalStyles}
           <App />
         </StrictMode>
       </ThemeProvider>
@@ -119,8 +116,6 @@ const App = () => {
   useEffect(() => {
     document.title = (currentPage?.title ?? "Loading...") + " - Adrian Leonhard"
   }, [currentPage])
-
-  useStyles()
 
   return (
     <BrowserRouter basename="/workshop/">

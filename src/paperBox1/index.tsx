@@ -12,7 +12,6 @@ import InputAdornment from "@mui/material/InputAdornment"
 import Link from "@mui/material/Link"
 import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
-import makeStyles from "@mui/styles/makeStyles"
 import fileDownload from "js-file-download"
 import * as React from "react"
 import { ReactElement, useCallback, useState } from "react"
@@ -24,23 +23,6 @@ import hexPrismBoxJpg from "./hexPrismBox.jpg"
 import { PaperAutocomplete } from "./PaperAutocomplete"
 import { PrismBoxSvg } from "./PrismBoxSvg"
 import { useHashState } from "./useHashState"
-
-const useStyles = makeStyles((theme) => ({
-  sidebar: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    padding: theme.spacing(1),
-    alignItems: "stretch",
-    "& > *": {
-      margin: theme.spacing(1),
-    },
-  },
-  media: {
-    height: 0,
-    paddingTop: "100%", // 1:1
-  },
-}))
 
 export default (): ReactElement => {
   const [state, setStateUnchecked] = useHashState({
@@ -91,8 +73,6 @@ export default (): ReactElement => {
   )
 
   const theme = useTheme()
-
-  const classes = useStyles()
 
   const getPrintSVG = () =>
     ReactDOMServer.renderToStaticMarkup(
@@ -149,147 +129,161 @@ export default (): ReactElement => {
           }}
         />
       </Grid>
-      <Grid item xs={12} md={2}>
-        <div className={classes.sidebar}>
-          <Card>
-            <CardMedia
-              className={classes.media}
-              image={hexPrismBoxJpg}
-              title="Hexagonal Prism Box"
+      <Grid
+        item
+        xs={12}
+        md={2}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          padding: 2,
+          alignItems: "stretch",
+          // "& > *": { margin: 1 },
+          gap: 2,
+        }}
+      >
+        <Card>
+          <CardMedia
+            image={hexPrismBoxJpg}
+            title="Hexagonal Prism Box"
+            sx={{
+              height: 0,
+              paddingTop: "100%", // 1:1
+            }}
+          />
+          <CardContent>
+            Helper to build{" "}
+            <Link href="https://www.paperkawaii.com/video-tutorial-origami-hexagonal-gift-box/">
+              this box
+            </Link>
+            . All measurements are in millimeters. To make a lid, you should
+            increase the sideWidth by 1mm and ~halve the paper height.
+          </CardContent>
+        </Card>
+        <PaperAutocomplete
+          label="Paper Size"
+          value={[min, max, "custom"]}
+          onChange={(newPaperSize) => {
+            const [minWidth, maxHeight] = newPaperSize!
+            updateState(
+              landscape
+                ? { width: maxHeight, height: minWidth }
+                : { width: minWidth, height: maxHeight },
+            )
+          }}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={landscape}
+              onChange={() => {
+                // noinspection JSSuspiciousNameCombination
+                updateState({
+                  width: height,
+                  height: width,
+                })
+              }}
+              color="primary"
             />
-            <CardContent>
-              Helper to build{" "}
-              <Link href="https://www.paperkawaii.com/video-tutorial-origami-hexagonal-gift-box/">
-                this box
-              </Link>
-              . All measurements are in millimeters. To make a lid, you should
-              increase the sideWidth by 1mm and ~halve the paper height.
-            </CardContent>
-          </Card>
-          <PaperAutocomplete
-            label="Paper Size"
-            value={[min, max, "custom"]}
-            onChange={(newPaperSize) => {
-              const [minWidth, maxHeight] = newPaperSize!
-              updateState(
-                landscape
-                  ? { width: maxHeight, height: minWidth }
-                  : { width: minWidth, height: maxHeight },
-              )
-            }}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={landscape}
-                onChange={() => {
-                  // noinspection JSSuspiciousNameCombination
-                  updateState({
-                    width: height,
-                    height: width,
-                  })
-                }}
-                color="primary"
-              />
-            }
-            label="Landscape"
-          />
-          <TextField
-            variant="outlined"
-            size="small"
-            type="number"
-            inputProps={{ step: 1, min: 3, max: 16 }}
-            value={state.sides}
-            onChange={(e) => updateState({ sides: +e.target.value })}
-            label="Sides"
-          />
-          <TextField
-            variant="outlined"
-            size="small"
-            type="number"
-            inputProps={{ step: 1, min: 1 }}
-            value={state.sideWidth}
-            onChange={(e) => updateState({ sideWidth: +e.target.value })}
-            InputProps={{
-              endAdornment: <InputAdornment position="end">mm</InputAdornment>,
-            }}
-            label="sideWidth"
-          />
-          <TextField
-            variant="outlined"
-            size="small"
-            type="number"
-            inputProps={{ step: 1, min: 0 }}
-            value={state.theta}
-            onChange={(e) => updateState({ theta: +e.target.value })}
-            InputProps={{
-              endAdornment: <InputAdornment position="end">mm</InputAdornment>,
-            }}
-            label="theta"
-          />
-          <TextField
-            variant="outlined"
-            disabled={lockTopLip}
-            size="small"
-            type="number"
-            inputProps={{
-              step: 1,
-              min: 0,
-              max: topLipMax,
-            }}
-            value={state.topLip}
-            onChange={(e) => updateState({ topLip: +e.target.value })}
-            InputProps={{
-              endAdornment: (
-                <>
-                  <InputAdornment position="end">mm</InputAdornment>
-                  <IconButton
-                    onClick={() => {
-                      setLockTopLip(!lockTopLip)
-                      updateState({})
-                    }}
-                    size="large"
-                  >
-                    {lockTopLip ? <Lock color="primary" /> : <LockOpen />}
-                  </IconButton>
-                </>
-              ),
-            }}
-            label="topLip"
-          />
-          <TextField
-            variant="outlined"
-            disabled={lockBottomLip}
-            size="small"
-            type="number"
-            inputProps={{ step: 1, min: 0 }}
-            value={state.bottomLip}
-            onChange={(e) => updateState({ bottomLip: +e.target.value })}
-            InputProps={{
-              endAdornment: (
-                <>
-                  <InputAdornment position="end">mm</InputAdornment>
-                  <IconButton
-                    onClick={() => {
-                      setLockBottomLip(!lockBottomLip)
-                      updateState({})
-                    }}
-                    size="large"
-                  >
-                    {lockBottomLip ? <Lock color="primary" /> : <LockOpen />}
-                  </IconButton>
-                </>
-              ),
-            }}
-            label="bottomLip"
-          />
-          <Button variant="contained" onClick={asSVG}>
-            Download As SVG
-          </Button>
-          <Button variant="contained" onClick={asTemplatePDF}>
-            Template as PDF
-          </Button>
-        </div>
+          }
+          label="Landscape"
+        />
+        <TextField
+          variant="outlined"
+          size="small"
+          type="number"
+          inputProps={{ step: 1, min: 3, max: 16 }}
+          value={state.sides}
+          onChange={(e) => updateState({ sides: +e.target.value })}
+          label="Sides"
+        />
+        <TextField
+          variant="outlined"
+          size="small"
+          type="number"
+          inputProps={{ step: 1, min: 1 }}
+          value={state.sideWidth}
+          onChange={(e) => updateState({ sideWidth: +e.target.value })}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">mm</InputAdornment>,
+          }}
+          label="sideWidth"
+        />
+        <TextField
+          variant="outlined"
+          size="small"
+          type="number"
+          inputProps={{ step: 1, min: 0 }}
+          value={state.theta}
+          onChange={(e) => updateState({ theta: +e.target.value })}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">mm</InputAdornment>,
+          }}
+          label="theta"
+        />
+        <TextField
+          variant="outlined"
+          disabled={lockTopLip}
+          size="small"
+          type="number"
+          inputProps={{
+            step: 1,
+            min: 0,
+            max: topLipMax,
+          }}
+          value={state.topLip}
+          onChange={(e) => updateState({ topLip: +e.target.value })}
+          InputProps={{
+            endAdornment: (
+              <>
+                <InputAdornment position="end">mm</InputAdornment>
+                <IconButton
+                  onClick={() => {
+                    setLockTopLip(!lockTopLip)
+                    updateState({})
+                  }}
+                  size="large"
+                >
+                  {lockTopLip ? <Lock color="primary" /> : <LockOpen />}
+                </IconButton>
+              </>
+            ),
+          }}
+          label="topLip"
+        />
+        <TextField
+          variant="outlined"
+          disabled={lockBottomLip}
+          size="small"
+          type="number"
+          inputProps={{ step: 1, min: 0 }}
+          value={state.bottomLip}
+          onChange={(e) => updateState({ bottomLip: +e.target.value })}
+          InputProps={{
+            endAdornment: (
+              <>
+                <InputAdornment position="end">mm</InputAdornment>
+                <IconButton
+                  onClick={() => {
+                    setLockBottomLip(!lockBottomLip)
+                    updateState({})
+                  }}
+                  size="large"
+                >
+                  {lockBottomLip ? <Lock color="primary" /> : <LockOpen />}
+                </IconButton>
+              </>
+            ),
+          }}
+          label="bottomLip"
+        />
+        <Button variant="contained" onClick={asSVG}>
+          Download As SVG
+        </Button>
+        <Button variant="contained" onClick={asTemplatePDF}>
+          Template as PDF
+        </Button>
       </Grid>
     </Grid>
   )

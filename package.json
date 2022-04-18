@@ -41,7 +41,6 @@
     "@loadable/component": "5.15.2",
     "@mui/icons-material": "5.6.1",
     "@mui/material": "5.6.1",
-    "@mui/styles": "5.6.1",
     "@types/blob-stream": "0.1.30",
     "@types/chai": "4.3.1",
     "@types/copy-webpack-plugin": "8.0.1",

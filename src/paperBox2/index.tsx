@@ -12,7 +12,6 @@ import MenuItem from "@mui/material/MenuItem"
 import Select from "@mui/material/Select"
 import TextField from "@mui/material/TextField"
 import Tooltip from "@mui/material/Tooltip"
-import makeStyles from "@mui/styles/makeStyles"
 import fileDownload from "js-file-download"
 import * as React from "react"
 import { ReactElement, useCallback, useState } from "react"
@@ -25,23 +24,6 @@ import { InsideFolds } from "./InsideFolds"
 import insideFoldsImg from "./insideFolds.jpg"
 import { OutsideFolds } from "./OutsideFolds"
 import outsideFoldsLargeTemplateImg from "./outsideFoldsLargeTemplate.jpg"
-
-const useStyles = makeStyles((theme) => ({
-  sidebar: {
-    display: "flex",
-    flexDirection: "column",
-    width: 256,
-    padding: theme.spacing(1),
-    alignItems: "stretch",
-    "& > *": {
-      margin: theme.spacing(1),
-    },
-  },
-  media: {
-    height: 0,
-    paddingTop: "100%", // 1:1
-  },
-}))
 
 export default (): ReactElement => {
   const [state, setState] = useHashState({
@@ -61,8 +43,6 @@ export default (): ReactElement => {
     inside: InsideFolds,
     outside: OutsideFolds,
   }[state.variant]
-
-  const classes = useStyles()
 
   const getPrintSVG = () =>
     ReactDOMServer.renderToStaticMarkup(
@@ -100,12 +80,28 @@ export default (): ReactElement => {
           style={{ width: "100%", height: "100%" }}
         />
       </Grid>
-      <Grid item xs={12} md={2} className={classes.sidebar}>
+      <Grid
+        item
+        xs={12}
+        md={2}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          padding: 2,
+          alignItems: "stretch",
+          // "& > *": { margin: 1 },
+          gap: 2,
+        }}
+      >
         <Card>
           <CardMedia
-            className={classes.media}
             image={insideFoldsImg}
             title="Contemplative Reptile"
+            sx={{
+              height: 0,
+              paddingTop: "100%", // 1:1
+            }}
           />
           <CardContent>
             Helper to build a box from a circular piece of paper. The Inside

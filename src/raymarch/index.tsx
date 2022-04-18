@@ -7,7 +7,6 @@ import OutlinedInput from "@mui/material/OutlinedInput"
 import Select, { SelectProps } from "@mui/material/Select"
 import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
-import makeStyles from "@mui/styles/makeStyles"
 import aesthetically from "aesthetically"
 import * as chroma from "chroma.ts"
 import { debounce } from "lodash"
@@ -218,31 +217,6 @@ function raymarch(
   }
 }
 
-const useStyles = makeStyles((theme) => ({
-  sidebar: {
-    display: "flex",
-    flexDirection: "column",
-    width: 256,
-    padding: theme.spacing(1),
-    alignItems: "stretch",
-    "& > *": {
-      margin: theme.spacing(1),
-    },
-  },
-  media: {
-    height: 0,
-    paddingTop: "100%", // 1:1
-  },
-}))
-
-const useMatrixDisplayStyles = makeStyles((theme) => ({
-  root: {
-    "&:focused": {
-      border: "2px solid " + theme.palette.primary.main,
-    },
-  },
-}))
-
 function MatrixDisplay({
   children,
   label,
@@ -254,7 +228,6 @@ function MatrixDisplay({
   onFocus
   onBlur
 }) {
-  const classes = useMatrixDisplayStyles()
   return (
     <OutlinedInput
       onFocus={onFocus}
@@ -698,7 +671,6 @@ export default (): ReactElement => {
     },
   ])
 
-  const classes = useStyles()
   const theme = useTheme()
   const colors = useMemo(
     () => ({
@@ -827,7 +799,19 @@ export default (): ReactElement => {
           />
         </div>
       </Grid>
-      <Grid item xs={12} md={3} className={classes.sidebar}>
+      <Grid
+        item
+        xs={12}
+        md={3}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          padding: 2,
+          alignItems: "stretch",
+          gap: 2,
+        }}
+      >
         <Card>
           <CardContent>Raymarching demo.</CardContent>
         </Card>
