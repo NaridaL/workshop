@@ -8,6 +8,7 @@ import Drawer from "@mui/material/Drawer"
 import IconButton from "@mui/material/IconButton"
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
+import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import {
@@ -123,13 +124,13 @@ const App = () => {
         <List onClick={() => setNavOpen(false)}>
           {pages
             .filter(({ hide }) => isDev() || !hide)
-            .map(({ title, module }) => (
-              <ListItem button component={Link} key={module} to={`/${module}`}>
+            .map(({ title, module, hide }) => (
+              <ListItemButton component={Link} key={module} to={`/${module}`}>
                 <ListItemText>{title}</ListItemText>
-              </ListItem>
+                {hide && <small>dev</small>}
+              </ListItemButton>
             ))}
-          <ListItem
-            button
+          <ListItemButton
             component="a"
             href="https://github.com/NaridaL/workshop"
           >
@@ -137,7 +138,7 @@ const App = () => {
               <GitHubIcon />
             </ListItemIcon>
             <ListItemText>Github</ListItemText>
-          </ListItem>
+          </ListItemButton>
           <ListItem
             sx={{
               fontSize: "smaller",
