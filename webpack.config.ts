@@ -4,16 +4,17 @@ import HtmlPlugin from "html-webpack-plugin"
 import { Configuration, EnvironmentPlugin } from "webpack"
 import "webpack-dev-server"
 
-const config: Configuration = {
+const config = (env: unknown, argv: any): Configuration => ({
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         include: [path.resolve(__dirname, "src")],
         use: {
-          loader: "ts-loader",
+          loader: "@sucrase/webpack-loader",
           options: {
-            transpileOnly: true,
+            transforms: ["typescript", "jsx"],
+            production: argv.mode === "production",
           },
         },
       },
@@ -54,6 +55,7 @@ const config: Configuration = {
   ],
   output: {
     publicPath: "/workshop/",
+    clean: true,
   },
   resolve: {
     extensions: [".ts", ".js", ".tsx", ".jsx"],
@@ -99,6 +101,6 @@ const config: Configuration = {
     historyApiFallback: { index: "/workshop/404.html" },
     hot: true,
   },
-}
+})
 
 export default config
