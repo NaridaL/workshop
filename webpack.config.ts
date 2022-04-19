@@ -24,18 +24,13 @@ const config = (env: unknown, argv: any): Configuration => ({
         enforce: "pre",
       },
       {
-        test: /\.cc\.(glslx?|vert|frag)$/,
+        test: /\.(glslx?|vert|frag)$/,
         use: {
           loader: "val-loader",
           options: {
-            executableFile: path.resolve(__dirname, "cc-glsl-loader.mjs"),
+            executableFile: path.resolve(__dirname, "glsl-loader.mjs"),
           },
         },
-      },
-      {
-        test: /(?<!\.cc)\.(glslx?|vert|frag)$/,
-        type: "asset/source",
-        use: ["glslify-loader"],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif|ttf)$/i,

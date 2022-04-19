@@ -2,35 +2,29 @@
 
 precision highp float;
 
-#pragma glslify: hsl2rgb = require(glsl-hsl2rgb)
+#pragma webpack include ../common/banded.glsl
+#pragma webpack include ../common/between.glsl
+#pragma webpack include ../common/hex2Ra.glsl
+#pragma webpack include ../common/hexRound.glsl
+#pragma webpack include ../common/hexSdf.glsl
+#pragma webpack include ../common/max3.glsl
+#pragma webpack include ../common/perlin2DTexture.glsl
+#pragma webpack include ../common/polar.glsl
+#pragma webpack include ../common/ra2Hex.glsl
+#pragma webpack include ../common/remix.glsl
+#pragma webpack include ../common/unmix.glsl
+#pragma webpack include ../common/visualize.glsl
+#pragma webpack include ../common/waves.glsl
+#pragma webpack include ../common/matrices.glsl
 
-#pragma glslify: banded = require(../shaderfunctions/banded.glsl)
-#pragma glslify: between = require(../shaderfunctions/between.glsl)
-#pragma glslify: hex2Ra = require(../shaderfunctions/hex2Ra.glsl)
-#pragma glslify: hexRound = require(../shaderfunctions/hexRound.glsl)
-#pragma glslify: hexSdf = require(../shaderfunctions/hexSdf.glsl)
-#pragma glslify: max3 = require(../shaderfunctions/max3.glsl)
-#pragma glslify: perlin2D = require(../shaderfunctions/perlin2DTexture.glsl)
-#pragma glslify: fromPolar = require(../shaderfunctions/fromPolar.glsl)
-#pragma glslify: toPolar = require(../shaderfunctions/toPolar.glsl)
-#pragma glslify: ra2Hex = require(../shaderfunctions/ra2Hex.glsl)
-#pragma glslify: remix = require(../shaderfunctions/remix.glsl)
-#pragma glslify: unmix = require(../shaderfunctions/unmix.glsl)
-#pragma glslify: visualize = require(../shaderfunctions/visualize.glsl)
-#pragma glslify: waves = require(../shaderfunctions/waves.glsl)
-#pragma glslify: rotX = require(../shaderfunctions/rotX.glsl)
-#pragma glslify: rotY = require(../shaderfunctions/rotY.glsl)
-#pragma glslify: rotZ = require(../shaderfunctions/rotZ.glsl)
-
-#pragma glslify: sdDonut = require(../shaderfunctions/sdf/sdDonut.glsl)
-#pragma glslify: sphere = require(../shaderfunctions/sdf/sphere.glsl)
-#pragma glslify: cylinder = require(../shaderfunctions/sdf//sdCylinder.glsl)
-#pragma glslify: addChamfer = require(../shaderfunctions/sdf/addChamfer.glsl)
-#pragma glslify: addChamfer = require(../shaderfunctions/sdf/addChamfer.glsl)
-#pragma glslify: addTillet = require(../shaderfunctions/sdf/addTillet.glsl)
-#pragma glslify: block = require(../shaderfunctions/sdf/block.glsl)
-#pragma glslify: add = require(../shaderfunctions/sdf/add.glsl)
-#pragma glslify: sub = require(../shaderfunctions/sdf/sub.glsl)
+#pragma webpack include ../common/sdf3d/sdDonut.glsl
+#pragma webpack include ../common/sdf3d/sphere.glsl
+#pragma webpack include ../common/sdf3d/sdCylinder.glsl
+#pragma webpack include ../common/sdf3d/addChamfer.glsl
+#pragma webpack include ../common/sdf3d/addTillet.glsl
+#pragma webpack include ../common/sdf3d/block.glsl
+#pragma webpack include ../common/sdf3d/add.glsl
+#pragma webpack include ../common/sdf3d/sub.glsl
 
 uniform sampler2D texture;
 uniform float secs;
@@ -51,10 +45,7 @@ in float n;
 in vec2 coord;
 out vec4 fragColor;
 
-const float TAU = 6.283185307179586;
-const float SQRT1_2 = 0.7071067811865476;
-const float SQRT2 = 1.4142135623730951;
-const float PI = 3.141592653589793;
+#pragma webpack include ../common/constants.glsl
 
 const vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
 const vec4 yellow = vec4(1.0, 1.0, 0.0, 1.0);
@@ -89,7 +80,7 @@ float cylCircle(vec3 p) {
   for (int i = 0; i < 10; i++) {
     d = min(
       d,
-      cylinder(0.2, 2.0, p + fromPolar(3.0, TAU * float(i) / 10.0, 1.0))
+      sdCylinder(0.2, 2.0, p + fromPolar(3.0, TAU * float(i) / 10.0, 1.0))
     );
   }
 

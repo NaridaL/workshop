@@ -2,38 +2,34 @@
 
 precision highp float;
 
-#pragma glslify: hsl2rgb = require(glsl-hsl2rgb)
+#pragma webpack include ../common/banded.glsl
+#pragma webpack include ../common/between.glsl
+#pragma webpack include ../common/hex2Ra.glsl
+#pragma webpack include ../common/hexRound.glsl
+#pragma webpack include ../common/hexSdf.glsl
+#pragma webpack include ../common/matrices.glsl
+#pragma webpack include ../common/max3.glsl
+#pragma webpack include ../common/perlin2DTexture.glsl
+#pragma webpack include ../common/polar.glsl
+#pragma webpack include ../common/ra2Hex.glsl
+#pragma webpack include ../common/remix.glsl
+#pragma webpack include ../common/unmix.glsl
+#pragma webpack include ../common/visualize.glsl
+#pragma webpack include ../common/waves.glsl
 
-#pragma glslify: banded = require(../shaderfunctions/banded.glsl)
-#pragma glslify: between = require(../shaderfunctions/between.glsl)
-#pragma glslify: hex2Ra = require(../shaderfunctions/hex2Ra.glsl)
-#pragma glslify: hexRound = require(../shaderfunctions/hexRound.glsl)
-#pragma glslify: hexSdf = require(../shaderfunctions/hexSdf.glsl)
-#pragma glslify: max3 = require(../shaderfunctions/max3.glsl)
-#pragma glslify: perlin2D = require(../shaderfunctions/perlin2DTexture.glsl)
-#pragma glslify: fromPolar = require(../shaderfunctions/fromPolar.glsl)
-#pragma glslify: toPolar = require(../shaderfunctions/toPolar.glsl)
-#pragma glslify: ra2Hex = require(../shaderfunctions/ra2Hex.glsl)
-#pragma glslify: remix = require(../shaderfunctions/remix.glsl)
-#pragma glslify: unmix = require(../shaderfunctions/unmix.glsl)
-#pragma glslify: visualize = require(../shaderfunctions/visualize.glsl)
-#pragma glslify: waves = require(../shaderfunctions/waves.glsl)
-#pragma glslify: rotX = require(../shaderfunctions/rotX.glsl)
-#pragma glslify: rotY = require(../shaderfunctions/rotY.glsl)
-#pragma glslify: rotZ = require(../shaderfunctions/rotZ.glsl)
-
-#pragma glslify: donut = require(../shaderfunctions/sdf/sdDonut.glsl)
-#pragma glslify: sdCapsule = require(../shaderfunctions/sdf/sdCapsule.glsl)
-#pragma glslify: opElongate = require(../shaderfunctions/sdf/opElongate.glsl)
-#pragma glslify: sdSphere = require(../shaderfunctions/sdf/sdSphere.glsl)
-#pragma glslify: cylinder = require(../shaderfunctions/sdf//sdCylinder.glsl)
-#pragma glslify: addChamfer = require(../shaderfunctions/sdf/addChamfer.glsl)
-#pragma glslify: addChamfer = require(../shaderfunctions/sdf/addChamfer.glsl)
-#pragma glslify: addTillet = require(../shaderfunctions/sdf/addTillet.glsl)
-#pragma glslify: sdBox = require(../shaderfunctions/sdf/sdBox.glsl)
-#pragma glslify: sdOctahedron = require(../shaderfunctions/sdf/sdOctahedron.glsl)
-#pragma glslify: add = require(../shaderfunctions/sdf/add.glsl)
-#pragma glslify: sub = require(../shaderfunctions/sdf/sub.glsl)
+#pragma webpack include ../common/sdf3d/sdDonut.glsl
+#pragma webpack include ../common/sdf3d/sdCapsule.glsl
+#pragma webpack include ../common/sdf3d/opElongate.glsl
+#pragma webpack include ../common/sdf3d/sdSphere.glsl
+#pragma webpack include ../common/sdf3d/sdCylinder.glsl
+#pragma webpack include ../common/sdf3d/sdCone.glsl
+#pragma webpack include ../common/sdf3d/addChamfer.glsl
+#pragma webpack include ../common/sdf3d/addChamfer.glsl
+#pragma webpack include ../common/sdf3d/addTillet.glsl
+#pragma webpack include ../common/sdf3d/sdBox.glsl
+#pragma webpack include ../common/sdf3d/sdOctahedron.glsl
+#pragma webpack include ../common/sdf3d/add.glsl
+#pragma webpack include ../common/sdf3d/sub.glsl
 
 uniform sampler2D texture;
 uniform float secs;
@@ -54,10 +50,7 @@ in float n;
 in vec2 coord;
 out vec4 fragColor;
 
-const float TAU = 6.283185307179586;
-const float SQRT1_2 = 0.7071067811865476;
-const float SQRT2 = 1.4142135623730951;
-const float PI = 3.141592653589793;
+#pragma webpack include ../common/constants.glsl
 
 const vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
 const vec4 yellow = vec4(1.0, 1.0, 0.0, 1.0);
@@ -92,7 +85,7 @@ float cylCircle(vec3 p) {
   for (int i = 0; i < 10; i++) {
     d = min(
       d,
-      cylinder(0.2, 2.0, p + fromPolar(3.0, TAU * float(i) / 10.0, 1.0))
+      sdCylinder(0.2, 2.0, p + fromPolar(3.0, TAU * float(i) / 10.0, 1.0))
     );
   }
 
@@ -173,22 +166,6 @@ float betterBox(vec3 r, vec3 p) {
   return length(max(q, 0.0)) + min(max3(q), 0.0);
   p = abs(p);
   return max3(p - r);
-}
-
-float sdConeB(vec2 c, float h, vec3 p) {
-  float q = length(p.xz);
-  return max(dot(c.xy, vec2(q, p.y)), -h - p.y);
-}
-
-float sdCone(vec2 c, float h, vec3 p) {
-  vec2 q = h * vec2(c.x / c.y, -1.0);
-  vec2 w = vec2(length(p.xz), p.y);
-  vec2 a = w - q * clamp(dot(w, q) / dot(q, q), 0.0, 1.0);
-  vec2 b = w - q * vec2(clamp(w.x / q.x, 0.0, 1.0), 1.0);
-  float k = sign(q.y);
-  float d = min(dot(a, a), dot(b, b));
-  float s = max(k * (w.x * q.y - w.y * q.x), k * (w.y - q.y));
-  return sqrt(d) * sign(s);
 }
 
 float sdEllipsoidB(vec3 r, vec3 p) {

@@ -19,7 +19,7 @@ declare module "*.jpg" {
 
 declare module "*.glsl" {
   const content: string
-  export = content
+  export default content
 }
 
 declare module "svg-to-pdfkit" {
@@ -85,8 +85,4 @@ declare module "svg-to-pdfkit" {
     }
   }
   export = SVGtoPDF
-}
-
-declare module "glslify" {
-  export default function (strings: TemplateStringsArray): string
 }

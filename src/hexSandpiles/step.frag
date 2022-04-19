@@ -56,7 +56,7 @@ float max3(vec3 v) {
   return max(max(v.x, v.y), v.z);
 }
 float min3(vec3 v) {
-  return max(max(v.x, v.y), v.z);
+  return min(min(v.x, v.y), v.z);
 }
 float hex_sdf(vec3 h) {
   return max3(abs(h.yzx + h.zxy / 2.0));

@@ -36,6 +36,8 @@ const pages = [
   { title: "Circle Paper Box", module: "paperBox2" },
   { title: "Spirograph", module: "spirograph", hide: true },
   { title: "Tiles", module: "tiles", hide: true },
+  { title: "SDFs", module: "sdfs", hide: true },
+  { title: "SDFs 3D", module: "sdfs3d" },
 ]
 
 const AsyncPage = loadable(
@@ -80,16 +82,12 @@ const ThemedApp = () => {
       createTheme({
         palette: {
           mode: prefersDarkMode ? "dark" : "light",
-          primary: {
-            main: "#F26430",
-          },
-          secondary: {
-            main: "#685369",
-          },
+          primary: { main: "#F26430" },
+          secondary: { main: "#685369" },
         },
-        typography: {
-          fontFamily: "Fira Sans",
-        },
+        // typography: {
+        //   fontFamily: "Fira Sans",
+        // },
       }),
     [prefersDarkMode],
   )
@@ -157,7 +155,7 @@ const App = () => {
         </List>
       </Drawer>
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar variant="dense">
           <IconButton
             edge="start"
             color="inherit"

@@ -1,19 +1,19 @@
 #version 300 es
 precision mediump float;
 
-#pragma glslify: banded = require(../shaderfunctions/banded.glsl)
-#pragma glslify: between = require(../shaderfunctions/between.glsl)
-#pragma glslify: perlin2D = require(../shaderfunctions/perlin2DTexture.glsl)
-#pragma glslify: simplex2D = require(../shaderfunctions/simplex2DTexture.glsl)
-#pragma glslify: remix = require(../shaderfunctions/remix.glsl)
-#pragma glslify: unmix = require(../shaderfunctions/unmix.glsl)
-#pragma glslify: waves = require(../shaderfunctions/waves.glsl)
-#pragma glslify: visualize = require(../shaderfunctions/visualize.glsl)
-#pragma glslify: ra2Hex = require(../shaderfunctions/ra2Hex.glsl)
-#pragma glslify: hex2Ra = require(../shaderfunctions/hex2Ra.glsl)
-#pragma glslify: hexRound = require(../shaderfunctions/hexRound.glsl)
-#pragma glslify: hexSdf = require(../shaderfunctions/hexSdf.glsl)
-#pragma glslify: max3 = require(../shaderfunctions/max3.glsl)
+#pragma webpack include ../common/banded.glsl
+#pragma webpack include ../common/between.glsl
+#pragma webpack include ../common/perlin2DTexture.glsl
+#pragma webpack include ../common/simplex2DTexture.glsl
+#pragma webpack include ../common/remix.glsl
+#pragma webpack include ../common/unmix.glsl
+#pragma webpack include ../common/waves.glsl
+#pragma webpack include ../common/visualize.glsl
+#pragma webpack include ../common/ra2Hex.glsl
+#pragma webpack include ../common/hex2Ra.glsl
+#pragma webpack include ../common/hexRound.glsl
+#pragma webpack include ../common/hexSdf.glsl
+#pragma webpack include ../common/max3.glsl
 
 uniform sampler2D texture;
 uniform vec4 colorPrimary;

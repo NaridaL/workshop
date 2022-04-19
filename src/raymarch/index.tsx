@@ -23,13 +23,13 @@ import {
 import { DEG, lerp, M4, PI, V3 } from "ts3dutils"
 import { currentGL, GL_COLOR, Mesh, Shader, TSGLContext } from "tsgl"
 
+import { FPSController } from "../common/FPSController"
 import { openInNewTab } from "../paperBox1/common"
 import { useHashState } from "../paperBox1/useHashState"
 import { BoundNumberField } from "./boundNumberField"
 import edFragShader from "./ed.frag"
 import { EGizmoController, NONE } from "./EGizmoController"
 import { FlyCameraController } from "./FlyCameraController"
-import { FPSController } from "./FPSController"
 import {
   OrbitCameraController,
   OrbitCameraState,
@@ -171,7 +171,10 @@ function raymarch(
   return {
     updateShader(newShader) {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      shared.shaders.ed = Shader.create(require("./raymarch.vert"), newShader)
+      shared.shaders.ed = Shader.create(
+        require("./raymarch.vert").default,
+        newShader,
+      )
     },
     teardown: gl.animate(function (abs, _diff) {
       gl.clear(gl.COLOR_BUFFER_BIT)

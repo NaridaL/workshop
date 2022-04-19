@@ -5,8 +5,16 @@ import { currentGL, Shader, TSGLContext, TSGLContextBase } from "tsgl"
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildShaders(gl: TSGLContext) {
   return {
-    simplex: Shader.create(require(`./vs.vert`), require(`./simplex.frag`), gl),
-    julia: Shader.create(require(`./vs.vert`), require(`./julia.frag`), gl),
+    simplex: Shader.create(
+      require("./vs.vert").default,
+      require(`./simplex.frag`).default,
+      gl,
+    ),
+    julia: Shader.create(
+      require("./vs.vert").default,
+      require("./julia.cc.frag").default,
+      gl,
+    ),
     texShader: Shader.create<
       {
         colorPrimary: "FLOAT_VEC4"

@@ -2,8 +2,8 @@
 
 precision highp float;
 
-#pragma glslify: visualize = require(../shaderfunctions/visualize.glsl)
-#pragma glslify: banded = require(../shaderfunctions/banded.glsl)
+#pragma webpack include ../common/visualize.glsl
+#pragma webpack include ../common/banded.glsl
 
 uniform vec4 color;
 
