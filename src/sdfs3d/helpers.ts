@@ -1,1 +1,0 @@
-type ShaderSource = { default: string }

@@ -491,62 +491,14 @@ export default (): ReactElement => {
           inputProps={{ step: 0.05 }}
         />
       </Grid>
-      {true &&
-        [
-          "demoIcosahedron",
-          "demoCube",
-          "demoOctahedron",
-          "demoVector",
-          "demoTetrahedron",
-        ].map((frag) => (
-          <Grid key={frag} item xs={12} md={6} lg={4}>
-            <GenericDemo
-              frag="demo3d"
-              replacer={frag}
-              sx={{ height: 300 }}
-              animate={state.animate}
-              state={state}
-            />
-          </Grid>
-        ))}
-      {false &&
-        [
-          "demotetra",
-          "fractals",
-          "demoRectangle.cc",
-          "demoText.cc",
-          "demoNgon.cc",
-          "demoHexagon.cc",
-          "demoOctagon.cc",
-          "demoTriIso.cc",
-          "demoArrow.cc",
-          "demoHeart.cc",
-          "demoTriEqui.cc",
-          "demoSegment.cc",
-          "demoTri.cc",
-          "demoArc.cc",
-        ].map((frag) => (
-          <Grid key={frag} item xs={12} md={6} lg={4}>
-            <GenericDemo
-              frag={frag}
-              sx={{ height: 300 }}
-              animate={state.animate}
-              state={state}
-            />
-          </Grid>
-        ))}
-      <div style={{ height: 500 }}>
-        <canvas
-          ref={canvasRef}
-          style={{
-            width: "100%",
-            height: "100%",
-          }}
-          width={resolution}
-          height={resolution}
-          tabIndex={0}
+      <Grid item xs={12} md={6} lg={4}>
+        <GenericDemo
+          frag="fractals"
+          sx={{ height: 300 }}
+          animate={state.animate}
+          state={state}
         />
-      </div>
+      </Grid>
     </Grid>
   )
 }

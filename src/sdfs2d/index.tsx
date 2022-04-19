@@ -10,15 +10,7 @@ import { Mesh, Shader, Texture, TSGL2Context, TSGLContext } from "tsgl"
 
 import { FPSController } from "../common/FPSController"
 import { memoizeLast } from "../common/memoizeLast"
-
-const initialState = {
-  a: 0.2,
-  b: 0.2,
-  c: 0.2,
-  d: 0.2,
-  animate: true,
-}
-type State = typeof initialState
+import openSansRegularPng from "./OpenSans-Regular.png"
 
 class GenericRenderer {
   private planeMesh!: Mesh & {
@@ -75,6 +67,7 @@ class GenericRenderer {
     //   [1, 1],
     // ]
     this.planeMesh.compile(gl)
+    this.tex = Texture.fromURLSwitch(openSansRegularPng, undefined, gl)
     this.fpsController = onFps && new FPSController(onFps)
     this.updateShader()
   }
@@ -205,18 +198,24 @@ export default (): ReactElement => {
   return (
     <Grid container style={{ height: "99%" }} spacing={2} padding={2}>
       {[
-        "demoIcosahedron",
-        "demoCube",
-        "demoOctahedron",
-        "demoVector",
-        "demoTetrahedron",
+        "demoRectangle.cc",
+        "demoText.cc",
+        "demoNgon.cc",
+        "demoHexagon.cc",
+        "demoOctagon.cc",
+        "demoTriIso.cc",
+        "demoArrow.cc",
+        "demoHeart.cc",
+        "demoTriEqui.cc",
+        "demoSegment.cc",
+        "demoTri.cc",
+        "demoArc.cc",
       ].map((frag) => (
         <Grid key={frag} item xs={12} md={6} lg={4}>
           <GenericDemo
-            frag="demo3d"
-            replacer={frag}
+            frag={frag}
             sx={{ height: 300 }}
-            animate={false}
+            animate={true}
             state={{}}
           />
         </Grid>

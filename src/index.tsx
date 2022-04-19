@@ -37,6 +37,7 @@ const pages = [
   { title: "Spirograph", module: "spirograph", hide: true },
   { title: "Tiles", module: "tiles", hide: true },
   { title: "SDFs", module: "sdfs", hide: true },
+  { title: "SDFs 2D", module: "sdfs2d" },
   { title: "SDFs 3D", module: "sdfs3d" },
 ]
 
