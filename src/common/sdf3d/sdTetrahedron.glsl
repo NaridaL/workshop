@@ -4,7 +4,8 @@
 #pragma webpack include ./sdBox.glsl
 
 /**
- * Signed distance function (SDF) of a tetrahedron centered at the origin.
+ * Signed distance function (SDF) of a tetrahedron centered at the origin with
+ * side length `2s`.
  *
  * The corners are at `a/b = (+-1,0,sqrt(1/2))` and `c/d = (0,+-1,-sqrt(1/2))`.
  *

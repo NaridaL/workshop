@@ -221,35 +221,9 @@ MIX_MAT(mat2)
 
 MIN3(vec2)
 
-float sdTriangleEquilateral(vec2 p) {
-  const float k = sqrt(3.0);
-  p.x = abs(p.x) - 1.0;
-  p.y = p.y + 1.0 / k;
-  if (p.x + k * p.y > 0.0) p = vec2(p.x - k * p.y, -k * p.x - p.y) / 2.0;
-  p.x -= clamp(p.x, -2.0, 0.0);
-  return -length(p) * sign(p.y);
-}
-
 uniform float iTime;
 vec3 ungamma(vec4 col) {
   return pow(col.rgb, vec3(2.2));
-}
-
-mat2 rot2(float angle) {
-  float c = cos(angle),
-    s = sin(angle);
-  return mat2(c, -s, s, c);
-}
-
-vec3 vizz(float val) {
-  vec3 color0 = ungamma(colorBackground);
-  vec3 color1 = ungamma(colorPrimary);
-  vec3 color2 = ungamma(colorSecondary);
-  if (val >= 0.0) {
-    return mix(color1, color0, round(fract(0.5 * val)));
-  } else {
-    return mix(color2, color0, round(fract(0.5 * -val)));
-  }
 }
 
 void main() {
@@ -353,27 +327,20 @@ void main() {
     //    float xxx = float(distance(p, p) < 5.0);
     //    color = mix(color, vec3(float(i + 100) / 100.0, 0, 0), xxx);
     //  }
-    for (float it = -2.0; it <= 2.0; it++) {
-      //    p += it * vec2(1.0) * d;
-      color = mix(
-        color,
-        vec3(0.5),
-        //      vec3(cPow(p, it) / 4.0, 0),
-        lineGrid(cPow(p, it), dCPow(p, it))
-      );
-    }
+    // TODO: save this line grid/complex mult demo
+    //    for (float it = -2.0; it <= 2.0; it++) {
+    //      //    p += it * vec2(1.0) * d;
+    //      color = mix(
+    //        color,
+    //        vec3(0.5),
+    //        //      vec3(cPow(p, it) / 4.0, 0),
+    //        lineGrid(cPow(p, it), dCPow(p, it))
+    //      );
+    //    }
     vec3 color0 = colorBackground.rgb;
     vec3 color1 = colorPrimary.rgb;
     vec3 color2 = colorSecondary.rgb;
-    vec2 a = vec2(400, 200) + fromPolar(100.0, iTime);
-    vec2 b = vec2(400, 600) + fromPolar(100.0, iTime * 0.8 + 3.0);
-    vec2 c = vec2(1000, 300) + fromPolar(100.0, iTime * 1.2 + 5.0);
     float val = 1000.0;
-    //    val = distance(c, fragCoord) / 20.0 - 10.0;
-    //    val = sdTriangle(a, b, c, fragCoord) / 20.0;
-    //    val = myIsoTri(100.0, fragCoord - vec2(400)) / 10.0;
-    //    val = sdTriangleEquilateral((fragCoord - vec2(400)) / 20.0) * 20.0 / 10.0;
-    color = vizz(val);
     //    const vec3 orange = vec3(1.0, 0.843, 0);
     //    color = mix(color, color1, float(distance(a, fragCoord) < 10.0));
     //    color = mix(color, color1, float(distance(b, fragCoord) < 10.0));

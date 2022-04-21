@@ -1,18 +1,23 @@
 #pragma webpack include ./constants.glsl
 
+mat2 rot2(float angle) {
+  float c = cos(angle);
+  float s = sin(angle);
+  return mat2(c, -s, s, c);
+}
 mat3 rotX(float angle) {
-  float c = cos(angle),
-    s = sin(angle);
+  float c = cos(angle);
+  float s = sin(angle);
   return mat3(1.0, 0.0, 0.0, 0.0, c, -s, 0.0, s, c);
 }
 mat3 rotY(float angle) {
-  float c = cos(angle),
-    s = sin(angle);
+  float c = cos(angle);
+  float s = sin(angle);
   return mat3(c, 0.0, s, 0.0, 1.0, 0.0, -s, 0.0, c);
 }
 mat3 rotZ(float angle) {
-  float c = cos(angle),
-    s = sin(angle);
+  float c = cos(angle);
+  float s = sin(angle);
   return mat3(c, -s, 0.0, s, c, 0.0, 0.0, 0.0, 1.0);
 }
 /**

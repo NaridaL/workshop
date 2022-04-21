@@ -210,10 +210,6 @@ RMResult raymarching2(vec3 start, vec3 dir1) {
   }
   return RMResult(hit.distance, pos, hit.color);
 }
-vec3 pt(mat4 pm, vec3 p) {
-  vec4 pStar = pm * vec4(p, 1.0);
-  return pStar.xyz / pStar.w;
-}
 
 float softshadow(vec3 ro, vec3 rd, float mint, float maxt, float k) {
   float res = 1.0;

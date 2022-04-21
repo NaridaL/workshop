@@ -6,8 +6,13 @@ precision highp float;
 #pragma webpack include ../common/max3.glsl
 #pragma webpack include ../common/polar.glsl
 #pragma webpack include ../common/ungamma.glsl
+#pragma webpack include ../common/transform.glsl
+#pragma webpack include ../common/matrices.glsl
+#pragma webpack include ../common/checkerboardGrad.glsl
 #pragma webpack include ../common/colors.glsl
 #pragma webpack include ../common/sdf3d/sdIcosahedron.glsl
+#pragma webpack include ../common/sdf3d/sdDodecahedron.glsl
+#pragma webpack include ../common/sdf3d/sdLego.glsl
 #pragma webpack include ../common/sdf3d/sdOctahedron.glsl
 #pragma webpack include ../common/sdf3d/sdArrow.glsl
 #pragma webpack include ../common/sdf3d/sdTetrahedron.glsl
@@ -141,6 +146,25 @@ float demoTetrahedron(float r, vec3 p) {
   float d2 = p.z;
   return min(d1, d2);
 }
+float demoDodecahedron(float r, vec3 p) {
+  float d1 = sdDodecahedron(1.0, p - vec3(0, 0, 1)) - r;
+  float d2 = p.z;
+  return min(d1, d2);
+}
+float demoPlatonic(float r, vec3 p) {
+  float d1 = sdDodecahedron(0.8, p - vec3(0, 0, 1)) - r;
+  float d2 = sdIcosahedron(1.0 - r, p - vec3(0, 0, 1)) - r;
+  float d3 = p.z;
+  return min(mix(d1, d2, sin(iTime) * 0.5 + 0.5), d3);
+}
+float demoLego(float r, vec3 p) {
+  float scale = 2.0;
+  float d1 = sdLego(p * scale - vec3(0, 2, 0)) / scale;
+  float d2 =
+    sdLego(rotX(200.0 * DEGREE) * (p * scale - vec3(0, -2, 2))) / scale;
+  float d3 = p.z;
+  return min(min(d1, d2), d3);
+}
 #define SDF(r, p) demoIcosahedron(r, p)
 
 float sdf(vec3 p) {
@@ -170,18 +194,12 @@ RMResult raymarching2(vec3 start, vec3 dir1) {
     color = ungamma(colorPrimary);
   } else {
     vec2 ff = round(fract(pos.xy * 0.5));
+    //    float f = mod(ff.x + ff.y, 2.0);
+    float f = checkerboardGrad(pos.xy);
 
-    color = mix(
-      ungamma(colorBackground),
-      ungamma(colorSecondary),
-      mod(ff.x + ff.y, 2.0)
-    );
+    color = mix(ungamma(colorBackground), ungamma(colorSecondary), f);
   }
   return RMResult(hit, pos, vec4(color, 1.0));
-}
-vec3 pt(mat4 pm, vec3 p) {
-  vec4 pStar = pm * vec4(p, 1.0);
-  return pStar.xyz / pStar.w;
 }
 
 float softshadow(vec3 ro, vec3 rd, float mint, float maxt, float k) {
@@ -224,14 +242,14 @@ void main() {
 
   vec3 a = vec3(coord * 2.0 - 1.0, -1.0);
   vec3 b = vec3(coord * 2.0 - 1.0, 1.0);
-  vec3 aWC = pt(modelViewInverse, a);
-  vec3 bWC = pt(modelViewInverse, b);
+  vec3 aWC = transform(modelViewInverse, a);
+  vec3 bWC = transform(modelViewInverse, b);
   vec3 lookDir1 = normalize(bWC - aWC);
 
   RMResult hitWC = raymarching2(aWC, lookDir1);
   vec3 hitn1 = sdfNormal1(hitWC.pos, hitWC.distance);
   float dWC = distance(aWC, hitWC.pos);
-  vec3 hitNDC = pt(modelView, hitWC.pos);
+  vec3 hitNDC = transform(modelView, hitWC.pos);
   vec3 p = hitWC.pos;
   float inSun = softshadow(
     hitWC.pos + hitn1 * 0.05,

@@ -21,6 +21,7 @@ import {
   V3,
 } from "ts3dutils"
 import { GL_COLOR, Mesh, Shader, Texture, TSGLContext } from "tsgl"
+import { BoundNumberField } from "../common/BoundNumberField"
 
 import { useHashState } from "../paperBox1/useHashState"
 import { buildShaders } from "./shaders"
@@ -585,31 +586,6 @@ function noises(
     {
       redoTex,
     },
-  )
-}
-
-function BoundNumberField<T extends string>({
-  state,
-  prop,
-  setStatePartial,
-  ...props
-}: {
-  state: Record<T, number>
-  prop: T
-  setStatePartial: (newPartialState: Record<T, number>) => void
-}) {
-  return (
-    <TextField
-      variant="outlined"
-      size="small"
-      type="number"
-      value={state[prop]}
-      onChange={(e) =>
-        setStatePartial({ [prop]: +e.target.value } as Record<T, number>)
-      }
-      label={prop}
-      {...props}
-    />
   )
 }
 

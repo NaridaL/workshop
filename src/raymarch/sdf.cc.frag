@@ -225,20 +225,6 @@ float queen(vec3 p) {
   d *= 0.5;
   return d;
 }
-float lego(vec3 p) {
-  vec2 c = vec2(4.0, 2.0);
-  //    p.xy = mod(p.xy + c * 0.5, c) - c * 0.5;
-  float lxy = length(p.xy);
-  p -= vec3(0.0, 0.0, 0.6);
-  float d;
-  const float cr = 0.02;
-  d = sdBox(vec3(2.0, 1.0, 0.6), cr, p);
-  //    vec3 p8 = vec3(fract(p.xy + 0.5) - 0.5, p.z);
-  vec3 p8 = vec3(abs(abs(p.xy) - vec2(1.0, 0.0)), p.z) - vec3(0.5, 0.5, 0.6);
-  float dCyl = sdCylinder(0.35 - 0.04, 0.2, p8) - 0.04;
-  d = min(d, dCyl);
-  return d;
-}
 
 vec2 project(vec2 a, vec2 onto1) {
   return onto1 * (dot(a, onto1) / dot(onto1, onto1));
@@ -317,10 +303,6 @@ RMResult raymarching2(vec3 start, vec3 dir1) {
     pos = pos + dir1 * hit.distance;
   }
   return RMResult(hit.distance, pos, hit.color);
-}
-vec3 pt(mat4 pm, vec3 p) {
-  vec4 pStar = pm * vec4(p, 1.0);
-  return pStar.xyz / pStar.w;
 }
 
 float softshadow(vec3 ro, vec3 rd, float mint, float maxt, float k) {
