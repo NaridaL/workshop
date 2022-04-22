@@ -1,18 +1,6 @@
 import * as chroma from "chroma.ts"
-import {
-  arrayRange,
-  assertInst,
-  clamp,
-  DEG,
-  eq,
-  eq0,
-  int,
-  M4,
-  TAU,
-  V,
-  V3,
-} from "ts3dutils"
-import { GL_COLOR, GL_COLOR_BLACK, Mesh, Shader, TSGLContext } from "tsgl"
+import { arrayRange, clamp, DEG, eq, eq0, int, M4, TAU, V, V3 } from "ts3dutils"
+import { GL_COLOR_BLACK, Mesh, Shader, TSGLContext } from "tsgl"
 
 const X_RED = chroma.color("red").gl()
 const Y_GREEN = chroma.color("green").gl()

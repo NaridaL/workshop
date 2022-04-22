@@ -18,11 +18,11 @@ import { ReactElement, useCallback, useState } from "react"
 import * as ReactDOMServer from "react-dom/server"
 import { MINUS, round10, TAU } from "ts3dutils"
 
+import { useHashState } from "../common/useHashState"
 import { PAPER_SIZE_A4 } from "./common"
 import hexPrismBoxJpg from "./hexPrismBox.jpg"
 import { PaperAutocomplete } from "./PaperAutocomplete"
 import { PrismBoxSvg } from "./PrismBoxSvg"
-import { useHashState } from "./useHashState"
 
 export default (): ReactElement => {
   const [state, setStateUnchecked] = useHashState({

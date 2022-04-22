@@ -11,7 +11,7 @@ export function buildShaders(gl: TSGLContext) {
     // ),
     sdf: Shader.create(
       require("../common/raymarch.vert").default,
-      require("./sdf.cc.frag").default,
+      require("./sdf.frag").default,
       gl,
     ),
     // ed: Shader.create(

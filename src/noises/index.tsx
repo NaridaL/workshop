@@ -23,21 +23,21 @@ import {
 import { GL_COLOR, Mesh, Shader, Texture, TSGLContext } from "tsgl"
 import { BoundNumberField } from "../common/BoundNumberField"
 
-import { useHashState } from "../paperBox1/useHashState"
-import { buildShaders } from "./shaders"
+import { useHashState } from "../common/useHashState"
+import { FlyCameraController } from "../raymarch/FlyCameraController"
+import { OrbitCameraController } from "../raymarch/OrbitCameraController"
+import { GenericDemo, SimpleCanvasRenderer } from "../sdfs/SimpleCanvasRenderer"
+import { PanController } from "./PanController"
 
 const gradients = arrayFromFunction(512, () =>
   V3.polar(1, (Math.random() - 0.5) * 2 * Math.PI),
 )
 
 const initialState = {
-  xOffset: 0,
-  yOffset: 0,
-  xScale: 64,
-  yScale: 64,
   bandCount: 2,
   a: 0.5,
   b: 0.5,
+  cam: "0~0~0",
 }
 type State = typeof initialState
 
@@ -262,7 +262,7 @@ function noises(
   const perlinShader2 = Shader.create<
     {
       colorPrimary: "FLOAT_VEC4"
-      colorBg: "FLOAT_VEC4"
+      colorBackground: "FLOAT_VEC4"
       scale: "FLOAT_VEC2"
       bandCount: "UNSIGNED_INT"
     },
@@ -296,14 +296,14 @@ function noises(
       
       uniform sampler2D texture;
       uniform vec4 colorPrimary;
-      uniform vec4 colorBg;
+      uniform vec4 colorBackground;
       uniform int bandCount;
       in float n;
       in vec2 coord;
       out vec4 fragColor;
       void main() {
         float fraction = (n + 0.5) * 0.5;
-        fragColor = mix(colorBg, colorPrimary, fraction);
+        fragColor = mix(colorBackground, colorPrimary, fraction);
         
         if (length(gl_PointCoord - vec2(0.5, 0.5)) > 0.5) {
           discard;
@@ -311,20 +311,10 @@ function noises(
       }
     `,
   )
-  let shaders = buildShaders()
-  module.hot &&
-    module.hot.accept("./shaders", () => {
-      console.clear()
-      try {
-        shaders = buildShaders()
-      } catch (e) {
-        console.error(e)
-      }
-    })
   const texShader = Shader.create<
     {
       colorPrimary: "FLOAT_VEC4"
-      colorBg: "FLOAT_VEC4"
+      colorBackground: "FLOAT_VEC4"
       pointSize: "FLOAT"
       texture: "SAMPLER_2D"
     },
@@ -351,13 +341,13 @@ function noises(
       precision highp float;
       uniform sampler2D texture;
       uniform vec4 colorPrimary;
-      uniform vec4 colorBg;
+      uniform vec4 colorBackground;
       varying vec4 bar;
       varying vec3 coordUVQ;
       varying vec2 coord;
       void main() {
         float fraction = texture2D(texture, coord).r;
-        gl_FragColor = mix(colorBg, colorPrimary, fraction);
+        gl_FragColor = mix(colorBackground, colorPrimary, fraction);
         
         if (length(gl_PointCoord - vec2(0.5, 0.5)) > 0.5) {
           discard;
@@ -533,43 +523,6 @@ function noises(
         console.log(lll.transformPoint(V3.XYZ))
         outputllll = true
       }
-      shaders.raymarch
-        .uniforms({
-          a: dynamicState.a,
-          b: dynamicState.b,
-          colorPrimary: colors.primary,
-          colorSecondary: colors.secondary,
-          colorBg: colors.background,
-          scale: [dynamicState.xScale, dynamicState.yScale],
-          offset: [dynamicState.xOffset, dynamicState.yOffset],
-          bandCount: dynamicState.bandCount,
-          highResTimeStamp: abs,
-          secs: abs / 1000,
-          gradients: 1,
-          //campos,
-          lll,
-          llli,
-        })
-        .draw(planeMesh)
-
-      gl.popMatrix()
-      gl.pushMatrix()
-
-      gl.translate(-0.75, 0, 0)
-      gl.scale(0.5)
-      gl.rotate(-90, 1, 0, 0)
-      shaders.raymarch
-        .uniforms({
-          colorPrimary: colors.primary,
-          colorBg: colors.background,
-          pointSize: 12,
-          texture: 0,
-        })
-        .draw(sphereMesh)
-      shader
-        .uniforms({ color: colors.primary, pointSize: 12 })
-        .draw(sphereMesh, gl.LINES)
-      gl.popMatrix()
 
       // shader.uniforms({ color: colors.secondary }).draw(cubicGridMesh)
 
@@ -590,52 +543,86 @@ function noises(
 }
 
 export default (): ReactElement => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
   const [state, setState] = useHashState(initialState)
   const setStatePartial = useCallback(
     (o) => setState((s) => ({ ...s, ...o })),
     [setState],
   )
-  const redoTex = useRef<() => void>()
-  const fluid = useRef(Object.assign({}, state))
+  const setCam = useCallback(
+    ({ cam }: { cam: string }) => {
+      const m = PanController.fromShortString(cam)
+      setStatePartial({ cam: PanController.toShortString(m) })
+    },
+    [setStatePartial],
+  )
 
-  const theme = useTheme()
-  useEffect(() => {
-    const tsgl = TSGLContext.create({ canvas: canvasRef.current! })
-    // tsgl.fixCanvasRes()
-    //tsgl.addResizeListener()
-    noises(
-      tsgl,
-      {
-        background: chroma.css(theme.palette.background.default).gl(),
-        primary: chroma.css(theme.palette.primary.main).gl(),
-        secondary: chroma.css(theme.palette.secondary.main).gl(),
-      },
-      fluid.current,
-    )
-  }, [
-    theme.palette.background.default,
-    theme.palette.primary.main,
-    theme.palette.secondary.main,
-  ])
+  const JuliaRenderer = useCallback(
+    class extends SimpleCanvasRenderer {
+      constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        super(() => require("./julia.frag").default, canvas, onFps)
+      }
+    },
+    [],
+  )
 
+  const SimplexRenderer = useCallback(
+    class SimplexRenderer2 extends SimpleCanvasRenderer {
+      panController = new PanController(M4.identity(), (m) =>
+        setStatePartial({ cam: PanController.toShortString(m) }),
+      )
+      constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        super(() => require("./simplex.frag").default, canvas, onFps)
+        this.panController.registerListeners(canvas)
+        canvas.tabIndex = 0
+        if (canvas.clientWidth !== 0) {
+          this.gl.fixCanvasRes()
+        }
+      }
+
+      protected uniforms() {
+        return {
+          mmm: this.panController.getTransform(),
+          mmmi: this.panController.getTransform().inversed(),
+        }
+      }
+      protected setCam(state: M4) {
+        this.panController.setState(state)
+      }
+
+      protected render(abs: number) {
+        this.panController.tick()
+        super.render(abs)
+      }
+    },
+    [setCam],
+  )
+  const simplexRef = useRef<any>()
   useEffect(() => {
-    Object.assign(fluid.current, state)
-  }, [state])
+    state.cam &&
+      simplexRef.current?.setCam(PanController.fromShortString(state.cam))
+  }, [])
 
   return (
-    <Grid container style={{ height: "99%" }}>
-      <Grid item xs={12} md={9}>
-        <div style={{ height: "100%" }}>
-          <canvas
-            ref={canvasRef}
-            style={{ width: "100%", height: "100%" }}
-            width={128}
-            height={128}
-            tabIndex={0}
-          />
-        </div>
+    <Grid container style={{ height: "99%" }} spacing={2} padding={2}>
+      <Grid item xs={12}>
+        <GenericDemo
+          sx={{ height: 400 }}
+          animate={true}
+          state={state}
+          Renderer={SimplexRenderer}
+          focusable={true}
+          rendererRef={simplexRef}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <GenericDemo
+          animate={true}
+          sx={{ height: 400 }}
+          state={state}
+          Renderer={JuliaRenderer}
+        />
       </Grid>
       <Grid
         item
@@ -656,10 +643,6 @@ export default (): ReactElement => {
             Test with various noise generation functions.
           </CardContent>
         </Card>
-        <BoundNumberField {...{ state, setStatePartial }} prop="xOffset" />
-        <BoundNumberField {...{ state, setStatePartial }} prop="yOffset" />
-        <BoundNumberField {...{ state, setStatePartial }} prop="xScale" />
-        <BoundNumberField {...{ state, setStatePartial }} prop="yScale" />
         <BoundNumberField {...{ state, setStatePartial }} prop="bandCount" />
         <div>
           <Slider
@@ -683,8 +666,4 @@ export default (): ReactElement => {
       </Grid>
     </Grid>
   )
-}
-
-if (module.hot) {
-  module.hot.accept("./shaders")
 }

@@ -13,6 +13,7 @@ precision highp float;
 #pragma webpack include ../common/polar.glsl
 #pragma webpack include ../common/ra2Hex.glsl
 #pragma webpack include ../common/remix.glsl
+#pragma webpack include ../common/transform.glsl
 #pragma webpack include ../common/unmix.glsl
 #pragma webpack include ../common/visualize.glsl
 #pragma webpack include ../common/waves.glsl
@@ -38,7 +39,7 @@ uniform mat4 lll;
 uniform mat4 llli;
 uniform vec4 colorPrimary;
 uniform vec4 colorSecondary;
-uniform vec4 colorBg;
+uniform vec4 colorBackground;
 uniform float a;
 uniform float b;
 uniform float c;
@@ -335,14 +336,14 @@ void main() {
 
   vec3 a = vec3(coord, -1.0);
   vec3 b = vec3(coord, 1.0);
-  vec3 aWC = pt(llli, a);
-  vec3 bWC = pt(llli, b);
+  vec3 aWC = transform(llli, a);
+  vec3 bWC = transform(llli, b);
   vec3 lookDir1 = normalize(bWC - aWC);
 
   RMResult hitWC = raymarching2(aWC, lookDir1);
   vec3 hitn1 = sdfNormal1(hitWC.pos, hitWC.distance);
   float dWC = distance(aWC, hitWC.pos);
-  vec3 hitNDC = pt(lll, hitWC.pos);
+  vec3 hitNDC = transform(lll, hitWC.pos);
   vec3 p = hitWC.pos;
   float inSun = softshadow(
     hitWC.pos + hitn1 * 0.05,
@@ -388,7 +389,7 @@ void main() {
   //    float lightIntensity =
   //        0.2 + 0.5*clamp( -dot(light, hitn1),0., 1.) + 0.3*specularLightWeighting;
   //    fragColor = visualize(blue, red, mix(0.5, 1.0, inSun) * lightIntensity);
-  //    fragColor = mix(hitWC.color, colorBg, mix(0.5, 1.0, inSun) * clamp(lightIntensity, 0., 1.));
+  //    fragColor = mix(hitWC.color, colorBackground, mix(0.5, 1.0, inSun) * clamp(lightIntensity, 0., 1.));
   color = pow(color, vec3(1.0 / 2.2)); // gamma correction
   fragColor = vec4(color, 1.0);
 }

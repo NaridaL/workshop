@@ -6,7 +6,7 @@ const parseHash = (hash: string): Record<string, string> => {
   return !hash
     ? {}
     : hash
-        .substr(1)
+        .substring(1)
         .split("&")
         .map((part) => {
           const [key, value] = part.split("=")

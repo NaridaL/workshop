@@ -34,7 +34,7 @@ uniform vec2 iMouse;
 uniform vec2 iResolution;
 uniform vec4 colorPrimary;
 uniform vec4 colorSecondary;
-uniform vec4 colorBg;
+uniform vec4 colorBackground;
 uniform float a;
 uniform float b;
 uniform float c;
@@ -151,9 +151,8 @@ vec3 modRotZ(vec3 p, float count) {
 }
 
 RMHit sdf(vec3 p) {
-  RMHit r = RMHit(skybox(p), colorBg);
+  RMHit r = RMHit(skybox(p), colorBackground);
   r = add(r, RMHit(sdBox(vec3(6.0, 6.0, 1.0), p), colorSecondary));
-  return r;
   vec3 rotp = rotZ(0.1) * p;
   vec3 floorTiles = vec3(mod(rotp.xy, 0.1), rotp.z);
   float ftd = sdBox(
@@ -309,7 +308,7 @@ void main() {
   //    fragColor = visualize(blue, red, mix(0.5, 1.0, inSun) * lightIntensity);
   fragColor = mix(
     hitWC.color,
-    colorBg,
+    colorBackground,
     mix(0.5, 1.0, inSun) * clamp(lightIntensity, 0.0, 1.0)
   );
   fragColor /= 4.0;

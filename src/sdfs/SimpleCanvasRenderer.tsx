@@ -9,8 +9,8 @@ import MenuItem from "@mui/material/MenuItem"
 import { useTheme } from "@mui/material/styles"
 import * as chroma from "chroma.ts"
 import {
-  MouseEvent,
   MutableRefObject,
+  MouseEvent as ReactMouseEvent,
   useCallback,
   useEffect,
   useRef,
@@ -42,39 +42,49 @@ export function GenericDemo({
   animate,
   state,
   Renderer,
+  focusable,
+  rendererRef,
 }: {
   sx: any
   animate: boolean
   state: {}
-  replacer?: string
+  focusable?: boolean
+  rendererRef?: MutableRefObject<Renderer | undefined>
   Renderer: RendererConstructor
 }) {
-  const rendererRef = useRef<Renderer>()
+  const rendererRef2 = useRef<Renderer>()
   const [anchorEl, setAnchorEl] = useState<Element>()
 
   const [renderProgress, setRenderProgress] = useState<undefined | number>()
 
-  const render = useCallback(async (event: MouseEvent<HTMLOrSVGElement>) => {
-    const dim = event.currentTarget.dataset.dim!.split("x").map((x) => +x) as [
-      number,
-      number,
-    ]
-    setAnchorEl(undefined)
-    if (rendererRef.current) {
-      try {
-        const url = URL.createObjectURL(
-          await rendererRef.current.renderImage(dim, setRenderProgress),
-        )
-        setRenderProgress(undefined)
-        openInNewTab(url)
-      } catch (e) {
-        console.error(e)
+  const render = useCallback(
+    async (event: ReactMouseEvent<HTMLOrSVGElement>) => {
+      const dim = event.currentTarget.dataset
+        .dim!.split("x")
+        .map((x) => +x) as [number, number]
+      setAnchorEl(undefined)
+      if (rendererRef2.current) {
+        try {
+          const url = URL.createObjectURL(
+            await rendererRef2.current.renderImage(dim, setRenderProgress),
+          )
+          setRenderProgress(undefined)
+          openInNewTab(url)
+        } catch (e) {
+          console.error(e)
+        }
       }
+    },
+    [],
+  )
+  useEffect(() => {
+    if (rendererRef) {
+      rendererRef.current = rendererRef2.current
     }
-  }, [])
+  }, [rendererRef])
 
   const openMenu = useCallback(
-    (event: MouseEvent) => setAnchorEl(event.currentTarget),
+    (event: ReactMouseEvent) => setAnchorEl(event.currentTarget),
     [],
   )
   const closeMenu = useCallback(() => setAnchorEl(undefined), [])
@@ -106,7 +116,8 @@ export function GenericDemo({
         Renderer={Renderer}
         animate={animate}
         state={state}
-        rendererRef={rendererRef}
+        rendererRef={rendererRef2}
+        focusable={focusable}
         sx={{ width: "100%", height: "100%" }}
       />
     </Card>
@@ -122,12 +133,14 @@ export const ReactGlCanvas = ({
   animate,
   state,
   rendererRef,
+  focusable,
 }: {
   Renderer: RendererConstructor
   onFps?: (fps: number) => void
   animate: boolean
   state: {}
   rendererRef?: MutableRefObject<Renderer | undefined>
+  focusable?: boolean
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const renderer = useRef<Renderer>()
@@ -180,7 +193,7 @@ export class SimpleCanvasRenderer {
   private fpsController: FPSController | undefined
 
   constructor(
-    protected readonly fragShader: { default: string },
+    protected readonly fragShader: () => string,
     private readonly canvas: HTMLCanvasElement,
     onFps?: (fps: number) => void,
   ) {
@@ -229,31 +242,29 @@ export class SimpleCanvasRenderer {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require("../common/raymarch.vert").default,
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      this.fragShader.default,
+      this.fragShader(),
     )
   }
 
   protected buildShader = memoizeLast((vs: string, fs: string) => {
     try {
-      console.clear()
-
-      console.log("vs or fs changed! recompiling!", this.fragShader)
       if (this.shader) {
         this.gl.deleteProgram(this.shader.program)
       }
 
       this.shader = Shader.create(vs, fs)
     } catch (e) {
+      console.clear()
       console.error(e)
       if (!this.shader) throw e
     }
   })
 
   start() {
-    this.gl.animate(this.render)
+    this.gl.animate(this.render.bind(this))
   }
 
-  render = (abs: number) => {
+  render(abs: number) {
     this.gl.makeCurrent()
     this.updateShader()
     this.fpsController?.tick(abs)
@@ -266,6 +277,7 @@ export class SimpleCanvasRenderer {
         iTime: this.animate ? abs / 1000 : 0,
       })
       .uniforms(this.dyn)
+      .uniforms(this.uniforms())
       .draw(this.planeMesh)
   }
 
@@ -311,5 +323,12 @@ export class SimpleCanvasRenderer {
         "png",
       ),
     )
+  }
+
+  /**
+   * Override this method to add additional uniforms to the simple renderer shader.
+   */
+  protected uniforms(): {} {
+    return {}
   }
 }

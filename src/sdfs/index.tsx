@@ -16,7 +16,7 @@ import { Mesh, Shader, Texture, TSGL2Context, TSGLContext } from "tsgl"
 import { BoundNumberField } from "../common/BoundNumberField"
 import { FPSController } from "../common/FPSController"
 import { memoizeLast } from "../common/memoizeLast"
-import { useHashState } from "../paperBox1/useHashState"
+import { useHashState } from "../common/useHashState"
 import { FlyCameraController } from "../raymarch/FlyCameraController"
 import { OrbitCameraController } from "../raymarch/OrbitCameraController"
 import openSansRegularPng from "./OpenSans-Regular.png"
@@ -49,8 +49,11 @@ function GenericDemo({
 }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const Renderer = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    SimpleCanvasRenderer.bind(undefined, require("./" + frag + ".frag")),
+    SimpleCanvasRenderer.bind(
+      undefined,
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      () => require("./" + frag + ".frag").default,
+    ),
     [frag],
   )
 

@@ -15,7 +15,7 @@ import React, {
   useState,
 } from "react"
 import { arrayRange } from "ts3dutils"
-import { useHashState } from "../paperBox1/useHashState"
+import { useHashState } from "../common/useHashState"
 import { CairoTiles } from "./CairoTiles"
 import { HexTiles } from "./HexTiles"
 import { OctaSquare } from "./OctaSquare"

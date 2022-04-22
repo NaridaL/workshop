@@ -8,7 +8,7 @@ precision mediump usampler2D;
 // texture coordinate to render
 in vec2 coord;
 
-uniform vec4 colorBg;
+uniform vec4 colorBackground;
 uniform vec4[10] colorFg;
 
 uniform mat4 tt;
@@ -97,7 +97,7 @@ void main() {
 
   // fragColor = length(pos2 - vec2(100.0, 100.0)) < 50.0
   // ? colorFg[0]
-  // : colorBg;
+  // : colorBackground;
   // return;
   vec3 hex_pos = raToHex(pos2);
   // vec2 hex_center = floor(hex_pos + 0.5);
@@ -120,8 +120,8 @@ void main() {
     ivec2 center2 = cube_to_oddr(ivec3(hex_center));
     uint value = heightAt(center2);
     uint valueClamped = clamp(value, 0u, uint(colorFg.length()) - 1u);
-    fragColor = value == 255u ? colorBg : colorFg[valueClamped];
+    fragColor = value == 255u ? colorBackground : colorFg[valueClamped];
   } else {
-    fragColor = colorBg;
+    fragColor = colorBackground;
   }
 }

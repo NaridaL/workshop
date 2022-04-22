@@ -3,7 +3,9 @@ precision highp float;
 
 #pragma webpack include ../common/banded.glsl
 #pragma webpack include ../common/between.glsl
+#pragma webpack include ../common/constants.glsl
 #pragma webpack include ../common/complex.glsl
+#pragma webpack include ../common/colors.glsl
 #pragma webpack include ../common/hex2Ra.glsl
 #pragma webpack include ../common/hexRound.glsl
 #pragma webpack include ../common/hexSdf.glsl
@@ -19,25 +21,23 @@ precision highp float;
 uniform sampler2D texture;
 uniform vec4 colorPrimary;
 uniform vec4 colorSecondary;
-uniform vec4 colorBg;
+uniform vec4 colorBackground;
 uniform float a;
 uniform float b;
 uniform int bandCount;
-uniform float secs;
+uniform float iTime;
+uniform vec2 iMouse;
+uniform vec2 iResolution;
 in vec2 coord;
 out vec4 fragColor;
 
-const vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
-const vec4 blue = vec4(0.0, 0.0, 1.0, 1.0);
-const vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
-const float GOLDEN_RATIO = 1.61803398875;
-
-const vec2 c = vec2(-0.4, 0.6);
 vec2 f(vec2 z) {
-  //    return complexMul(z, z) + fromPolar(0.7885,(a + b/50.)*6.);
-  return complexMul(z, z) + fromPolar(0.7885, secs / 2.0);
-  //    return complexMul(z, z)  + fromPolar(0.7885,4.);
+  //  const vec2 c = vec2(-0.4, 0.6);
+  //  vec2 c = fromPolar(0.7885, (a + b / 50.0) * 6.0);
+  //  vec2 c = fromPolar(0.7885, iTime / 2.0);
+  //  vec2 c = fromPolar(0.7885, 4.0);
+  vec2 c = 0.01 * (iMouse - 0.5 * iResolution);
+  return complexMul(z, z) + c;
 }
 
 vec2 complexSqr(vec2 z) {
@@ -68,11 +68,16 @@ vec2 flf(vec2 z) {
 JULIA_ITERATION(julia, f, 2., 20u)
 
 void main() {
-  vec3 res = julia(coord);
+  vec2 fragCoord = (coord - 0.5) * iResolution * 0.005;
+  vec3 res = julia(fragCoord);
   float f = res.z / 20.0;
 
-  //    fragColor = mix(colorBg, colorPrimary, banded(bandCount, unmix(-.35, .35, f2)));
-  fragColor = mix(colorBg, colorPrimary, min(banded(bandCount, f), 1.0));
+  //    fragColor = mix(colorBackground, colorPrimary, banded(bandCount, unmix(-.35, .35, f2)));
+  fragColor = mix(
+    colorBackground,
+    colorPrimary,
+    min(banded(bandCount, f), 1.0)
+  );
   fragColor = vec4(res, 1.0);
   //    fragColor = visualize(f);
   //    fragColor = visualize(float(i == 1000u));

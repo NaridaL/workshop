@@ -25,8 +25,8 @@ import { currentGL, GL_COLOR, Mesh, Shader, TSGLContext } from "tsgl"
 
 import { BoundNumberField } from "../common/BoundNumberField"
 import { FPSController } from "../common/FPSController"
+import { useHashState } from "../common/useHashState"
 import { openInNewTab } from "../paperBox1/common"
-import { useHashState } from "../paperBox1/useHashState"
 import edFragShader from "./ed.frag"
 import { EGizmoController, NONE } from "./EGizmoController"
 import { FlyCameraController } from "./FlyCameraController"
@@ -96,7 +96,7 @@ function raymarchRender(
     .uniforms({
       colorPrimary: colors.primary,
       colorSecondary: colors.secondary,
-      colorBg: colors.background,
+      colorBackground: colors.background,
       highResTimeStamp: abs,
       secs: abs / 1000,
       gradients: 1,
@@ -170,8 +170,8 @@ function raymarch(
 
   return {
     updateShader(newShader) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       shared.shaders.ed = Shader.create(
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require("../common/raymarch.vert").default,
         newShader,
       )

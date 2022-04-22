@@ -28,7 +28,7 @@ function Demo2D({
         onFps?: (fps: number) => void,
       ) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        super(require("./" + frag + ".frag"), canvas, onFps)
+        super(() => require("./" + frag + ".frag").default, canvas, onFps)
 
         this.tex = Texture.fromURLSwitch(openSansRegularPng, undefined, this.gl)
       }
@@ -45,18 +45,18 @@ export default (): ReactElement => {
   return (
     <Grid container style={{ height: "99%" }} spacing={2} padding={2}>
       {[
-        "demoRectangle.cc",
-        "demoText.cc",
-        "demoNgon.cc",
-        "demoHexagon.cc",
-        "demoOctagon.cc",
-        "demoTriIso.cc",
-        "demoArrow.cc",
-        "demoHeart.cc",
-        "demoTriEqui.cc",
-        "demoSegment.cc",
-        "demoTri.cc",
-        "demoArc.cc",
+        "demoRectangle",
+        "demoText",
+        "demoNgon",
+        "demoHexagon",
+        "demoOctagon",
+        "demoTriIso",
+        "demoArrow",
+        "demoHeart",
+        "demoTriEqui",
+        "demoSegment",
+        "demoTri",
+        "demoArc",
       ].map((frag) => (
         <Grid key={frag} item xs={12} md={6} lg={4}>
           <Demo2D frag={frag} sx={{ height: 300 }} animate={true} state={{}} />

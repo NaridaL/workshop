@@ -16,7 +16,7 @@ precision mediump float;
 uniform sampler2D texture;
 uniform vec4 colorPrimary;
 uniform vec4 colorSecondary;
-uniform vec4 colorBg;
+uniform vec4 colorBackground;
 uniform float a;
 uniform int bandCount;
 in float n;
@@ -35,13 +35,13 @@ float perlin01(vec2 pos) {
 void main2() {
   float fraction = (n + 0.5) * 0.5;
   vec4 waves1 = mix(
-    colorBg,
+    colorBackground,
     colorPrimary,
     float(waves(colorPrimary, coord, vec2(0.2, 0.05), highResTimeStamp) >= 0.7)
   );
   vec4 waves2 = mix(
     colorSecondary,
-    colorBg,
+    colorBackground,
     float(waves(colorPrimary, coord, vec2(0.002, 0.1), highResTimeStamp) >= 0.7)
   );
 
@@ -55,15 +55,15 @@ void main2() {
     waves2 * isBottom +
     (1.0 - isTop - isBottom) *
       mix(
-        colorBg,
+        colorBackground,
         colorPrimary,
         banded(float(bandCount), unmix(0.333, 0.666, perl01))
       );
   //        + vec4(0.0, 0.0, 0.0, 1.0) * float(between(0.0, 0.3, perl));
-  // fragColor = mix(colorBg, colorPrimary, banded(float(bandCount), perl01));
+  // fragColor = mix(colorBackground, colorPrimary, banded(float(bandCount), perl01));
   // fragColor = visualize(blue, red, perl01);
 
-  //    fragColor = mix(colorBg, colorPrimary, unmix(-0.5, 0.5, perl));
+  //    fragColor = mix(colorBackground, colorPrimary, unmix(-0.5, 0.5, perl));
   //fragColor = texelFetch(gradients, ivec2(coord), 0);
 }
 
@@ -77,12 +77,12 @@ void main2() {
   vec4 hexColor =
     isTop * colorPrimary +
     isBottom * colorSecondary +
-    (1.0 - isTop - isBottom) * colorBg;
+    (1.0 - isTop - isBottom) * colorBackground;
 
-  hexColor = mix(colorBg, colorPrimary, banded(bandCount, centerPerl));
+  hexColor = mix(colorBackground, colorPrimary, banded(bandCount, centerPerl));
 
   vec3 hex_d = hex_pos - hex_center;
   float d = hexSdf(hex_d);
   float isHex = smoothstep(-0.42, -0.38, -d);
-  fragColor = mix(colorBg, hexColor, isHex);
+  fragColor = mix(colorBackground, hexColor, isHex);
 }

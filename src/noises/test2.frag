@@ -19,7 +19,7 @@ uniform sampler2D texture;
 uniform vec4 colorPrimary;
 uniform float highResTimeStamp;
 uniform vec4 colorSecondary;
-uniform vec4 colorBg;
+uniform vec4 colorBackground;
 uniform float a;
 uniform int bandCount;
 in float n;
@@ -85,7 +85,7 @@ void main2() {
   );
   float isHex = float(between(0.15, 0.2, d));
   fragColor = mix(
-    colorBg,
+    colorBackground,
     red,
     isHex * banded(bandCount, perlin01(centerXY / 20.0))
   );

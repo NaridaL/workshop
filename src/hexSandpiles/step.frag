@@ -4,7 +4,7 @@ precision mediump usampler2D;
 in vec2 coord;
 
 uniform vec2 iResolution;
-uniform vec4 colorBg;
+uniform vec4 colorBackground;
 uniform vec4[10] colorFg;
 
 out uvec4 fragColor;

@@ -474,7 +474,7 @@ class HexSand {
 
 const colorFg = chroma.scale("white", "green").mode("rgb").colors(10, "gl")
 
-async function setup(canvas: HTMLCanvasElement, colorBg: GL_COLOR) {
+async function setup(canvas: HTMLCanvasElement, colorBackground: GL_COLOR) {
   const gl: TSGLContext & WebGL2RenderingContextStrict = TSGLContext.create({
     canvas,
     throwOnError: false,
@@ -579,7 +579,7 @@ async function setup(canvas: HTMLCanvasElement, colorBg: GL_COLOR) {
       .uniforms({
         iResolution: [800, 600],
         tt: mm.inversed(),
-        colorBg,
+        colorBackground,
         "colorFg[0]": colorFg,
         heights: 0,
       })

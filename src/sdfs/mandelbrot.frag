@@ -18,7 +18,7 @@ uniform sampler2D texture;
 uniform vec4 colorPrimary;
 uniform float highResTimeStamp;
 uniform vec4 colorSecondary;
-uniform vec4 colorBg;
+uniform vec4 colorBackground;
 uniform float a;
 uniform int bandCount;
 in float n;
@@ -113,6 +113,6 @@ void main() {
 
   //    fragColor = vec4(f.xy, 0.0, 1.0);
   float val = pow(float(c) / float(bandCount), 1.0 / 2.0);
-  fragColor = mix(colorBg, colorPrimary, val);
+  fragColor = mix(colorBackground, colorPrimary, val);
   //    fragColor = visualize(blue, red, val);
 }

@@ -1,5 +1,6 @@
+#pragma webpack include ./constants.glsl
+
 uniform sampler2D gradients;
-uniform int bandCount;
 
 vec3 xy2tri(vec2 xy) {
   float v = xy.y / 0.866;
@@ -22,9 +23,6 @@ vec2 tri2xy(vec2 uv) {
   float x = uv.s + uv.t / 2.0;
   return vec2(x, y);
 }
-const float SQRT2 = 1.4142135623730951;
-const float GOLDEN_RATIO = 1.61803398875;
-const float SQRT3 = 1.732050807568877;
 /* Create random direction vector
  */
 vec2 randomGradient(vec2 i) {

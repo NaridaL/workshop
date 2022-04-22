@@ -25,11 +25,11 @@ function Demo3D({
     class Renderer2 extends SimpleCanvasRenderer implements Renderer {
       constructor(canvas: HTMLCanvasElement, onFps?: (fps: number) => void) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        super(require("./" + frag + ".frag"), canvas, onFps)
+        super(() => require("./" + frag + ".frag").default, canvas, onFps)
       }
 
       updateShader() {
-        let fs: string = this.fragShader.default
+        let fs: string = this.fragShader()
         if (replacer) {
           fs = fs.replace(
             "#define SDF(r, p) demoIcosahedron(r, p)",
