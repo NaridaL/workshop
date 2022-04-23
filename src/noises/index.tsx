@@ -34,7 +34,7 @@ const gradients = arrayFromFunction(512, () =>
 )
 
 const initialState = {
-  bandCount: 2,
+  bandCount: 8,
   a: 0.5,
   b: 0.5,
   cam: "0~0~0",
@@ -542,6 +542,38 @@ function noises(
   )
 }
 
+class PanningCanvasRenderer extends SimpleCanvasRenderer {
+  panController: PanController
+  constructor(
+    fragShader: () => string,
+    onCamChange: (m: M4) => void,
+    canvas: HTMLCanvasElement,
+    onFps: (fps: number) => void,
+  ) {
+    super(fragShader, canvas, onFps)
+    canvas.tabIndex = 0
+    if (canvas.clientWidth !== 0) {
+      this.gl.fixCanvasRes()
+    }
+    this.panController = new PanController(M4.identity(), onCamChange)
+    this.panController.registerListeners(canvas)
+  }
+
+  protected uniforms() {
+    return {
+      modelView: this.panController.getTransform(),
+      viewModel: this.panController.getTransform().inversed(),
+    }
+  }
+  protected setCam(state: M4) {
+    this.panController.setState(state)
+  }
+
+  public render(abs: number) {
+    this.panController.tick()
+    super.render(abs)
+  }
+}
 export default (): ReactElement => {
   const [state, setState] = useHashState(initialState)
   const setStatePartial = useCallback(
@@ -566,37 +598,61 @@ export default (): ReactElement => {
     [],
   )
 
-  const SimplexRenderer = useCallback(
-    class SimplexRenderer2 extends SimpleCanvasRenderer {
-      panController = new PanController(M4.identity(), (m) =>
-        setStatePartial({ cam: PanController.toShortString(m) }),
-      )
+  const Test3Renderer = useCallback(
+    class extends PanningCanvasRenderer {
       constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        super(() => require("./simplex.frag").default, canvas, onFps)
-        this.panController.registerListeners(canvas)
-        canvas.tabIndex = 0
-        if (canvas.clientWidth !== 0) {
-          this.gl.fixCanvasRes()
-        }
-      }
-
-      protected uniforms() {
-        return {
-          mmm: this.panController.getTransform(),
-          mmmi: this.panController.getTransform().inversed(),
-        }
-      }
-      protected setCam(state: M4) {
-        this.panController.setState(state)
-      }
-
-      protected render(abs: number) {
-        this.panController.tick()
-        super.render(abs)
+        super(
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          () => require("./test3.frag").default,
+          (_m) => {},
+          canvas,
+          onFps,
+        )
       }
     },
-    [setCam],
+    [],
+  )
+  const Test2Renderer = useCallback(
+    class extends PanningCanvasRenderer {
+      constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
+        super(
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          () => require("./test2.frag").default,
+          (_m) => {},
+          canvas,
+          onFps,
+        )
+      }
+    },
+    [],
+  )
+  const TestRenderer = useCallback(
+    class extends PanningCanvasRenderer {
+      constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
+        super(
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          () => require("./test.frag").default,
+          (_m) => {},
+          canvas,
+          onFps,
+        )
+      }
+    },
+    [],
+  )
+  const SimplexRenderer = useCallback(
+    class extends PanningCanvasRenderer {
+      constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
+        super(
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          () => require("./simplex.frag").default,
+          (m) => setStatePartial({ cam: PanController.toShortString(m) }),
+          canvas,
+          onFps,
+        )
+      }
+    },
+    [],
   )
   const simplexRef = useRef<any>()
   useEffect(() => {
@@ -606,24 +662,27 @@ export default (): ReactElement => {
 
   return (
     <Grid container style={{ height: "99%" }} spacing={2} padding={2}>
-      <Grid item xs={12}>
-        <GenericDemo
-          sx={{ height: 400 }}
-          animate={true}
-          state={state}
-          Renderer={SimplexRenderer}
-          focusable={true}
-          rendererRef={simplexRef}
-        />
+      <Grid container item sm={9} spacing={2}>
+        {[
+          Test3Renderer,
+          TestRenderer,
+          SimplexRenderer,
+          JuliaRenderer,
+          Test2Renderer,
+        ].map((Renderer, i) => (
+          <Grid item xs={12} key={i}>
+            <GenericDemo
+              sx={{ height: 400 }}
+              animate={true}
+              state={state}
+              Renderer={Renderer}
+              focusable={true}
+              rendererRef={simplexRef}
+            />
+          </Grid>
+        ))}
       </Grid>
-      <Grid item xs={12}>
-        <GenericDemo
-          animate={true}
-          sx={{ height: 400 }}
-          state={state}
-          Renderer={JuliaRenderer}
-        />
-      </Grid>
+
       <Grid
         item
         xs={12}
@@ -632,7 +691,6 @@ export default (): ReactElement => {
           display: "flex",
           flexDirection: "column",
           width: "100%",
-          padding: 2,
           alignItems: "stretch",
           // "& > *": { margin: 1 },
           gap: 2,

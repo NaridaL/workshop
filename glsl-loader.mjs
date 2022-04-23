@@ -18,7 +18,8 @@ function loadContent(content, filename, dependencies) {
             fs.readFileSync(what2, { encoding: "utf8" }),
             what2,
             dependencies,
-          )
+          ) +
+          `\n// END ${what}`
         )
       }
     },

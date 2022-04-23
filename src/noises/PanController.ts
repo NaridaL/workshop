@@ -1,5 +1,4 @@
-import { DEG, int, M4, V, V3 } from "ts3dutils"
-import { FlyCameraController } from "../raymarch/FlyCameraController"
+import { int, M4, V, V3 } from "ts3dutils"
 
 export class PanController {
   private lastPos = V3.O
@@ -46,6 +45,7 @@ export class PanController {
   unregisterListeners(): void {
     this.unregister?.()
   }
+  static readonly TRACKED_KEYS: ReadonlyArray<string> = ["a", "d", "s", "w"]
 
   tick(): void {
     const speed = new V3(
@@ -96,10 +96,11 @@ export class PanController {
   private keydown = (e: KeyboardEvent) => {
     if (e.key === "r") {
       this.reset()
-    } else {
+      e.preventDefault()
+    } else if (PanController.TRACKED_KEYS.includes(e.key)) {
       this.pressedKeys[e.key] = true
+      e.preventDefault()
     }
-    e.preventDefault()
   }
   private keyup = (e: KeyboardEvent) => {
     this.pressedKeys[e.key] = undefined

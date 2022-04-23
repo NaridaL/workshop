@@ -6,12 +6,9 @@ precision highp float;
 #pragma webpack include ../common/constants.glsl
 #pragma webpack include ../common/complex.glsl
 #pragma webpack include ../common/colors.glsl
-#pragma webpack include ../common/hex2Ra.glsl
-#pragma webpack include ../common/hexRound.glsl
-#pragma webpack include ../common/hexSdf.glsl
+#pragma webpack include ../common/hexFns.glsl
 #pragma webpack include ../common/matrices.glsl
 #pragma webpack include ../common/polar.glsl
-#pragma webpack include ../common/ra2Hex.glsl
 #pragma webpack include ../common/remix.glsl
 #pragma webpack include ../common/simplex2DTexture.glsl
 #pragma webpack include ../common/unmix.glsl
@@ -65,7 +62,7 @@ vec2 flf(vec2 z) {
 
 #pragma webpack include ../common/juliaIteration.glsl
 
-JULIA_ITERATION(julia, f, 2., 20u)
+JULIA_ITERATION(julia, f, 2.0, 20u)
 
 void main() {
   vec2 fragCoord = (coord - 0.5) * iResolution * 0.005;

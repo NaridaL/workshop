@@ -3,10 +3,7 @@ precision mediump float;
 
 #pragma webpack include ../common/banded.glsl
 #pragma webpack include ../common/between.glsl
-#pragma webpack include ../common/hex2Ra.glsl
-#pragma webpack include ../common/hexRound.glsl
-#pragma webpack include ../common/hexSdf.glsl
-#pragma webpack include ../common/ra2Hex.glsl
+#pragma webpack include ../common/hexFns.glsl
 #pragma webpack include ../common/remix.glsl
 #pragma webpack include ../common/simplex2DTexture.glsl
 #pragma webpack include ../common/transform.glsl
@@ -19,7 +16,7 @@ in vec2 coord;
 out vec4 fragColor;
 uniform float a;
 uniform int bandCount;
-uniform mat4 mmmi;
+uniform mat4 viewModel;
 uniform sampler2D texture;
 uniform vec2 iResolution;
 uniform vec4 colorBackground;
@@ -31,10 +28,7 @@ float simplex01(vec2 pos) {
 }
 
 void main() {
-  vec2 fragCoord = coord;
-  fragCoord *= iResolution;
-
-  fragCoord = transform(mmmi, fragCoord);
+  vec2 fragCoord = transform(viewModel, coord * iResolution);
   fragCoord *= 0.01;
   //  fragCoord = coord;
   float f = mix(simplex2D(fragCoord), simplex2D(fragCoord * 4.0), a);

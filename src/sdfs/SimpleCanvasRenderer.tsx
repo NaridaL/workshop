@@ -217,7 +217,6 @@ export class SimpleCanvasRenderer {
       // throwOnError: true,
     }) as unknown as TSGL2Context
     this.gl = gl
-    console.log("this.canvas.clientWidth", this.canvas.clientWidth)
     if (this.canvas.clientWidth !== 0) {
       gl.fixCanvasRes(1)
     }

@@ -1,9 +1,22 @@
 uniform sampler2D gradients;
-
+/* Create random direction vector
+ */
+vec2 randomGradient(vec2 i) {
+  // Random float. No precomputed gradients mean this works for any number of grid coordinates
+  float random =
+    2920.0 *
+    sin(float(i.x) * 2.1942 + float(i.y) * 1.71324 + 8.912) *
+    cos(float(i.x) * 2.3157 * float(i.y) * 2.17832 + 9.758);
+  //    random = (i.x + 1667.) * (i.x + 2083.) * (i.y + 2659.) * (i.y * 50.77 + .3769);
+  //    random = sin(SQRT2 * i.x) + cos(GOLDEN_RATIO * i.y) + tan((i.x + i.y) * SQRT3);
+  return vec2(cos(random), sin(random));
+}
 float dotGridGradient(vec2 cell, vec2 pos) {
   vec2 d = cell - pos;
 
-  vec2 gradient = texelFetch(gradients, ivec2(cell), 0).xy;
+  //  vec2 gradient = texelFetch(gradients, ivec2(cell), 0).xy;
+  vec2 gradient = randomGradient(vec2(cell));
+
   return dot(gradient, d);
 }
 

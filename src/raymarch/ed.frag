@@ -4,14 +4,11 @@ precision highp float;
 
 #pragma webpack include ../common/banded.glsl
 #pragma webpack include ../common/between.glsl
-#pragma webpack include ../common/hex2Ra.glsl
-#pragma webpack include ../common/hexRound.glsl
-#pragma webpack include ../common/hexSdf.glsl
+#pragma webpack include ../common/hexFns.glsl
 #pragma webpack include ../common/matrices.glsl
 #pragma webpack include ../common/max3.glsl
 #pragma webpack include ../common/perlin2DTexture.glsl
 #pragma webpack include ../common/polar.glsl
-#pragma webpack include ../common/ra2Hex.glsl
 #pragma webpack include ../common/remix.glsl
 #pragma webpack include ../common/transform.glsl
 #pragma webpack include ../common/unmix.glsl
