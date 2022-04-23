@@ -664,9 +664,9 @@ export default (): ReactElement => {
     <Grid container style={{ height: "99%" }} spacing={2} padding={2}>
       <Grid container item sm={9} spacing={2}>
         {[
+          SimplexRenderer,
           Test3Renderer,
           TestRenderer,
-          SimplexRenderer,
           JuliaRenderer,
           Test2Renderer,
         ].map((Renderer, i) => (

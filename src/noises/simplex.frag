@@ -7,6 +7,7 @@ precision mediump float;
 #pragma webpack include ../common/remix.glsl
 #pragma webpack include ../common/simplex2DTexture.glsl
 #pragma webpack include ../common/transform.glsl
+#pragma webpack include ../common/ungamma.glsl
 #pragma webpack include ../common/unmix.glsl
 #pragma webpack include ../common/visualize.glsl
 #pragma webpack include ../common/waves.glsl
@@ -34,10 +35,13 @@ void main() {
   float f = mix(simplex2D(fragCoord), simplex2D(fragCoord * 4.0), a);
   float f2 = simplex2D(fragCoord);
 
-  fragColor = mix(
-    colorBackground,
-    colorPrimary,
+  vec3 color = mix(
+    ungamma(colorBackground),
+    ungamma(colorPrimary),
     banded(bandCount, unmix(-0.35, 0.35, f2))
   );
+  color = pow(color, vec3(1.0 / 2.2)); // gamma correction
+
   //    fragColor = mix(fragColor, colorSecondary, float(between(0.0, 1., f)));
+  fragColor = vec4(color, 1);
 }

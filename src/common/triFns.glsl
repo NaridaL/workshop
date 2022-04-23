@@ -1,8 +1,10 @@
+#pragma webpack include ./constants.glsl
+
 // (x, y) -> (u, v, R)
 // where u is horizontal, v is south-west to north-east
 // and R is wether the it is in the right triangle
 vec3 xy2tri(vec2 xy) {
-  float v = xy.y / 0.866;
+  float v = xy.y / SQRT3_2;
   float u = xy.x - v / 2.0;
   float R = float(
     mod(u + v, 2.0) > 1.0 != (mod(floor(u) + floor(v), 2.0) == 1.0)
@@ -15,12 +17,12 @@ vec3 triCenter(vec3 uvR) {
   return base + vec3(centerOffset, 0.0);
 }
 vec2 tri2xy(vec3 uvR) {
-  float y = uvR.t * 0.866;
+  float y = uvR.t * SQRT3_2;
   float x = uvR.s + uvR.t / 2.0;
   return vec2(x, y);
 }
 vec2 tri2xy(vec2 uv) {
-  float y = uv.t * 0.866;
+  float y = uv.t * SQRT3_2;
   float x = uv.s + uv.t / 2.0;
   return vec2(x, y);
 }

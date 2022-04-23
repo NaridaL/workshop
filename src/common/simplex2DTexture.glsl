@@ -18,9 +18,9 @@ vec2 randomGradient(vec2 i) {
 
 float dotGridGradient2(vec2 cell, vec2 pos) {
   vec2 xy_d = cell - pos;
-  if (length(xy_d) > 0.4) return 0.0;
+  if (length(xy_d) > 0.45) return -0.0;
   float r = 1.0;
-  float part = pow(max(0.0, 0.999 - dot(xy_d, xy_d)), 4.0);
+  float part = pow(max(0.0, 1.0 - dot(xy_d, xy_d)), 4.0);
   //    vec2 gradient = texelFetch(gradients, ivec2(cell), 0).xy;
   vec2 gradient = randomGradient(cell);
   return part * dot(gradient, xy_d);
@@ -29,12 +29,12 @@ float dotGridGradient2(vec2 cell, vec2 pos) {
 // resulting range is [-0.68, 0.68]. Use unmix to normalize if necessary.
 float simplex2D(vec2 xy) {
   vec3 uvR = xy2tri(xy);
-  ivec2 baseUV = ivec2(uvR.xy);
+  vec2 baseUV = floor(uvR.xy);
 
-  float a = dotGridGradient2(tri2xy(vec2(baseUV)), xy);
-  float b = dotGridGradient2(tri2xy(vec2(baseUV + ivec2(1, 0))), xy);
-  float c = dotGridGradient2(tri2xy(vec2(baseUV + ivec2(0, 1))), xy);
-  float d = dotGridGradient2(tri2xy(vec2(baseUV + ivec2(1, 1))), xy);
+  float a = dotGridGradient2(tri2xy(baseUV), xy);
+  float b = dotGridGradient2(tri2xy(baseUV + vec2(1, 0)), xy);
+  float c = dotGridGradient2(tri2xy(baseUV + vec2(0, 1)), xy);
+  float d = dotGridGradient2(tri2xy(baseUV + vec2(1, 1)), xy);
 
   return b + c + mix(a, d, uvR.z);
 }
