@@ -122,57 +122,63 @@ vec3 reject(vec3 a, vec3 b1) {
 }
 float demoIcosahedron(float r, vec3 p) {
   float d1 = sdIcosahedron(1.0 - r, p - vec3(0, 0, 1)) - r;
-  float d2 = p.z;
-  return min(d1, d2);
+  return d1;
 }
 float demoVector(float r, vec3 p) {
   //  float d1 = sdArrow(vec3(0), vec3(3), p);
   float d1 = sdArrow(1.0, ((p - vec3(0, -1, 0.2)) * 0.5).yzx);
-  float d2 = p.z;
-  return min(d1, d2);
+  return d1;
 }
 float demoOctahedron(float r, vec3 p) {
   float d1 = sdOctahedron(1.0 - r, p - vec3(0, 0, 1)) - r;
-  float d2 = p.z;
-  return min(d1, d2);
+  return d1;
 }
 float demoCube(float r, vec3 p) {
   float d1 = sdBox(vec3(1.0 - r), p - vec3(0, 0, 1)) - r;
-  float d2 = p.z;
-  return min(d1, d2);
+  return d1;
 }
 float demoTetrahedron(float r, vec3 p) {
   float d1 = sdTetrahedron(1.0 - r * sqrt(6.0), p - vec3(0, 0, 1)) - r;
-  float d2 = p.z;
-  return min(d1, d2);
+  return d1;
 }
 float demoDodecahedron(float r, vec3 p) {
   float d1 = sdDodecahedron(1.0, p - vec3(0, 0, 1)) - r;
-  float d2 = p.z;
-  return min(d1, d2);
+  return d1;
 }
 float demoPlatonic(float r, vec3 p) {
   float d1 = sdDodecahedron(0.8, p - vec3(0, 0, 1)) - r;
   float d2 = sdIcosahedron(1.0 - r, p - vec3(0, 0, 1)) - r;
-  float d3 = p.z;
-  return min(mix(d1, d2, sin(iTime) * 0.5 + 0.5), d3);
+  return mix(d1, d2, sin(iTime) * 0.5 + 0.5);
 }
 float demoLego(float r, vec3 p) {
   float scale = 2.0;
   float d1 = sdLego(p * scale - vec3(0, 2, 0)) / scale;
   float d2 =
     sdLego(rotX(200.0 * DEGREE) * (p * scale - vec3(0, -2, 2))) / scale;
-  float d3 = p.z;
-  return min(min(d1, d2), d3);
+  return min(d1, d2);
 }
 #define SDF(r, p) demoIcosahedron(r, p)
 
-float sdf(vec3 p) {
-  return SDF(d * 0.1, p);
+RMHit sdf(vec3 p) {
+  float scale = 2.0;
+  float ds = SDF(d * 0.1, p);
+  float dg = p.z;
+  if (ds < dg) {
+    vec3 color = ungamma(colorPrimary);
+    return RMHit(ds, vec4(color, 1));
+  } else {
+    float f = checkerboardGrad(p.xy);
+
+    vec3 color = mix(ungamma(colorBackground), ungamma(colorSecondary), f);
+    return RMHit(dg, vec4(color, 1));
+  }
+}
+float sdff(vec3 p) {
+  return sdf(p).distance;
 }
 float ambientOcclusion(vec3 pWC, vec3 n1WC) {
   float k = 1.0;
-  float distance = sdf(pWC + n1WC * k);
+  float distance = sdff(pWC + n1WC * k);
   return clamp(distance / k, 0.0, 1.0);
 }
 
@@ -183,30 +189,20 @@ struct RMResult {
 };
 RMResult raymarching2(vec3 start, vec3 dir1) {
   vec3 pos = start;
-  float hit;
+  RMHit hit;
   for (int i = 0; i < 200; i++) {
     hit = sdf(pos);
-    if (hit < 0.0001 * hit) break;
-    pos = pos + dir1 * hit;
+    if (hit.distance < 0.0001 * hit.distance) break;
+    pos = pos + dir1 * hit.distance;
   }
-  vec3 color;
-  if (pos.z > 0.001) {
-    color = ungamma(colorPrimary);
-  } else {
-    vec2 ff = round(fract(pos.xy * 0.5));
-    //    float f = mod(ff.x + ff.y, 2.0);
-    float f = checkerboardGrad(pos.xy);
-
-    color = mix(ungamma(colorBackground), ungamma(colorSecondary), f);
-  }
-  return RMResult(hit, pos, vec4(color, 1.0));
+  return RMResult(hit.distance, pos, hit.color);
 }
 
 float softshadow(vec3 ro, vec3 rd, float mint, float maxt, float k) {
   float res = 1.0;
   float t = 0.1;
   for (int i = 0; i < 1000 && t < maxt; i++) {
-    float h = sdf(ro + rd * t);
+    float h = sdff(ro + rd * t);
     if (h < 0.001) return 0.0;
     res = min(res, k * h / t);
     t += h;
@@ -218,11 +214,11 @@ const float eps = 1e-4;
 vec3 sdfNormal1(vec3 p, float d) {
   return normalize(
     vec3(
-      sdf(p + vec3(eps, 0.0, 0.0)),
-      sdf(p + vec3(0.0, eps, 0.0)),
-      sdf(p + vec3(0.0, 0.0, eps))
+      sdff(p + vec3(eps, 0.0, 0.0)),
+      sdff(p + vec3(0.0, eps, 0.0)),
+      sdff(p + vec3(0.0, 0.0, eps))
     ) -
-      vec3(sdf(p))
+      vec3(sdff(p))
   );
 }
 
