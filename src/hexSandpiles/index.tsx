@@ -1,5 +1,4 @@
 import { useTheme } from "@mui/material/styles"
-import { assert } from "chai"
 import * as chroma from "chroma.ts"
 import { Font, load } from "opentype.js"
 import * as React from "react"
@@ -70,16 +69,12 @@ const andNeighbors = async (
 
 const SQRT3_2 = Math.sqrt(3) / 2
 
-const oddr_to_px = (col: int, row: int) => {
+export const oddr_to_px = (col: int, row: int) => {
   const x = col + 0.5 * (row & 1)
   const y = row * SQRT3_2
   return V(x, y, 0)
 }
 const SINK = 255
-
-assert(oddr_to_px(0, 0).equals(V(0, 0)))
-assert(oddr_to_px(1, 0).equals(V(1, 0)))
-assert(oddr_to_px(0, 1).equals(V(0.5, SQRT3_2)))
 
 const cube_distance = (
   [x1, y1, z1]: [int, int, int],
@@ -94,7 +89,7 @@ const cube_to_oddr = ([x, y, z]: [int, int, int]): [int, int] => {
   const row = y
   return [col, row]
 }
-const oddr_to_cube = (col: int, row: int): [int, int, int] => {
+export const oddr_to_cube = (col: int, row: int): [int, int, int] => {
   const x = col - (row >> 1)
   const y = row
   const z = -x - y
@@ -105,15 +100,6 @@ const loadFont = (url: string): Promise<Font> =>
   new Promise((resolve, reject) => {
     load(url, (error, font) => (error ? reject(error) : resolve(font!)))
   })
-
-assert.deepEqual(oddr_to_cube(0, 0), [0, 0, -0])
-assert.deepEqual(oddr_to_cube(1, 0), [1, 0, -1])
-assert.deepEqual(oddr_to_cube(0, 1), [0, 1, -1])
-assert.deepEqual(oddr_to_cube(0, 2), [-1, 2, -1])
-assert.deepEqual(oddr_to_cube(-1, 0), [-1, 0, 1])
-assert.deepEqual(oddr_to_cube(0, -1), [1, -1, 0])
-assert.deepEqual(oddr_to_cube(-1, -1), [0, -1, 1])
-assert.deepEqual(oddr_to_cube(0, -2), [1, -2, 1])
 
 class HexSand {
   readonly data: Uint8Array
