@@ -21,7 +21,7 @@
     stroke-dasharray: 100px, 200px;
     stroke-dashoffset: -125px;
   }
-`)),k=(0,u.ZP)("span",{name:"MuiCircularProgress",slot:"Root",overridesResolver:(e,t)=>{const{ownerState:o}=e;return[t.root,t[o.variant],t[`color${(0,l.Z)(o.color)}`]]}})((({ownerState:e,theme:t})=>(0,i.Z)({display:"inline-block"},"determinate"===e.variant&&{transition:t.transitions.create("transform")},"inherit"!==e.color&&{color:t.palette[e.color].main})),(({ownerState:e})=>"indeterminate"===e.variant&&(0,d.iv)(f||(f=x`
+`)),k=(0,u.ZP)("span",{name:"MuiCircularProgress",slot:"Root",overridesResolver:(e,t)=>{const{ownerState:o}=e;return[t.root,t[o.variant],t[`color${(0,l.Z)(o.color)}`]]}})((({ownerState:e,theme:t})=>(0,i.Z)({display:"inline-block"},"determinate"===e.variant&&{transition:t.transitions.create("transform")},"inherit"!==e.color&&{color:(t.vars||t).palette[e.color].main})),(({ownerState:e})=>"indeterminate"===e.variant&&(0,d.iv)(f||(f=x`
       animation: ${0} 1.4s linear infinite;
     `),w))),y=(0,u.ZP)("svg",{name:"MuiCircularProgress",slot:"Svg",overridesResolver:(e,t)=>t.svg})({display:"block"}),S=(0,u.ZP)("circle",{name:"MuiCircularProgress",slot:"Circle",overridesResolver:(e,t)=>{const{ownerState:o}=e;return[t.circle,t[`circle${(0,l.Z)(o.variant)}`],o.disableShrink&&t.circleDisableShrink]}})((({ownerState:e,theme:t})=>(0,i.Z)({stroke:"currentColor"},"determinate"===e.variant&&{transition:t.transitions.create("stroke-dashoffset")},"indeterminate"===e.variant&&{strokeDasharray:"80px, 200px",strokeDashoffset:0})),(({ownerState:e})=>"indeterminate"===e.variant&&!e.disableShrink&&(0,d.iv)(Z||(Z=x`
       animation: ${0} 1.4s ease-in-out infinite;
