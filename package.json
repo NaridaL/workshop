@@ -78,7 +78,7 @@
     "seedrandom": "3.0.5",
     "simple-git-hooks": "2.7.0",
     "sleep-promise": "9.1.0",
-    "source-map-loader": "3.0.1",
+    "source-map-loader": "4.0.1",
     "sucrase": "3.21.0",
     "svg-pathdata": "6.0.3",
     "svg-to-pdfkit": "0.1.8",
