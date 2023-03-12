@@ -58,7 +58,7 @@
     "blob-stream": "0.1.3",
     "chai": "4.3.6",
     "chroma.ts": "1.0.10",
-    "copy-webpack-plugin": "10.2.4",
+    "copy-webpack-plugin": "11.0.0",
     "eslint": "8.14.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-import": "2.26.0",
