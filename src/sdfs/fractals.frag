@@ -307,8 +307,18 @@ void main() {
     //  p *= 2.0;
     //  p = ff3(p);
     //  vec2 dFragCoord = 1.0 + cos(p / 50.0) * 30.0 / 50.0;
-    mat2 mi = inverse(mat2(1.0, 0.0, 0.0, 1.0) * a * 20.0);
-    mat2 id = mat2(1.0, 0.0, 0.0, 1.0);
+    mat2 mi = inverse(
+      mat2(
+        1.0, 0.0,
+        0.0, 1.0
+      ) *
+        a *
+        20.0
+    );
+    mat2 id = mat2(
+      1.0, 0.0,
+      0.0, 1.0
+    );
     float t = 0.0;
     color = white;
     //  color = mix(
