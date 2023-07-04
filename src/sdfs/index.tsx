@@ -20,7 +20,11 @@ import { useHashState } from "../common/useHashState"
 import { FlyCameraController } from "../raymarch/FlyCameraController"
 import { OrbitCameraController } from "../raymarch/OrbitCameraController"
 import openSansRegularPng from "./OpenSans-Regular.png"
-import { ReactGlCanvas, SimpleCanvasRenderer } from "./SimpleCanvasRenderer"
+import {
+  ReactGlCanvas,
+  RendererConstructor,
+  SimpleCanvasRenderer,
+} from "./SimpleCanvasRenderer"
 
 function normfig(s: string) {
   return aesthetically.format(s, "monospace")
@@ -48,11 +52,11 @@ function GenericDemo({
   replacer?: string
 }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const Renderer = useCallback(
+  const Renderer: RendererConstructor = useCallback(
     SimpleCanvasRenderer.bind(
       undefined,
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      () => require("./" + frag + ".frag").default,
+      () => require("./" + frag + ".frag"),
     ),
     [frag],
   )

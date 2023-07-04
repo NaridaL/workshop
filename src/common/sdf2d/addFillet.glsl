@@ -1,4 +1,4 @@
-float addTillet(float r, float a, float b) {
+float addFillet(float r, float a, float b) {
   if (a < r && b < r) {
     return r - distance(vec2(a, b), vec2(r));
   } else {
@@ -6,5 +6,5 @@ float addTillet(float r, float a, float b) {
   }
 }
 
-// #pragma glslify: export(addTillet)
+// #pragma glslify: export(addFillet)
 

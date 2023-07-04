@@ -15,15 +15,15 @@ precision highp float;
 #pragma webpack include ../common/visualize.glsl
 #pragma webpack include ../common/waves.glsl
 
-#pragma webpack include ../common/sdf3d/sdDonut.glsl
+#pragma webpack include ../common/sdf3d/sdTorus.glsl
 #pragma webpack include ../common/sdf3d/sdCapsule.glsl
 #pragma webpack include ../common/sdf3d/opElongate.glsl
 #pragma webpack include ../common/sdf3d/sdSphere.glsl
 #pragma webpack include ../common/sdf3d/sdCylinder.glsl
 #pragma webpack include ../common/sdf3d/sdCone.glsl
-#pragma webpack include ../common/sdf3d/addChamfer.glsl
-#pragma webpack include ../common/sdf3d/addChamfer.glsl
-#pragma webpack include ../common/sdf3d/addTillet.glsl
+#pragma webpack include ../common/sdf2d/addChamfer.glsl
+#pragma webpack include ../common/sdf2d/addChamfer.glsl
+#pragma webpack include ../common/sdf2d/addFillet.glsl
 #pragma webpack include ../common/sdf3d/sdBox.glsl
 #pragma webpack include ../common/sdf3d/sdOctahedron.glsl
 #pragma webpack include ../common/sdf3d/add.glsl
@@ -42,7 +42,6 @@ uniform float c;
 uniform float d;
 uniform float highResTimeStamp;
 uniform int bandCount;
-uniform vec3 extra;
 uniform vec3 campos;
 in float n;
 in vec2 coord;
@@ -106,7 +105,7 @@ float wtf(vec3 p) {
   return rblock(0.4 + 0.3 * sin(secs + center.x), center);
 }
 
-RMHit addTillet(float r, RMHit a, RMHit b) {
+RMHit addFillet(float r, RMHit a, RMHit b) {
   if (a.distance < r && b.distance < r) {
     return RMHit(
       r - distance(vec2(a.distance, b.distance), vec2(r)),
@@ -117,7 +116,7 @@ RMHit addTillet(float r, RMHit a, RMHit b) {
   }
 }
 
-RMHit addTillet(float r, RMHit a, RMHit b, vec4 tilletColor) {
+RMHit addFillet(float r, RMHit a, RMHit b, vec4 tilletColor) {
   if (a.distance < r && b.distance < r) {
     return RMHit(
       r - distance(vec2(a.distance, b.distance), vec2(r)),
@@ -127,7 +126,7 @@ RMHit addTillet(float r, RMHit a, RMHit b, vec4 tilletColor) {
     return add(a, b);
   }
 }
-RMHit addTillet2(float r, RMHit a, RMHit b) {
+RMHit addFillet2(float r, RMHit a, RMHit b) {
   float h = smoothstep(-r, r, a.distance - b.distance);
   return RMHit(
     mix(a.distance, b.distance, h) - r * h * (1.0 - h),

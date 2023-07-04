@@ -2,12 +2,15 @@
 
 precision highp float;
 
+#pragma webpack include ../common/banded.glsl
 #pragma webpack include ../common/matrices.glsl
 #pragma webpack include ../common/max3.glsl
+#pragma webpack include ../common/visualize.glsl
 #pragma webpack include ../common/polar.glsl
 #pragma webpack include ../common/ungamma.glsl
 #pragma webpack include ../common/transform.glsl
 #pragma webpack include ../common/matrices.glsl
+#pragma webpack include ../common/OpenSimplex2.glsl
 #pragma webpack include ../common/checkerboardGrad.glsl
 #pragma webpack include ../common/colors.glsl
 #pragma webpack include ../common/sdf3d/sdIcosahedron.glsl
@@ -36,27 +39,27 @@ out vec4 fragColor;
 
 #pragma webpack include ../common/constants.glsl
 
-struct RMHit {
+struct Hit {
   float distance;
   vec4 color;
 };
-RMHit mixa(RMHit a, RMHit b, float t) {
-  return RMHit(mix(a.distance, b.distance, t), mix(a.color, b.color, t));
+Hit mixa(Hit a, Hit b, float t) {
+  return Hit(mix(a.distance, b.distance, t), mix(a.color, b.color, t));
 }
 float skybox(vec3 p) {
   return 32.0 - max3(abs(p));
 }
 
-RMHit add(RMHit a, RMHit b) {
+Hit add(Hit a, Hit b) {
   //    return a.distance < b.distance
-  //        ? RMHit(a.distance, a.color)
-  //        : RMHit(b.distance, b.color);
+  //        ? Hit(a.distance, a.color)
+  //        : Hit(b.distance, b.color);
   return mixa(a, b, float(b.distance < a.distance));
 }
 
-RMHit addFillet(float r, RMHit a, RMHit b) {
+Hit addFillet(float r, Hit a, Hit b) {
   if (a.distance < r && b.distance < r) {
-    return RMHit(
+    return Hit(
       r - distance(vec2(a.distance, b.distance), vec2(r)),
       mix(a.color, b.color, (a.distance - b.distance) / r * 0.5 + 0.5)
     );
@@ -65,9 +68,9 @@ RMHit addFillet(float r, RMHit a, RMHit b) {
   }
 }
 
-RMHit addFillet(float r, RMHit a, RMHit b, vec4 tilletColor) {
+Hit addFillet(float r, Hit a, Hit b, vec4 tilletColor) {
   if (a.distance < r && b.distance < r) {
-    return RMHit(
+    return Hit(
       r - distance(vec2(a.distance, b.distance), vec2(r)),
       tilletColor
     );
@@ -75,19 +78,19 @@ RMHit addFillet(float r, RMHit a, RMHit b, vec4 tilletColor) {
     return add(a, b);
   }
 }
-RMHit addFillet2(float r, RMHit a, RMHit b) {
+Hit addFillet2(float r, Hit a, Hit b) {
   float h = smoothstep(-r, r, a.distance - b.distance);
-  return RMHit(
+  return Hit(
     mix(a.distance, b.distance, h) - r * h * (1.0 - h),
     mix(a.color, b.color, h)
   );
 }
 
-RMHit neg(RMHit a) {
-  return RMHit(-a.distance, a.color);
+Hit neg(Hit a) {
+  return Hit(-a.distance, a.color);
 }
-RMHit sub(RMHit from, RMHit what) {
-  RMHit whatNeg = neg(what);
+Hit sub(Hit from, Hit what) {
+  Hit whatNeg = neg(what);
   return mixa(from, whatNeg, float(whatNeg.distance > from.distance));
 }
 
@@ -119,57 +122,31 @@ vec2 project(vec2 a, vec2 onto1) {
 vec3 reject(vec3 a, vec3 b1) {
   return a - b1 * dot(a, b1);
 }
-float demoIcosahedron(float r, vec3 p) {
-  float d1 = sdIcosahedron(1.0 - r, p - vec3(0, 0, 1)) - r;
-  return d1;
-}
-float demoVector(float r, vec3 p) {
-  //  float d1 = sdArrow(vec3(0), vec3(3), p);
-  float d1 = sdArrow(1.0, ((p - vec3(0, -1, 0.2)) * 0.5).yzx);
-  return d1;
-}
-float demoOctahedron(float r, vec3 p) {
-  float d1 = sdOctahedron(1.0 - r, p - vec3(0, 0, 1)) - r;
-  return d1;
-}
-float demoCube(float r, vec3 p) {
-  float d1 = sdBox(vec3(1.0 - r), p - vec3(0, 0, 1)) - r;
-  return d1;
-}
-float demoTetrahedron(float r, vec3 p) {
-  float d1 = sdTetrahedron(1.0 - r * sqrt(6.0), p - vec3(0, 0, 1)) - r;
-  return d1;
-}
-float demoDodecahedron(float r, vec3 p) {
-  float d1 = sdDodecahedron(1.0, p - vec3(0, 0, 1)) - r;
-  return d1;
-}
-float demoPlatonic(float r, vec3 p) {
-  float d1 = sdDodecahedron(0.8, p - vec3(0, 0, 1)) - r;
-  float d2 = sdIcosahedron(1.0 - r, p - vec3(0, 0, 1)) - r;
-  return mix(d1, d2, sin(iTime) * 0.5 + 0.5);
-}
-float demoLego(float r, vec3 p) {
+Hit sdf(vec3 p) {
+  float f =
+    0.5 * openSimplex2_Conventional(2.0 * (p - vec3(0.1 * iTime, 0, 1))).w +
+    0.5;
   float scale = 2.0;
-  float d1 = sdLego(p * scale - vec3(0, 2, 0)) / scale;
-  float d2 =
-    sdLego(rotX(200.0 * DEGREE) * (p * scale - vec3(0, -2, 2))) / scale;
-  return min(d1, d2);
-}
-#define SDF(r, p) demoIcosahedron(r, p)
-
-RMHit sdf(vec3 p) {
-  float scale = 2.0;
-  float ds = SDF(d * 0.1, p);
+  float ds = distance(p, vec3(0, 0, 1)) - 1.0 - 0.2 * f;
+  if (ds > 1.0) {
+    //    ds *= 0.1;
+  }
   float dg = p.z;
   if (ds < dg) {
-    vec3 color = ungamma(colorPrimary);
-    return RMHit(ds, vec4(color, 1));
+    vec3 color = mix(
+      ungamma(colorBackground),
+      ungamma(colorPrimary),
+      banded(bandCount, unmix(-1.0, 1.0, f))
+    );
+    color = ungamma(colorPrimary);
+    //    vec3 color = vec3(f);
+
+    return Hit(ds, vec4(color, 1));
   } else {
     float f = checkerboardGrad(p.xy);
 
     vec3 color = mix(ungamma(colorBackground), ungamma(colorSecondary), f);
-    return RMHit(dg, vec4(color, 1));
+    return Hit(dg, vec4(color, 1));
   }
 }
 float sdff(vec3 p) {
@@ -188,7 +165,7 @@ struct RMResult {
 };
 RMResult raymarching2(vec3 start, vec3 dir1) {
   vec3 pos = start;
-  RMHit hit;
+  Hit hit;
   for (int i = 0; i < 200; i++) {
     hit = sdf(pos);
     if (hit.distance < 0.0001 * hit.distance) break;

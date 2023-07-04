@@ -11,11 +11,11 @@ uniform float iTime;
 in vec2 coord;
 out vec4 fragColor;
 
-float sdf(vec2 x) {
+float sdf(vec2 p) {
   vec2 a = vec2(4, 2) + fromPolar(10.0, iTime);
   vec2 b = vec2(4, 6) + fromPolar(10.0, iTime * 0.8 + 3.0);
   vec2 c = vec2(-10, 3) + fromPolar(10.0, iTime * 1.2 + 5.0);
-  return sdTriangle(a, b, c, x);
+  return sdTriangle(a, b, c, p);
 }
 
 void main() {

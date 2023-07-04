@@ -5,6 +5,7 @@ import { Configuration, EnvironmentPlugin } from "webpack"
 import "webpack-dev-server"
 
 const config = (env: unknown, argv: any): Configuration => ({
+  devtool: "source-map",
   module: {
     rules: [
       {
@@ -51,39 +52,17 @@ const config = (env: unknown, argv: any): Configuration => ({
   output: {
     publicPath: "/workshop/",
     clean: true,
+    devtoolModuleFilenameTemplate: "/dev/[namespace]/[resource-path]?[loaders]",
   },
   resolve: {
     extensions: [".ts", ".js", ".tsx", ".jsx"],
     alias: {
-      ts3dutils: path.resolve(
-        __dirname,
-        "node_modules",
-        "ts3dutils",
-        "lib",
-        "index.es.min",
-      ),
-      tsgl: path.resolve(
-        __dirname,
-        "node_modules",
-        "tsgl",
-        "lib",
-        "index.es.min",
-      ),
-      pdfkit: path.resolve(
-        __dirname,
-        "node_modules",
-        "pdfkit",
-        "js",
-        "pdfkit.standalone.js",
-      ),
+      ts3dutils: __dirname + "/node_modules/ts3dutils/lib/index.es.min",
+      tsgl: __dirname + "/node_modules/tsgl/lib/index.es.min",
+      pdfkit: __dirname + "/node_modules/pdfkit/js/pdfkit.standalone.js",
       // standalone version of blob-stream, to avoid
       // having to polyfill buffer etc
-      "blob-stream": path.resolve(
-        __dirname,
-        "node_modules",
-        "blob-stream",
-        ".js",
-      ),
+      "blob-stream": __dirname + "/node_modules/blob-stream/.js",
     },
   },
   node: {

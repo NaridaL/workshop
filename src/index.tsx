@@ -86,8 +86,11 @@ const ThemedApp = () => {
           mode: prefersDarkMode ? "dark" : "light",
           // primary: { main: "#F26430" },
           // secondary: { main: "#685369" },
-          primary: { main: "#840032" },
-          secondary: { main: "#002642" },
+          // primary: { main: "#840032" },
+          // secondary: { main: "#002642" },
+          // primary: { main: "#FFCC00" },
+          // secondary: { main: "#ffffff" },
+          // background: { default: "#DA281C" },
         },
         // typography: {
         //   fontFamily: "Fira Sans",

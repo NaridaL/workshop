@@ -273,7 +273,7 @@ function makeShader(desc): string {
       } else if (d.type === "octahedron") {
         gen((input) => `sdOctahedron(${float(d.radius)}, ${input})`)
       } else if (d.type === "donut") {
-        gen((input) => `sdDonut(${float(d.r0)}, ${float(d.r1)}, ${input})`)
+        gen((input) => `sdTorus(${float(d.r0)}, ${float(d.r1)}, ${input})`)
       } else if (d.type === "translate") {
         const prevInput = input
         input = "p" + di++

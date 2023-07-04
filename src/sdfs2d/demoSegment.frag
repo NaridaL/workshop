@@ -11,10 +11,10 @@ uniform float iTime;
 in vec2 coord;
 out vec4 fragColor;
 
-float sdf(vec2 x) {
+float sdf(vec2 p) {
   vec2 a = fromPolar(10.0, 3.0 * iTime + sin(2.0 * iTime));
   vec2 b = -a;
-  return sdSegment(a, b, x) - 2.5;
+  return sdSegment(a, b, p) - 2.5;
 }
 
 void main() {

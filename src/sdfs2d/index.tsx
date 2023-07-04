@@ -2,7 +2,13 @@ import Grid from "@mui/material/Grid"
 import * as React from "react"
 import { ReactElement, useCallback } from "react"
 import { Texture } from "tsgl"
-import { GenericDemo, SimpleCanvasRenderer } from "../sdfs/SimpleCanvasRenderer"
+import { PanningCanvasRenderer } from "../noises"
+import {
+  GenericDemo,
+  RendererConstructor,
+  RendererConstructorOptions,
+  SimpleCanvasRenderer,
+} from "../sdfs/SimpleCanvasRenderer"
 import openSansRegularPng from "./OpenSans-Regular.png"
 
 function Demo2D({
@@ -19,16 +25,15 @@ function Demo2D({
 }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const Renderer = useCallback(
-    class extends SimpleCanvasRenderer {
-      private tex: Texture
-
+    class extends PanningCanvasRenderer {
+      private tex: Texture;
+      ["constructor"]: RendererConstructor
       constructor(
         canvas: HTMLCanvasElement,
-
-        onFps?: (fps: number) => void,
+        options: RendererConstructorOptions,
       ) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        super(() => require("./" + frag + ".frag").default, canvas, onFps)
+        super(() => require("./" + frag + ".frag"), canvas, options)
 
         this.tex = Texture.fromURLSwitch(openSansRegularPng, undefined, this.gl)
       }
@@ -37,14 +42,21 @@ function Demo2D({
   )
 
   return (
-    <GenericDemo sx={sx} Renderer={Renderer} animate={animate} state={state} />
+    <GenericDemo
+      focusable={true}
+      sx={sx}
+      Renderer={Renderer}
+      animate={true}
+      state={state}
+    />
   )
 }
 
 export default (): ReactElement => {
   return (
-    <Grid container style={{ height: "99%" }} spacing={2} padding={2}>
+    <Grid container spacing={2} padding={2}>
       {[
+        "demoGear",
         "demoRectangle",
         "demoText",
         "demoNgon",

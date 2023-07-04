@@ -101,7 +101,7 @@ export const PAPER_SIZES: PaperSize[] = [
 ]
 
 export function PaperSizeFromString(str: string): PaperSize {
-  const byName = PAPER_SIZES.find(([, , name]) => name == str)
+  const byName = PAPER_SIZES.find(([, , name]) => name === str)
   if (byName) return byName
   const [a, b] = str.split("x")
   return [+a, +b, "Custom"]

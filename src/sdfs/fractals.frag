@@ -16,14 +16,14 @@ precision highp float;
 #pragma webpack include ../common/waves.glsl
 #pragma webpack include ../common/matrices.glsl
 
-#pragma webpack include ../common/sdf3d/sdDonut.glsl
+#pragma webpack include ../common/sdf3d/sdTorus.glsl
 #pragma webpack include ../common/sdf3d/sdCapsule.glsl
 #pragma webpack include ../common/sdf3d/opElongate.glsl
 #pragma webpack include ../common/sdf3d/sdSphere.glsl
 #pragma webpack include ../common/sdf3d/sdCylinder.glsl
-#pragma webpack include ../common/sdf3d/addChamfer.glsl
-#pragma webpack include ../common/sdf3d/addChamfer.glsl
-#pragma webpack include ../common/sdf3d/addTillet.glsl
+#pragma webpack include ../common/sdf2d/addChamfer.glsl
+#pragma webpack include ../common/sdf2d/addChamfer.glsl
+#pragma webpack include ../common/sdf2d/addFillet.glsl
 #pragma webpack include ../common/sdf3d/sdBox.glsl
 #pragma webpack include ../common/sdf3d/sdOctahedron.glsl
 #pragma webpack include ../common/sdf3d/add.glsl
@@ -46,7 +46,6 @@ uniform float c;
 uniform float d;
 uniform float highResTimeStamp;
 uniform int bandCount;
-uniform vec3 extra;
 uniform vec3 campos;
 in float n;
 in vec2 coord;

@@ -9,7 +9,7 @@ vec2 tri(vec2 x) {
 }
 
 float checkerboardGrad(vec2 uv) {
-  vec2 w = max(abs(dFdx(uv)), abs(dFdy(uv))) + 0.005; // filter kernel
+  vec2 w = max(abs(dFdx(uv)), abs(dFdy(uv))) + 0.01; // filter kernel
   vec2 i = (tri(uv + 0.5 * w) - tri(uv - 0.5 * w)) / w; // analytical integral (box filter)
   return 0.5 - 0.5 * i.x * i.y; // xor pattern
 }

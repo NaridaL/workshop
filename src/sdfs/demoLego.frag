@@ -24,7 +24,6 @@ uniform float b;
 uniform float c;
 uniform float d;
 uniform int bandCount;
-uniform vec3 extra;
 uniform vec2 iResolution;
 uniform vec2 iMouse;
 in float n;
@@ -51,7 +50,7 @@ Hit add(Hit a, Hit b) {
   return mixa(a, b, float(b.distance < a.distance));
 }
 
-Hit addTillet(float r, Hit a, Hit b) {
+Hit addFillet(float r, Hit a, Hit b) {
   if (a.distance < r && b.distance < r) {
     return Hit(
       r - distance(vec2(a.distance, b.distance), vec2(r)),
@@ -62,7 +61,7 @@ Hit addTillet(float r, Hit a, Hit b) {
   }
 }
 
-Hit addTillet(float r, Hit a, Hit b, vec4 tilletColor) {
+Hit addFillet(float r, Hit a, Hit b, vec4 tilletColor) {
   if (a.distance < r && b.distance < r) {
     return Hit(
       r - distance(vec2(a.distance, b.distance), vec2(r)),
@@ -72,7 +71,7 @@ Hit addTillet(float r, Hit a, Hit b, vec4 tilletColor) {
     return add(a, b);
   }
 }
-Hit addTillet2(float r, Hit a, Hit b) {
+Hit addFillet2(float r, Hit a, Hit b) {
   float h = smoothstep(-r, r, a.distance - b.distance);
   return Hit(
     mix(a.distance, b.distance, h) - r * h * (1.0 - h),

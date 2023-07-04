@@ -16,11 +16,11 @@ precision highp float;
 #pragma webpack include ../common/waves.glsl
 #pragma webpack include ../common/matrices.glsl
 
-#pragma webpack include ../common/sdf3d/sdDonut.glsl
+#pragma webpack include ../common/sdf3d/sdTorus.glsl
 #pragma webpack include ../common/sdf3d/sdSphere.glsl
 #pragma webpack include ../common/sdf3d/sdCylinder.glsl
-#pragma webpack include ../common/sdf3d/addChamfer.glsl
-#pragma webpack include ../common/sdf3d/addTillet.glsl
+#pragma webpack include ../common/sdf2d/addChamfer.glsl
+#pragma webpack include ../common/sdf2d/addFillet.glsl
 #pragma webpack include ../common/sdf3d/sdBox.glsl
 #pragma webpack include ../common/sdf3d/add.glsl
 #pragma webpack include ../common/sdf3d/sub.glsl
@@ -37,7 +37,6 @@ uniform float b;
 uniform float c;
 uniform float d;
 uniform int bandCount;
-uniform vec3 extra;
 uniform vec3 campos;
 in float n;
 in vec2 coord;
@@ -101,7 +100,7 @@ float wtf(vec3 p) {
   return rblock(0.4 + 0.3 * sin(iTime + center.x), p - center);
 }
 
-RMHit addTillet(float r, RMHit a, RMHit b) {
+RMHit addFillet(float r, RMHit a, RMHit b) {
   if (a.distance < r && b.distance < r) {
     return RMHit(
       r - distance(vec2(a.distance, b.distance), vec2(r)),
@@ -112,7 +111,7 @@ RMHit addTillet(float r, RMHit a, RMHit b) {
   }
 }
 
-RMHit addTillet(float r, RMHit a, RMHit b, vec4 tilletColor) {
+RMHit addFillet(float r, RMHit a, RMHit b, vec4 tilletColor) {
   if (a.distance < r && b.distance < r) {
     return RMHit(
       r - distance(vec2(a.distance, b.distance), vec2(r)),
@@ -122,7 +121,7 @@ RMHit addTillet(float r, RMHit a, RMHit b, vec4 tilletColor) {
     return add(a, b);
   }
 }
-RMHit addTillet2(float r, RMHit a, RMHit b) {
+RMHit addFillet2(float r, RMHit a, RMHit b) {
   float h = smoothstep(-r, r, a.distance - b.distance);
   return RMHit(
     mix(a.distance, b.distance, h) - r * h * (1.0 - h),
@@ -157,18 +156,18 @@ RMHit sdf(vec3 p) {
     rotY(d) * floorTiles - vec3(0.05, 0.05, -0.04)
   );
   float ftdl = max(ftd, sdBox(vec3(6), p));
-  //    r = addTillet2(.01, r, RMHit(ftdl, colorSecondary));
+  //    r = addFillet2(.01, r, RMHit(ftdl, colorSecondary));
   float dSphere = sdSphere(7.0, p);
   if (dSphere < 0.0) {
     RMHit m = RMHit(100000.0, black);
     for (int i = 0; i < 50; i++) {
-      //            m = (addTillet(a, (m),
-      m = addTillet2(
+      //            m = (addFillet(a, (m),
+      m = addFillet2(
         a,
         m,
         //            m = (add((m),
         RMHit(
-          sdDonut(
+          sdTorus(
             0.5 + float(i) * 0.1,
             0.05,
             rotX(2.0 + sin(iTime * 0.01) * 0.2) * rotZ(float(i) * 0.2) * p
@@ -180,11 +179,11 @@ RMHit sdf(vec3 p) {
     //        float b = sdBox(vec3(-5.,-5.,0.),vec3(5., 5., .2), p);
     //        m = neg(add(neg(m),neg(RMHit(b, black))));
     //    r = sub(r, RMHit(m.distance - 0.2, colorSecondary));
-    r = addTillet(0.3, r, m);
+    r = addFillet(0.3, r, m);
   } else {
     r = add(r, RMHit(dSphere + 1.0, black));
   }
-  r = neg(addTillet(0.3, neg(r), RMHit(sdSphere(c, p - extra), black)));
+  r = neg(addFillet(0.3, neg(r), RMHit(sdSphere(c, p - extra), black)));
   //    vec3 rotSyma = modRotZ(p, 7.);
   //    vec3 rotSym = rotZ(b) *rotY(c) * (vec3(1., sin(rotSyma.x)*d, 1.) + rotSyma);
   //    vec3 tiled = vec3(mod(rotSym.x, 10. *a), rotSym.yz);
@@ -195,9 +194,9 @@ RMHit sdf(vec3 p) {
   //        vec3 spherepos = fromPolar(mix(-6., 6., f), abs(mix(-10., 10., f)) + PI / 2., 0.);
   r = add(r, RMHit(sdSphere(0.1, p - campos), black));
   //    }
-  //    r = (addTillet(0.1, (r), RMHit(sdDonut(1.5, 0.5, rotX(iTime*6.) * p), colorSecondary)));
-  //    r = (addTillet(0.1, (r), RMHit(sdDonut(3.9, 0.5, rotY(iTime*3.) * p), blue)));
-  //    r = neg(addTillet(.2, neg(r), RMHit(sdBox(vec3(-1., -1., -2.), vec3(1., 1., 2.), p), red)));
+  //    r = (addFillet(0.1, (r), RMHit(sdTorus(1.5, 0.5, rotX(iTime*6.) * p), colorSecondary)));
+  //    r = (addFillet(0.1, (r), RMHit(sdTorus(3.9, 0.5, rotY(iTime*3.) * p), blue)));
+  //    r = neg(addFillet(.2, neg(r), RMHit(sdBox(vec3(-1., -1., -2.), vec3(1., 1., 2.), p), red)));
   //    r = add(r, wtf(p));
   //    r = add(r, RMHit(perlinSphere(1., p - vec3(-2.0, 0.0, 3.0)), purple));
   //    r = add(r, cylCircle(p));

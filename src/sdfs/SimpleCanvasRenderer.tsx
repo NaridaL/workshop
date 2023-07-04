@@ -4,10 +4,15 @@ import Card from "@mui/material/Card"
 import CardMedia from "@mui/material/CardMedia"
 import CircularProgress from "@mui/material/CircularProgress"
 import Fab from "@mui/material/Fab"
+import ListItem from "@mui/material/ListItem"
+import ListItemText from "@mui/material/ListItemText"
 import Menu from "@mui/material/Menu/Menu"
 import MenuItem from "@mui/material/MenuItem"
-import { useTheme } from "@mui/material/styles"
+import Select from "@mui/material/Select"
+import { Theme, useTheme } from "@mui/material/styles"
+import { SxProps } from "@mui/system"
 import * as chroma from "chroma.ts"
+import * as React from "react"
 import {
   MutableRefObject,
   MouseEvent as ReactMouseEvent,
@@ -16,17 +21,18 @@ import {
   useRef,
   useState,
 } from "react"
-import * as React from "react"
 import sleep from "sleep-promise"
+import { RawSourceMap, SourceMapConsumer } from "source-map-js"
 import { Mesh, Shader, TSGL2Context, TSGLContext } from "tsgl"
+
 import { FPSController } from "../common/FPSController"
 import { memoizeLast } from "../common/memoizeLast"
 import { openInNewTab } from "../paperBox1/common"
 
 export interface Renderer {
-  constructor: new (canvas: HTMLCanvasElement) => Renderer
+  constructor: RendererConstructor
   render: (highResTimeStamp: number) => void
-  gl: WebGL2RenderingContext
+  gl: TSGL2Context
   dyn: {}
   animate: boolean
   start(): void
@@ -37,6 +43,15 @@ export interface Renderer {
     onProgress?: (done0to1: number) => void,
   ): Promise<Blob>
 }
+export interface RendererConstructorOptions {
+  onFps?: (fps: number) => void
+  resolutionScale?: number
+}
+export type RendererConstructor = new (
+  canvas: HTMLCanvasElement,
+  options: RendererConstructorOptions,
+) => Renderer
+
 export function GenericDemo({
   sx,
   animate,
@@ -45,7 +60,7 @@ export function GenericDemo({
   focusable,
   rendererRef,
 }: {
-  sx: any
+  sx: SxProps<Theme>
   animate: boolean
   state: {}
   focusable?: boolean
@@ -53,6 +68,7 @@ export function GenericDemo({
   Renderer: RendererConstructor
 }) {
   const rendererRef2 = useRef<Renderer>()
+  const [fps, setFps] = useState(0)
   const [anchorEl, setAnchorEl] = useState<Element>()
 
   const [renderProgress, setRenderProgress] = useState<undefined | number>()
@@ -87,6 +103,14 @@ export function GenericDemo({
     (event: ReactMouseEvent) => setAnchorEl(event.currentTarget),
     [],
   )
+  const [resolutionScale, setResolutionScale] = useState(1)
+  const resolutionScales = [
+    0.5,
+    1,
+    window.devicePixelRatio,
+    2,
+    4 * window.devicePixelRatio,
+  ]
   const closeMenu = useCallback(() => setAnchorEl(undefined), [])
   return (
     <Card sx={{ ...sx, position: "relative" }}>
@@ -94,9 +118,26 @@ export function GenericDemo({
         <MenuItem data-dim="1920x1080" onClick={render}>
           Render HD
         </MenuItem>
-        <MenuItem data-dim="3840x2160 " onClick={render}>
+        <MenuItem data-dim="3840x2160" onClick={render}>
           Render 4K
         </MenuItem>
+        <ListItem>
+          <ListItemText>Res Scale </ListItemText>{" "}
+          <Select
+            value={resolutionScale}
+            onChange={(e) => {
+              setAnchorEl(undefined)
+              setResolutionScale(+e.target.value)
+            }}
+            size="small"
+          >
+            {resolutionScales.map((x) => (
+              <MenuItem key={x} value={x}>
+                {x}
+              </MenuItem>
+            ))}
+          </Select>
+        </ListItem>
       </Menu>
       <Box sx={{ position: "absolute", margin: 1, right: 0 }}>
         {renderProgress !== undefined ? (
@@ -110,6 +151,7 @@ export function GenericDemo({
           </Fab>
         )}
       </Box>
+      <Box sx={{ position: "absolute", margin: 1, left: 0 }}>{fps}</Box>
 
       <CardMedia
         component={ReactGlCanvas}
@@ -117,23 +159,23 @@ export function GenericDemo({
         animate={animate}
         state={state}
         rendererRef={rendererRef2}
+        onFps={setFps}
+        resolutionScale={resolutionScale}
         focusable={focusable}
         sx={{ width: "100%", height: "100%" }}
       />
     </Card>
   )
 }
-export type RendererConstructor = new (
-  canvas: HTMLCanvasElement,
-  onFps?: (fps: number) => void,
-) => Renderer
+
 export const ReactGlCanvas = ({
   Renderer,
   onFps,
   animate,
   state,
   rendererRef,
-  focusable,
+  focusable = false,
+  resolutionScale,
 }: {
   Renderer: RendererConstructor
   onFps?: (fps: number) => void
@@ -141,43 +183,44 @@ export const ReactGlCanvas = ({
   state: {}
   rendererRef?: MutableRefObject<Renderer | undefined>
   focusable?: boolean
+  resolutionScale?: number
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const renderer = useRef<Renderer>()
+  const rendererRef2 = useRef<Renderer>()
 
   useEffect(() => {
     if (canvasRef.current) {
-      renderer.current = new Renderer(canvasRef.current, onFps)
-      renderer.current.start()
+      const renderer1 = new Renderer(canvasRef.current, {
+        onFps,
+        resolutionScale,
+      })
+      rendererRef2.current = renderer1
+      renderer1.start()
       if (rendererRef) {
-        rendererRef.current = renderer.current
+        rendererRef.current = renderer1
       }
+      return () => renderer1.destroy()
     }
-    return () => {
-      if (renderer.current) {
-        renderer.current.destroy()
-      }
-    }
-  }, [Renderer, onFps, rendererRef])
+  }, [Renderer, onFps, resolutionScale, rendererRef])
   const theme = useTheme()
   useEffect(() => {
-    renderer.current &&
-      Object.assign(renderer.current.dyn, {
+    rendererRef2.current &&
+      Object.assign(rendererRef2.current.dyn, {
         colorBackground: chroma.css(theme.palette.background.default).gl(),
         colorPrimary: chroma.css(theme.palette.primary.main).gl(),
         colorSecondary: chroma.css(theme.palette.secondary.main).gl(),
       })
-  }, [theme.palette])
+  }, [rendererRef2.current, theme.palette])
   useEffect(() => {
-    if (renderer.current) renderer.current.animate = animate
-  }, [animate])
+    if (rendererRef2.current) rendererRef2.current.animate = animate
+  }, [rendererRef2.current, animate])
   useEffect(() => {
-    if (renderer.current) Object.assign(renderer.current.dyn, state)
-  }, [state])
+    if (rendererRef2.current) Object.assign(rendererRef2.current.dyn, state)
+  }, [rendererRef2.current, state])
   return <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
 }
 export class SimpleCanvasRenderer {
-  private planeMesh!: Mesh & {
+  private readonly planeMesh!: Mesh & {
     LINES: number[]
     TRIANGLES: number[]
     normals: any[]
@@ -187,15 +230,22 @@ export class SimpleCanvasRenderer {
 
   private mousePos = [-1, -1] as [number, number]
 
-  protected readonly gl: TSGL2Context
+  public readonly gl: TSGL2Context
   public dyn = {}
   public animate = true
   private fpsController: FPSController | undefined
+  private stop: () => void = () => {}
+  private resolutionScale: number
 
   constructor(
-    protected readonly fragShader: () => string,
+    protected readonly fragShader: () =>
+      | string
+      | { default: string; sourceMap: RawSourceMap },
     private readonly canvas: HTMLCanvasElement,
-    onFps?: (fps: number) => void,
+    {
+      onFps,
+      resolutionScale = window.devicePixelRatio,
+    }: { onFps?: (fps: number) => void; resolutionScale?: number },
   ) {
     const mousemove = (e: MouseEvent) => {
       const canvas = e.currentTarget as HTMLCanvasElement
@@ -217,10 +267,17 @@ export class SimpleCanvasRenderer {
       // throwOnError: true,
     }) as unknown as TSGL2Context
     this.gl = gl
-    if (this.canvas.clientWidth !== 0) {
-      gl.fixCanvasRes(1)
+    function fixCanvasRes() {
+      gl.canvas.width = gl.canvas.clientWidth * resolutionScale
+      gl.canvas.height = gl.canvas.clientHeight * resolutionScale
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
     }
-    // gl.addResizeListener()
+    console.log("resolutionScale", resolutionScale)
+    this.resolutionScale = resolutionScale
+    if (this.canvas.clientWidth !== 0) {
+      fixCanvasRes()
+      gl.canvas.addEventListener("resize", fixCanvasRes)
+    }
     gl.canvas.addEventListener("mouseleave", mouseleave)
     gl.canvas.addEventListener("mousemove", mousemove)
     this.planeMesh = Mesh.plane({ startX: -1, startY: -1, width: 2, height: 2 })
@@ -233,6 +290,7 @@ export class SimpleCanvasRenderer {
     // ]
     this.planeMesh.compile(gl)
     this.fpsController = onFps && new FPSController(onFps)
+    this.gl.makeCurrent()
     this.updateShader()
   }
 
@@ -245,25 +303,60 @@ export class SimpleCanvasRenderer {
     )
   }
 
-  protected buildShader = memoizeLast((vs: string, fs: string) => {
-    try {
-      if (this.shader) {
-        this.gl.deleteProgram(this.shader.program)
-      }
+  protected buildShader = memoizeLast(
+    (vs: string, fs: string | { default: string; sourceMap: RawSourceMap }) => {
+      let sourceMap: RawSourceMap | undefined
+      try {
+        let fsSrc
+        if (typeof fs === "string") {
+          fsSrc = fs
+        } else {
+          fsSrc = fs.default
+          sourceMap = fs.sourceMap
+        }
+        // if (this.shader) {
+        //   this.gl.deleteProgram(this.shader.program)
+        // }
+        console.log("building shader")
 
-      this.shader = Shader.create(vs, fs)
-    } catch (e) {
-      console.clear()
-      console.error(e)
-      if (!this.shader) throw e
-    }
-  })
+        this.shader = Shader.create(vs, fsSrc, this.gl)
+      } catch (e) {
+        console.clear()
+        console.error(sourceMap)
+        if (sourceMap) {
+          const sourceMapConsumer = new SourceMapConsumer(sourceMap)
+          const newMessage = (e as Error).message.replace(
+            /ERROR: 0:(\d+)/,
+            (match, line) => {
+              const originalPosition = sourceMapConsumer.originalPositionFor({
+                line: +line,
+                column: 0,
+              })
+              console.log("originalPosition", originalPosition)
+              return (
+                "ERROR " +
+                originalPosition.source +
+                ":" +
+                originalPosition.line +
+                ":" +
+                originalPosition.column
+              )
+            },
+          )
+          ;(e as Error).message = newMessage
+        }
+
+        if (!this.shader) throw e
+      }
+    },
+  )
 
   start() {
-    this.gl.animate(this.render.bind(this))
+    this.stop = this.gl.animate(this.render.bind(this))
   }
 
   render(abs: number) {
+    console.log("render", this.resolutionScale)
     this.gl.makeCurrent()
     this.updateShader()
     this.fpsController?.tick(abs)
@@ -281,6 +374,8 @@ export class SimpleCanvasRenderer {
   }
 
   destroy() {
+    console.log("destroy")
+    this.stop()
     // this.planeMesh.destroy()
     // this.shader.destroy()
   }
@@ -296,7 +391,8 @@ export class SimpleCanvasRenderer {
     canvas.width = width
     canvas.height = height
 
-    const renderer = new this.constructor(canvas)
+    console.log(this.constructor)
+    const renderer = new this.constructor(canvas, { resolutionScale: 4 })
     Object.assign(renderer.dyn, this.dyn)
     const step = 256
     const gl = renderer.gl

@@ -1,12 +1,15 @@
+import { Theme } from "@emotion/react"
 import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
+import CardMedia from "@mui/material/CardMedia"
 import Grid from "@mui/material/Grid"
 import Slider from "@mui/material/Slider"
 import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
+import { SxProps } from "@mui/system"
 import * as chroma from "chroma.ts"
 import * as React from "react"
-import { ReactElement, useCallback, useEffect, useRef } from "react"
+import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import {
   arrayFromFunction,
   clamp,
@@ -26,7 +29,14 @@ import { BoundNumberField } from "../common/BoundNumberField"
 import { useHashState } from "../common/useHashState"
 import { FlyCameraController } from "../raymarch/FlyCameraController"
 import { OrbitCameraController } from "../raymarch/OrbitCameraController"
-import { GenericDemo, SimpleCanvasRenderer } from "../sdfs/SimpleCanvasRenderer"
+import {
+  GenericDemo,
+  ReactGlCanvas,
+  Renderer,
+  RendererConstructor,
+  RendererConstructorOptions,
+  SimpleCanvasRenderer,
+} from "../sdfs/SimpleCanvasRenderer"
 import { PanController } from "./PanController"
 
 const gradients = arrayFromFunction(512, () =>
@@ -37,6 +47,7 @@ const initialState = {
   bandCount: 8,
   a: 0.5,
   b: 0.5,
+  c: 0.5,
   cam: "0~0~0",
 }
 type State = typeof initialState
@@ -542,20 +553,17 @@ function noises(
   )
 }
 
-class PanningCanvasRenderer extends SimpleCanvasRenderer {
+export class PanningCanvasRenderer extends SimpleCanvasRenderer {
   panController: PanController
+
   constructor(
     fragShader: () => string,
-    onCamChange: (m: M4) => void,
     canvas: HTMLCanvasElement,
-    onFps: (fps: number) => void,
+    options: RendererConstructorOptions & { onCamChange?: (m: M4) => void },
   ) {
-    super(fragShader, canvas, onFps)
+    super(fragShader, canvas, options)
     canvas.tabIndex = 0
-    if (canvas.clientWidth !== 0) {
-      this.gl.fixCanvasRes()
-    }
-    this.panController = new PanController(M4.identity(), onCamChange)
+    this.panController = new PanController(M4.identity(), options.onCamChange)
     this.panController.registerListeners(canvas)
   }
 
@@ -574,8 +582,39 @@ class PanningCanvasRenderer extends SimpleCanvasRenderer {
     super.render(abs)
   }
 }
+const ShadertoyLikeDemo = ({
+  frag,
+  sx,
+  animate,
+  state,
+}: {
+  frag: string
+  sx: SxProps<Theme>
+  animate: boolean
+  state: {}
+  replacer?: string
+}) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const Renderer: RendererConstructor = useCallback(
+    class extends PanningCanvasRenderer implements Renderer {
+      ["constructor"]: RendererConstructor
+      constructor(
+        canvas: HTMLCanvasElement,
+        options: RendererConstructorOptions,
+      ) {
+        super(() => require("./" + frag + ".frag"), canvas, options)
+      }
+    },
+    [frag],
+  )
+
+  return (
+    <GenericDemo sx={sx} Renderer={Renderer} animate={animate} state={state} />
+  )
+}
 export default (): ReactElement => {
   const [state, setState] = useHashState(initialState)
+  const [fps, setFps] = useState(0)
   const setStatePartial = useCallback(
     (o) => setState((s) => ({ ...s, ...o })),
     [setState],
@@ -588,95 +627,32 @@ export default (): ReactElement => {
     [setStatePartial],
   )
 
-  const JuliaRenderer = useCallback(
-    class extends SimpleCanvasRenderer {
-      constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        super(() => require("./julia.frag").default, canvas, onFps)
-      }
-    },
-    [],
-  )
-
-  const Test3Renderer = useCallback(
-    class extends PanningCanvasRenderer {
-      constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
-        super(
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          () => require("./test3.frag").default,
-          (_m) => {},
-          canvas,
-          onFps,
-        )
-      }
-    },
-    [],
-  )
-  const Test2Renderer = useCallback(
-    class extends PanningCanvasRenderer {
-      constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
-        super(
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          () => require("./test2.frag").default,
-          (_m) => {},
-          canvas,
-          onFps,
-        )
-      }
-    },
-    [],
-  )
-  const TestRenderer = useCallback(
-    class extends PanningCanvasRenderer {
-      constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
-        super(
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          () => require("./test.frag").default,
-          (_m) => {},
-          canvas,
-          onFps,
-        )
-      }
-    },
-    [],
-  )
-  const SimplexRenderer = useCallback(
-    class extends PanningCanvasRenderer {
-      constructor(canvas: HTMLCanvasElement, onFps: (fps: number) => void) {
-        super(
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          () => require("./simplex.frag").default,
-          (m) => setStatePartial({ cam: PanController.toShortString(m) }),
-          canvas,
-          onFps,
-        )
-      }
-    },
-    [],
-  )
   const simplexRef = useRef<any>()
   useEffect(() => {
     state.cam &&
-      simplexRef.current?.setCam(PanController.fromShortString(state.cam))
+      simplexRef.current?.setCam?.(PanController.fromShortString(state.cam))
   }, [])
 
   return (
     <Grid container style={{ height: "99%" }} spacing={2} padding={2}>
       <Grid container item sm={9} spacing={2}>
         {[
-          SimplexRenderer,
-          Test3Renderer,
-          TestRenderer,
-          JuliaRenderer,
-          Test2Renderer,
-        ].map((Renderer, i) => (
+          "tree",
+          // "mengerSlices",
+          // "magic",
+          // sphereOpenSimplex,
+          // "simplex",
+          // "test3",
+          // "test",
+          // "julias",
+          // "test2",
+        ].map((frag, i) => (
           <Grid item xs={12} key={i}>
-            <GenericDemo
+            <ShadertoyLikeDemo
               sx={{ height: 400 }}
               animate={true}
               state={state}
-              Renderer={Renderer}
-              focusable={true}
+              frag={frag}
               rendererRef={simplexRef}
             />
           </Grid>
@@ -702,25 +678,29 @@ export default (): ReactElement => {
           </CardContent>
         </Card>
         <BoundNumberField {...{ state, setStatePartial }} prop="bandCount" />
-        <div>
-          <Slider
-            value={state.a}
-            onChange={(e, a) => setStatePartial({ a })}
-            min={0}
-            max={1}
-            step={0.01}
-          />
-        </div>
-        <div>
-          <Slider
-            value={state.b}
-            onChange={(e, b) => setStatePartial({ b })}
-            min={0}
-            max={1}
-            step={0.01}
-          />
-        </div>
+        <Slider
+          value={state.a}
+          onChange={(e, a) => setStatePartial({ a })}
+          min={0}
+          max={1}
+          step={0.01}
+        />
+        <Slider
+          value={state.b}
+          onChange={(e, b) => setStatePartial({ b })}
+          min={0}
+          max={1}
+          step={0.01}
+        />
+        <Slider
+          value={state.c}
+          onChange={(e, c) => setStatePartial({ c })}
+          min={0}
+          max={1}
+          step={0.01}
+        />
         {state.a}
+        <div>fps: {fps}</div>
       </Grid>
     </Grid>
   )

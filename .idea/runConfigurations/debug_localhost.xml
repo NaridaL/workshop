@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="debug localhost" type="JavascriptDebugType" uri="http://localhost:8080/">
+    <mapping url="http://localhost:8080/dev/workshop" local-file="$PROJECT_DIR$" />
+    <method v="2" />
+  </configuration>
+</component>
