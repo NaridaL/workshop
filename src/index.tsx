@@ -34,6 +34,7 @@ const pages = [
   { title: "Delta3D", module: "delta3d", hide: true },
   { title: "Paper Prism Box", module: "paperBox1" },
   { title: "Circle Paper Box", module: "paperBox2" },
+  { title: "Paper Envelope", module: "paperEnvelope" },
   { title: "Spirograph", module: "spirograph", hide: true },
   { title: "Tiles", module: "tiles", hide: true },
   { title: "SDFs", module: "sdfs", hide: true },

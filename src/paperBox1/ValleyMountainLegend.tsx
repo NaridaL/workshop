@@ -1,13 +1,17 @@
 import * as React from "react"
-import { CSSProperties, ReactElement } from "react"
+import { CSSProperties, ReactElement, useContext } from "react"
+import { SvgPrintContext } from "./Measure"
 
 export const ValleyMountainLegend = (
   props: React.SVGProps<SVGGElement>,
-): ReactElement => {
+): ReactElement | null => {
   const textStyle: CSSProperties = {
     fontSize: 4,
     dominantBaseline: "middle",
   }
+  const print = useContext(SvgPrintContext)
+  if (print) return null
+
   return (
     <g {...props}>
       <text style={textStyle} y={-4}>

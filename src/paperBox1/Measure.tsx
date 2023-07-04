@@ -1,7 +1,9 @@
 import * as React from "react"
-import { ReactElement } from "react"
+import { createContext, ReactElement, useContext } from "react"
 import { DEG, round10, V, V3 } from "ts3dutils"
 import { R2 } from "./common"
+
+export const SvgPrintContext = createContext(false)
 
 export function Measure({
   from,
@@ -20,9 +22,12 @@ export function Measure({
   Array.isArray(to) && (to = V(to))
   const d = from.to(to)
   const length = d.length()
+  const isSvgPrint = useContext(SvgPrintContext)
+  if (isSvgPrint) return null
   if (length < 0.05) return null
   children ||= "" + round10(length, -1)
   const textBlank = 3 * children.length
+
   return (
     <g
       transform={` translate(${from[0]}, ${from[1]}) rotate(${

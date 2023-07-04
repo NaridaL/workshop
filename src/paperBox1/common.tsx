@@ -1,8 +1,6 @@
-import { ReactElement, ReactNode, SVGProps } from "react"
 import * as React from "react"
-import { encodeSVGPath, SVGPathData } from "svg-pathdata"
-import { SVGCommand } from "svg-pathdata/src/types"
-import { arrayRange, DEG, int, raddd, round10, TAU, V3 } from "ts3dutils"
+import { ReactElement, ReactNode, SVGProps } from "react"
+import { arrayRange, DEG, int, MINUS, raddd, round10, TAU, V3 } from "ts3dutils"
 
 export const INCH = 25.4
 export const fmtdeg = (x: raddd): string => "" + round10(x / DEG, -1) + "°"
@@ -73,7 +71,7 @@ export function RotStep({
       {arrayRange(0, count - 1).map((i) => (
         <use
           key={i}
-          href={"#" + id}
+          xlinkHref={"#" + id}
           transform={`rotate(${(i + 1) * stepDeg} 0 0)`}
         />
       ))}
@@ -82,6 +80,7 @@ export function RotStep({
 }
 
 export type PaperSize = [widthMM: number, heightMM: number, name: string]
+// Always portrait orientation,
 export const PAPER_SIZES: PaperSize[] = [
   [841, 1189, "A0"],
   [594, 841, "A1"],
@@ -101,9 +100,21 @@ export const PAPER_SIZES: PaperSize[] = [
   [215.9, 355.6, "Legal"],
 ]
 
-export const PAPER_SIZE_A4 = PAPER_SIZES.find(([, , name]) =>
-  name.includes("A4"),
-)!
+export function PaperSizeFromString(str: string): PaperSize {
+  const byName = PAPER_SIZES.find(([, , name]) => name == str)
+  if (byName) return byName
+  const [a, b] = str.split("x")
+  return [+a, +b, "Custom"]
+}
+export function PaperSizeFromDimensions(a: number, b: number) {
+  ;[a, b] = [a, b].sort(MINUS)
+  return PAPER_SIZES.find(([x, y]) => x === a && y === b) ?? [a, b, "Custom"]
+}
+export function PaperSizeToString([a, b, name]: PaperSize): string {
+  return name === "Custom" ? "" + a + "x" + b : name
+}
+
+export const PAPER_SIZE_A4 = PAPER_SIZES.find(([, , name]) => name === "A4")!
 
 export function dTpl(
   strings: TemplateStringsArray,

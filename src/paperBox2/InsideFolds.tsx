@@ -1,5 +1,5 @@
 import * as React from "react"
-import { CSSProperties, ReactElement } from "react"
+import { CSSProperties, ReactElement, useContext } from "react"
 import { ilog, newtonIterate1d, TAU, V, V3 } from "ts3dutils"
 
 import {
@@ -9,7 +9,7 @@ import {
   RegularPolygon,
   RotStep,
 } from "../paperBox1/common"
-import { Measure } from "../paperBox1/Measure"
+import { Measure, SvgPrintContext } from "../paperBox1/Measure"
 import { MeasureAngle } from "../paperBox1/MeasureAngle"
 import { Common } from "./Common"
 
@@ -37,18 +37,17 @@ export function InsideFolds(props: {
   baseRadius: number
   topRadius: number
   radius: number
-  print?: boolean
   sides: number
   style?: CSSProperties
   paperSize: PaperSize | null
 }): ReactElement {
-  const { baseRadius, topRadius, radius, print = false, sides } = props
+  const { baseRadius, topRadius, radius, sides } = props
   const basePolyRadius = radiusFromCenterToSide(sides, baseRadius)
   const topPolyRadius = radiusFromCenterToSide(sides, topRadius)
 
   const creaseAngle = TAU / sides / 2
   const innerAngleToC = lookUpAngle(radius, creaseAngle, basePolyRadius)
-
+  const print = useContext(SvgPrintContext)
   function highlight(color: string) {
     // The colors mainly serve to make the code more readable, i.e. you know
     // which code makes which line. When printing, no colors.
@@ -65,48 +64,44 @@ export function InsideFolds(props: {
   )
   return (
     <Common {...props}>
-      <g>
+      <g className="fold">
         <RegularPolygon
           radius={basePolyRadius}
           sides={sides}
           className="valley"
         />
-        {!print && (
-          <>
-            <Measure
-              offset={-0.5}
-              from={[0, 0]}
-              to={V3.polar(baseRadius, creaseAngle)}
-            >
-              baseRadius
-            </Measure>
-            <Measure
-              offset={-0.5}
-              from={V3.polar(baseRadius, creaseAngle)}
-              to={V3.polar(topRadius, creaseAngle)}
-              hideRight={true}
-            >
-              topRadius
-            </Measure>
-            <Measure
-              offset={-0.5}
-              from={V3.polar(topRadius, creaseAngle)}
-              to={V3.polar(radius, creaseAngle)}
-              hideRight={true}
-            >
-              radius
-            </Measure>
-            <MeasureAngle
-              center={redStartPoint}
-              start={Math.PI}
-              toRel={creaseAngle}
-            />
-            <Measure
-              from={V3.polar(basePolyRadius, -TAU / sides)}
-              to={V3.polar(basePolyRadius, 0)}
-            />
-          </>
-        )}
+        <Measure
+          offset={-0.5}
+          from={[0, 0]}
+          to={V3.polar(baseRadius, creaseAngle)}
+        >
+          baseRadius
+        </Measure>
+        <Measure
+          offset={-0.5}
+          from={V3.polar(baseRadius, creaseAngle)}
+          to={V3.polar(topRadius, creaseAngle)}
+          hideRight={true}
+        >
+          topRadius
+        </Measure>
+        <Measure
+          offset={-0.5}
+          from={V3.polar(topRadius, creaseAngle)}
+          to={V3.polar(radius, creaseAngle)}
+          hideRight={true}
+        >
+          radius
+        </Measure>
+        <MeasureAngle
+          center={redStartPoint}
+          start={Math.PI}
+          toRel={creaseAngle}
+        />
+        <Measure
+          from={V3.polar(basePolyRadius, -TAU / sides)}
+          to={V3.polar(basePolyRadius, 0)}
+        />
         <RotStep id="foo" count={sides} stepDeg={360 / sides}>
           <path
             d={dTpl`
@@ -157,6 +152,8 @@ export function InsideFolds(props: {
             style={highlight("red")}
           />
         </RotStep>
+      </g>
+      <g className="cut">
         <circle r={radius} />
       </g>
     </Common>

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { CSSProperties, ReactElement } from "react"
+import { CSSProperties, ReactElement, useContext } from "react"
 import { newtonIterate1d, TAU, V, V3 } from "ts3dutils"
 
 import {
@@ -9,7 +9,7 @@ import {
   RegularPolygon,
   RotStep,
 } from "../paperBox1/common"
-import { Measure } from "../paperBox1/Measure"
+import { Measure, SvgPrintContext } from "../paperBox1/Measure"
 import { MeasureAngle } from "../paperBox1/MeasureAngle"
 import { ValleyMountainLegend } from "../paperBox1/ValleyMountainLegend"
 import { Common } from "./Common"
@@ -19,19 +19,11 @@ export const OutsideFolds = (props: {
   baseRadius: number
   topRadius: number
   radius: number
-  print?: boolean
   sides: number
   style?: CSSProperties
   paperSize: PaperSize | null
 }): ReactElement => {
-  const {
-    baseRadius,
-    topRadius,
-    radius,
-    print = false,
-    sides,
-    paperSize,
-  } = props
+  const { baseRadius, topRadius, radius, sides, paperSize } = props
   const creaseAngle = TAU / sides / 2
   const basePolyRadius = radiusFromCenterToSide(sides, baseRadius)
   const topPolyRadius = radiusFromCenterToSide(sides, topRadius)
@@ -39,6 +31,7 @@ export const OutsideFolds = (props: {
   // the green, imagine an isosceles triangle with red as the base
   const d = (topRadius - baseRadius) / 2 / Math.cos(creaseAngle)
   const lastPolyAngle = lookUpAngle(radius, 2 * creaseAngle, basePolyRadius + d)
+  const print = useContext(SvgPrintContext)
 
   function stroke(color: string) {
     // The colors mainly serve to make the code more readable, i.e. you
@@ -64,33 +57,29 @@ export const OutsideFolds = (props: {
           className="valley"
         />
         <circle r={radius} className="outline" />
-        {!print && (
-          <>
-            <Measure
-              offset={-0.5}
-              from={[0, 0]}
-              to={V3.polar(baseRadius, creaseAngle)}
-            >
-              baseRadius
-            </Measure>
-            <Measure
-              offset={-0.5}
-              from={V3.polar(baseRadius, creaseAngle)}
-              to={V3.polar(topRadius, creaseAngle)}
-              hideRight={true}
-            >
-              topRadius
-            </Measure>
-            <Measure
-              offset={-0.5}
-              from={V3.polar(topRadius, creaseAngle)}
-              to={V3.polar(radius, creaseAngle)}
-              hideRight={true}
-            >
-              radius
-            </Measure>
-          </>
-        )}
+        <Measure
+          offset={-0.5}
+          from={[0, 0]}
+          to={V3.polar(baseRadius, creaseAngle)}
+        >
+          baseRadius
+        </Measure>
+        <Measure
+          offset={-0.5}
+          from={V3.polar(baseRadius, creaseAngle)}
+          to={V3.polar(topRadius, creaseAngle)}
+          hideRight={true}
+        >
+          topRadius
+        </Measure>
+        <Measure
+          offset={-0.5}
+          from={V3.polar(topRadius, creaseAngle)}
+          to={V3.polar(radius, creaseAngle)}
+          hideRight={true}
+        >
+          radius
+        </Measure>
         <RotStep id="rotsym" count={sides} stepDeg={360 / sides}>
           <path
             d={dTpl`
@@ -173,13 +162,11 @@ export const OutsideFolds = (props: {
             <Measure from={blueEndPoint} to={V3.polar(radius, -TAU / sides)} />
           </>
         )}
-        {!print && (
-          <ValleyMountainLegend
-            transform={`translate(${-radius}, ${-radius})`}
-            x={100}
-            y={100}
-          />
-        )}
+        <ValleyMountainLegend
+          transform={`translate(${-radius}, ${-radius})`}
+          x={100}
+          y={100}
+        />
       </g>
     </Common>
   )

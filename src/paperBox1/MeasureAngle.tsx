@@ -1,7 +1,8 @@
 import * as React from "react"
-import { ReactElement } from "react"
+import { ReactElement, useContext } from "react"
 import { raddd, V, V3 } from "ts3dutils"
 import { fmtdeg, R2 } from "./common"
+import { SvgPrintContext } from "./Measure"
 
 export function MeasureAngle({
   center,
@@ -13,8 +14,10 @@ export function MeasureAngle({
   start: raddd
   toRel: raddd
   children?: string
-}): ReactElement {
+}): ReactElement | null {
   Array.isArray(center) && (center = V(center))
+  const isSvgPrint = useContext(SvgPrintContext)
+  if (isSvgPrint) return null
   const radius = 20
   const startV = V3.polar(radius, start).plus(V(center))
   const endV = V3.polar(radius, start + toRel).plus(V(center))

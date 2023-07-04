@@ -1,5 +1,5 @@
 import * as React from "react"
-import { CSSProperties, ReactElement } from "react"
+import { CSSProperties, ReactElement, useContext } from "react"
 import { encodeSVGPath, SVGPathData } from "svg-pathdata"
 import { arrayRange, DEG, round10, TAU, V, V3 } from "ts3dutils"
 
@@ -9,7 +9,7 @@ import {
   INCH,
   radiusFromSideWidth,
 } from "./common"
-import { Measure } from "./Measure"
+import { Measure, SvgPrintContext } from "./Measure"
 import { MeasureAngle } from "./MeasureAngle"
 
 export function PrismBoxSvg({
@@ -20,7 +20,6 @@ export function PrismBoxSvg({
   theta: thetaDeg,
   sideWidth,
   sides,
-  print = false,
   style,
 }: {
   height: number
@@ -30,7 +29,6 @@ export function PrismBoxSvg({
   theta: number
   sideWidth: number
   sides: number
-  print?: boolean
   style?: CSSProperties
 }): ReactElement {
   const shapeAngle = TAU / sides
@@ -47,6 +45,8 @@ export function PrismBoxSvg({
   const radius = radiusFromSideWidth(sides, sideWidth)
   const centerToSide = centerToSideFromSideWidth(sides, sideWidth)
   const boxWidth = centerToSide + (sides % 2 === 0 ? centerToSide : radius)
+
+  const print = useContext(SvgPrintContext)
 
   const valley = encodeSVGPath([
     // bottom lip horizontal
@@ -139,8 +139,8 @@ export function PrismBoxSvg({
         strokeWidth: (2 * INCH) / 300,
         ...style,
       }}
-      width={print ? width * (96 / INCH) : svgViewBox[2] + "mm"}
-      height={print ? height * (96 / INCH) : svgViewBox[3] + "mm"}
+      width={svgViewBox[2] + "mm"}
+      height={svgViewBox[3] + "mm"}
       viewBox={svgViewBox.join(" ")}
       className="adrian"
     >
@@ -178,73 +178,69 @@ export function PrismBoxSvg({
           return <circle key={i} cx={pos.x} cy={pos.y} r={0.5} stroke="black" />
         })}
       </g>
-      {!print && (
-        <>
-          <Measure from={[0, 0]} to={[0, topLip]}>
-            topLip
-          </Measure>
-          <Measure from={[0, topLip]} to={[0, height - bottomLip]}>
-            {"" + round10(height - topLip - bottomLip, -1)}
-          </Measure>
-          <Measure from={[0, height - bottomLip]} to={[0, height]}>
-            bottomLip
-          </Measure>
-          <Measure from={[0, 0]} to={[sideWidth, 0]}>
-            sideWidth
-          </Measure>
-          {arrayRange(1, sides).map((i) => (
-            <Measure
-              key={i}
-              from={[i * sideWidth, 0]}
-              to={[(i + 1) * sideWidth, 0]}
-              hideRight
-            >
-              {"" + round10(sideWidth * (i + 1), -1)}
-            </Measure>
-          ))}
+      <Measure from={[0, 0]} to={[0, topLip]}>
+        topLip
+      </Measure>
+      <Measure from={[0, topLip]} to={[0, height - bottomLip]}>
+        {"" + round10(height - topLip - bottomLip, -1)}
+      </Measure>
+      <Measure from={[0, height - bottomLip]} to={[0, height]}>
+        bottomLip
+      </Measure>
+      <Measure from={[0, 0]} to={[sideWidth, 0]}>
+        sideWidth
+      </Measure>
+      {arrayRange(1, sides).map((i) => (
+        <Measure
+          key={i}
+          from={[i * sideWidth, 0]}
+          to={[(i + 1) * sideWidth, 0]}
+          hideRight
+        >
+          {"" + round10(sideWidth * (i + 1), -1)}
+        </Measure>
+      ))}
 
-          <Measure from={[0, height]} to={[firstIntersect, height]}>
-            {"" + round10(firstIntersect, -2)}
-          </Measure>
-          {arrayRange(0, sides).map((i) => (
-            <Measure
-              key={i}
-              from={[firstIntersect + i * sideWidth, height]}
-              to={[firstIntersect + (i + 1) * sideWidth, height]}
-              hideRight
-            >
-              {"" + round10(firstIntersect + sideWidth * (i + 1), -1)}
-            </Measure>
-          ))}
+      <Measure from={[0, height]} to={[firstIntersect, height]}>
+        {"" + round10(firstIntersect, -2)}
+      </Measure>
+      {arrayRange(0, sides).map((i) => (
+        <Measure
+          key={i}
+          from={[firstIntersect + i * sideWidth, height]}
+          to={[firstIntersect + (i + 1) * sideWidth, height]}
+          hideRight
+        >
+          {"" + round10(firstIntersect + sideWidth * (i + 1), -1)}
+        </Measure>
+      ))}
 
-          <Measure from={[sides * sideWidth, 0]} to={[width, 0]}>
-            {"" + round10(rightTabWidth, -1)}
-          </Measure>
-          <Measure
-            from={[sideWidth, height]}
-            to={[sideWidth + intersect, height]}
-            offset={1}
-          >
-            {"" + round10(intersect, -1)}
-          </Measure>
-          {intersect < sideWidth && (
-            <Measure
-              from={[sideWidth + intersect, height]}
-              to={[sideWidth + sideWidth, height]}
-              offset={1}
-            >
-              {"" + round10(sideWidth - intersect, -1)}
-            </Measure>
-          )}
-          <MeasureAngle
-            center={[sideWidth * 2, height - bottomLip]}
-            start={90 * DEG}
-            toRel={-creaseAngle}
-          >
-            {fmtdeg(creaseAngle)}
-          </MeasureAngle>
-        </>
+      <Measure from={[sides * sideWidth, 0]} to={[width, 0]}>
+        {"" + round10(rightTabWidth, -1)}
+      </Measure>
+      <Measure
+        from={[sideWidth, height]}
+        to={[sideWidth + intersect, height]}
+        offset={1}
+      >
+        {"" + round10(intersect, -1)}
+      </Measure>
+      {intersect < sideWidth && (
+        <Measure
+          from={[sideWidth + intersect, height]}
+          to={[sideWidth + sideWidth, height]}
+          offset={1}
+        >
+          {"" + round10(sideWidth - intersect, -1)}
+        </Measure>
       )}
+      <MeasureAngle
+        center={[sideWidth * 2, height - bottomLip]}
+        start={90 * DEG}
+        toRel={-creaseAngle}
+      >
+        {fmtdeg(creaseAngle)}
+      </MeasureAngle>
       {!print && (
         <g
           transform={`translate(200, ${boxHeight * 2})`}

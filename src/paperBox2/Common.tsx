@@ -1,9 +1,9 @@
 import * as React from "react"
-import { CSSProperties, ReactElement } from "react"
+import { CSSProperties, ReactElement, useContext } from "react"
 import { V } from "ts3dutils"
 
 import { dTpl, INCH, PaperSize } from "../paperBox1/common"
-import { Measure } from "../paperBox1/Measure"
+import { Measure, SvgPrintContext } from "../paperBox1/Measure"
 
 // https://math.stackexchange.com/a/885965/230980
 export function lookUpAngle(
@@ -20,7 +20,6 @@ export function Common({
   baseRadius,
   topRadius,
   radius,
-  print = false,
   style,
   paperSize,
   children,
@@ -28,15 +27,15 @@ export function Common({
   baseRadius: number
   topRadius: number
   radius: number
-  print?: boolean
   style?: CSSProperties
   paperSize: PaperSize | null
-  children: ReactElement
+  children: ReactElement | ReactElement[]
 }): ReactElement {
   const paperPosition = paperSize && [
     Math.min(-20, radius - paperSize[0]),
     Math.min(-20, radius - paperSize[1]),
   ]
+  const print = useContext(SvgPrintContext)
   const svgViewBox = !print
     ? [-radius - 10, -radius - 10, radius * 2 + 20, radius * 2 + 20]
     : paperSize
@@ -48,14 +47,15 @@ export function Common({
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
       style={{
         fill: "none",
         stroke: "#123456",
         strokeWidth: (2 * INCH) / 300,
         ...style,
       }}
-      width={print ? svgViewBox[2] * (96 / INCH) : svgViewBox[2] + "mm"}
-      height={print ? svgViewBox[3] * (96 / INCH) : svgViewBox[3] + "mm"}
+      width={svgViewBox[2] + "mm"}
+      height={svgViewBox[3] + "mm"}
       viewBox={svgViewBox.join(" ")}
       className="adrian"
     >

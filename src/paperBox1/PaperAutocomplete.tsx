@@ -3,21 +3,30 @@ import TextField from "@mui/material/TextField"
 import * as React from "react"
 import { forwardRef, ReactElement } from "react"
 import { MINUS } from "ts3dutils"
-import { PAPER_SIZES, PaperSize } from "./common"
+import { PAPER_SIZES, PaperSize, PaperSizeFromDimensions } from "./common"
 
-export const PaperAutocomplete = forwardRef(
+export interface PaperAutocompleteProps<
+  DisableClearance extends boolean | undefined,
+> {
+  disableClearance?: DisableClearance
+  onChange: (
+    dimensions: DisableClearance extends true ? PaperSize : PaperSize | null,
+  ) => void
+  value: PaperSize | null
+  label: string
+}
+
+export type PaperAutocomplete = <DisableClearance extends boolean | undefined>(
+  props: PaperAutocompleteProps<DisableClearance>,
+) => ReactElement | null
+export const PaperAutocomplete: PaperAutocomplete = forwardRef(
   (
     {
       disableClearance = false,
       onChange,
       value,
       label,
-    }: {
-      disableClearance?: boolean
-      onChange: (dimensions: PaperSize | null) => void
-      value: PaperSize | null
-      label: string
-    },
+    }: PaperAutocompleteProps<boolean | undefined>,
     ref,
   ): ReactElement => {
     let paperSize: PaperSize | null = null
@@ -39,16 +48,21 @@ export const PaperAutocomplete = forwardRef(
         )}
         value={paperSize}
         onChange={(e, newValue) => {
-          let result: PaperSize | null
           if ("string" === typeof newValue) {
-            const regex = /(\d+(?:\.\d+)?).*?(\d+(?:\.\d+)?)/
-            const [, widthStr, heightStr] = regex.exec(newValue)!
-            const [min, max] = [+widthStr, +heightStr].sort(MINUS)
-            result = [min, max, "custom"]
+            if (newValue.trim() === "") {
+              if (!disableClearance) {
+                onChange(null!)
+              }
+            } else {
+              const match = /(\d+(?:\.\d+)?).*?(\d+(?:\.\d+)?)/.exec(newValue)
+              if (match) {
+                const [, widthStr, heightStr] = match
+                onChange(PaperSizeFromDimensions(+widthStr, +heightStr))
+              }
+            }
           } else {
-            result = newValue
+            onChange(newValue!)
           }
-          onChange(result)
         }}
         getOptionLabel={(val) => {
           const [width, height, name = "custom"] = val

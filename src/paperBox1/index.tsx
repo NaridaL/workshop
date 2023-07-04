@@ -16,10 +16,10 @@ import fileDownload from "js-file-download"
 import * as React from "react"
 import { ReactElement, useCallback, useState } from "react"
 import * as ReactDOMServer from "react-dom/server"
-import { MINUS, round10, TAU } from "ts3dutils"
+import { round10, TAU } from "ts3dutils"
 
 import { useHashState } from "../common/useHashState"
-import { PAPER_SIZE_A4 } from "./common"
+import { PAPER_SIZE_A4, PaperSizeFromDimensions } from "./common"
 import hexPrismBoxJpg from "./hexPrismBox.jpg"
 import { PaperAutocomplete } from "./PaperAutocomplete"
 import { PrismBoxSvg } from "./PrismBoxSvg"
@@ -36,7 +36,6 @@ export default (): ReactElement => {
   })
   const landscape = state.width > state.height
   const [width, height] = [state.width, state.height]
-  const [min, max] = [width, height].sort(MINUS)
 
   // lockTopLip
   const topLipMax = Math.floor((height - state.bottomLip - 1) / 2)
@@ -163,7 +162,7 @@ export default (): ReactElement => {
         </Card>
         <PaperAutocomplete
           label="Paper Size"
-          value={[min, max, "custom"]}
+          value={PaperSizeFromDimensions(width, height)}
           onChange={(newPaperSize) => {
             const [minWidth, maxHeight] = newPaperSize!
             updateState(

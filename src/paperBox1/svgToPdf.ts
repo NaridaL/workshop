@@ -2,6 +2,7 @@ import blobStream from "blob-stream"
 import PDFDocument from "pdfkit"
 import SVGtoPDF from "svg-to-pdfkit"
 import { round10 } from "ts3dutils"
+import { INCH } from "./common"
 
 export function svgToPdf({
   title,
@@ -13,11 +14,11 @@ export function svgToPdf({
   svg: string
 }): Promise<Blob> {
   return new Promise<Blob>((resolve, reject) => {
-    const [, widthStr, heightStr] = /width="([^"]+)".*?height="([^"]+)"/.exec(
-      svg,
-    )!
-    const [width, height] = [+widthStr, +heightStr].map((x) =>
-      round10((x / 96) * 72, -2),
+    const [, widthStr, heightStr] =
+      /<svg[^>]*?width="([^"]+)mm".*?height="([^"]+)mm"/.exec(svg)!
+    const [width, height] = [widthStr, heightStr].map((x) =>
+      // We want it to be at 72 DPI.
+      round10((+x * 72) / INCH, -2),
     )
 
     const doc = new PDFDocument({

@@ -19,7 +19,9 @@ import * as ReactDOMServer from "react-dom/server"
 
 import { useHashState } from "../common/useHashState"
 import { PaperSize } from "../paperBox1/common"
+import { ExportButtons } from "../paperBox1/ExportButtons"
 import { PaperAutocomplete } from "../paperBox1/PaperAutocomplete"
+import { Envelope } from "../paperEnvelope/Envelope"
 import { InsideFolds } from "./InsideFolds"
 import insideFoldsImg from "./insideFolds.jpg"
 import { OutsideFolds } from "./OutsideFolds"
@@ -43,30 +45,6 @@ export default (): ReactElement => {
     inside: InsideFolds,
     outside: OutsideFolds,
   }[state.variant]
-
-  const getPrintSVG = () =>
-    ReactDOMServer.renderToStaticMarkup(
-      <BaseDrawing {...state} print={true} paperSize={paperSize} />,
-    ).replace(/\s{2,}/g, " ")
-  const baseFileName = `${state.variant}-${state.baseRadius}-${state.topRadius}-${state.radius}-${state.sides}`
-  const asSVG = () => {
-    const svg = getPrintSVG()
-    fileDownload(svg, baseFileName + ".svg")
-  }
-  const asTemplatePDF = async () => {
-    const { svgToPdf } = await import(
-      /* webpackChunkName: "svgToPdf" */ "../paperBox1/svgToPdf"
-    )
-
-    // add your content to the document here, as usual
-    const blob = await svgToPdf({
-      title: "Paper Box Template",
-      author: "Adrian Leonhard",
-      svg: getPrintSVG(),
-    })
-
-    fileDownload(blob, baseFileName + ".pdf")
-  }
 
   const topLip = state.radius - state.topRadius
   const topOverlap = topLip - state.baseRadius
@@ -181,14 +159,10 @@ export default (): ReactElement => {
           value={paperSize}
           onChange={setPaperSize}
         />
-        <Button variant="contained" onClick={asSVG}>
-          Download As SVG
-        </Button>
-        <Tooltip title="" placement="left">
-          <Button variant="contained" onClick={asTemplatePDF}>
-            Template as PDF
-          </Button>
-        </Tooltip>
+        <ExportButtons
+          baseFileName={`${state.variant}-${state.baseRadius}-${state.topRadius}-${state.radius}-${state.sides}`}
+          what={<BaseDrawing {...state} paperSize={paperSize} />}
+        />
       </Grid>
     </Grid>
   )
