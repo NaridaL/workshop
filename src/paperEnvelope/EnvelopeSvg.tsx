@@ -1,7 +1,6 @@
-import { useTheme } from "@mui/material/styles"
 import * as React from "react"
 import { CSSProperties, ReactElement } from "react"
-import { encodeSVGPath, SVGPathData } from "svg-pathdata"
+import { SVGPathData } from "svg-pathdata"
 import { CommandA } from "svg-pathdata/lib/types"
 import { DEG } from "ts3dutils"
 import { INCH, PaperSize } from "../paperBox1/common"
@@ -19,7 +18,8 @@ export function EnvelopeDimensions(
   const h = r2 * Math.sin(45 * DEG)
   // s is the short perpendicular distance from the side to the indent.
   const s = Math.sin(45 * DEG) * envelopeHeight + d
-  const t = Math.sin(45 * DEG) * 2 * envelopeHeight + d + d / Math.sin(45 * DEG)
+  // t is the y-distance from the top to where the diagonal cut at the bottom right starts.
+  const t = Math.sin(45 * DEG) * 2 * envelopeHeight + d
   const envelopeWidth = Math.sin(45 * DEG) * (a - d - s) * 2
   return { a, d, r2, h, s, t, envelopeWidth }
 }
@@ -36,13 +36,11 @@ export function EnvelopeSvg({
   style?: CSSProperties
   paperSize: PaperSize
 }): ReactElement {
-  const mountain = encodeSVGPath([])
-
   const r = 10
 
   const [width, height] = paperSize
 
-  const { a, d, r2, h, s, t, envelopeWidth } = EnvelopeDimensions(
+  const { a, d, r2, h, s, t } = EnvelopeDimensions(
     width,
     height,
     overlap,
