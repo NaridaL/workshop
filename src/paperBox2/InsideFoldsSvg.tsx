@@ -1,6 +1,6 @@
 import * as React from "react"
 import { CSSProperties, ReactElement, useContext } from "react"
-import { ilog, newtonIterate1d, TAU, V, V3 } from "ts3dutils"
+import { newtonIterate1d, TAU, V, V3 } from "ts3dutils"
 
 import {
   dTpl,
@@ -33,7 +33,7 @@ export function lookUpRadius(
   )
 }
 
-export function InsideFolds(props: {
+export function InsideFoldsSvg(props: {
   baseRadius: number
   topRadius: number
   radius: number

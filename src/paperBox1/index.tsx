@@ -1,6 +1,5 @@
 import Lock from "@mui/icons-material/Lock"
 import LockOpen from "@mui/icons-material/LockOpen"
-import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
 import CardMedia from "@mui/material/CardMedia"
@@ -12,14 +11,13 @@ import InputAdornment from "@mui/material/InputAdornment"
 import Link from "@mui/material/Link"
 import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
-import fileDownload from "js-file-download"
 import * as React from "react"
 import { ReactElement, useCallback, useState } from "react"
-import * as ReactDOMServer from "react-dom/server"
 import { round10, TAU } from "ts3dutils"
 
 import { useHashState } from "../common/useHashState"
 import { PAPER_SIZE_A4, PaperSizeFromDimensions } from "./common"
+import { ExportButtons } from "./ExportButtons"
 import hexPrismBoxJpg from "./hexPrismBox.jpg"
 import { PaperAutocomplete } from "./PaperAutocomplete"
 import { PrismBoxSvg } from "./PrismBoxSvg"
@@ -72,38 +70,6 @@ export default (): ReactElement => {
   )
 
   const theme = useTheme()
-
-  const getPrintSVG = () =>
-    ReactDOMServer.renderToStaticMarkup(
-      <PrismBoxSvg {...state} print={true} />,
-    ).replace(/\s{2,}/g, " ")
-
-  const asSVG = () => {
-    const svg = getPrintSVG()
-    fileDownload(
-      svg,
-      `${width}x${height}-${state.sides}x${state.sideWidth}` +
-        `-${state.topLip}-${state.bottomLip}.svg`,
-    )
-  }
-  const asTemplatePDF = async () => {
-    const { svgToPdf } = await import(
-      /* webpackChunkName: "svgToPdf" */ "./svgToPdf"
-    )
-
-    // add your content to the document here, as usual
-    const blob = await svgToPdf({
-      title: "Paper Box Template",
-      author: "Adrian Leonhard",
-      svg: getPrintSVG(),
-    })
-
-    fileDownload(
-      blob,
-      `${width}x${height}-${state.sides}x${state.sideWidth}` +
-        `-${state.topLip}-${state.bottomLip}.pdf`,
-    )
-  }
 
   return (
     <Grid container style={{ width: "100%" }}>
@@ -277,12 +243,13 @@ export default (): ReactElement => {
           }}
           label="bottomLip"
         />
-        <Button variant="contained" onClick={asSVG}>
-          Download As SVG
-        </Button>
-        <Button variant="contained" onClick={asTemplatePDF}>
-          Template as PDF
-        </Button>
+        <ExportButtons
+          what={<PrismBoxSvg {...state} />}
+          baseFileName={
+            `${width}x${height}-${state.sides}x${state.sideWidth}` +
+            `-${state.topLip}-${state.bottomLip}`
+          }
+        />
       </Grid>
     </Grid>
   )

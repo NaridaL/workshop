@@ -2,6 +2,7 @@ import Card from "@mui/material/Card"
 import CardMedia from "@mui/material/CardMedia"
 import Divider from "@mui/material/Divider"
 import Grid from "@mui/material/Grid"
+import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
 import * as React from "react"
 import { ReactElement, useCallback } from "react"
@@ -14,7 +15,7 @@ import {
 } from "../paperBox1/common"
 import { ExportButtons } from "../paperBox1/ExportButtons"
 import { PaperAutocomplete } from "../paperBox1/PaperAutocomplete"
-import { Envelope, EnvelopeDimensions } from "./Envelope"
+import { EnvelopeDimensions, EnvelopeSvg } from "./EnvelopeSvg"
 
 export default (): ReactElement => {
   const [state, setState] = useHashState({
@@ -36,13 +37,19 @@ export default (): ReactElement => {
     state.envelopeHeight,
   )
 
+  const theme = useTheme()
+
   return (
     <Grid container style={{ width: "100%" }}>
       <Grid item xs={12} md={10}>
-        <Envelope
+        <EnvelopeSvg
           {...state}
           paperSize={paperSize}
-          style={{ width: "100%", height: "100%" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            margin: theme.spacing(1),
+          }}
         />
       </Grid>
       <Grid
@@ -113,7 +120,7 @@ export default (): ReactElement => {
         <Divider />
         <ExportButtons
           baseFileName={`envelope-${paperSize[0]}-${state.envelopeHeight}-${state.overlap}`}
-          what={<Envelope {...state} paperSize={paperSize} />}
+          what={<EnvelopeSvg {...state} paperSize={paperSize} />}
         />
       </Grid>
     </Grid>

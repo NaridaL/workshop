@@ -61,12 +61,18 @@ const appGlobalStyles = (
       },
 
       "svg.adrian": {
-        "& *": {
+        "*": {
           stroke: theme.palette.text.primary,
         },
-        "& text": {
+        text: {
           stroke: "none",
           fill: theme.palette.text.primary,
+        },
+        ".measure": {
+          "*": {
+            stroke: theme.palette.primary.main,
+            fill: theme.palette.primary.main,
+          },
         },
       },
     })}

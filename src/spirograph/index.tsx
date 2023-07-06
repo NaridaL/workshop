@@ -3,7 +3,7 @@ import { useTheme } from "@mui/material/styles"
 import * as React from "react"
 import { ReactElement, useEffect, useRef } from "react"
 import { DEG, M4, mod, PI, V, V3 } from "ts3dutils"
-import { lookUpAngle, lookUpRadius } from "../paperBox2/InsideFolds"
+import { lookUpAngle, lookUpRadius } from "../paperBox2/InsideFoldsSvg"
 
 class Circle {
   constructor(public readonly radius: number) {}

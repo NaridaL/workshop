@@ -36,9 +36,7 @@ export function Common({
     Math.min(-20, radius - paperSize[1]),
   ]
   const print = useContext(SvgPrintContext)
-  const svgViewBox = !print
-    ? [-radius - 10, -radius - 10, radius * 2 + 20, radius * 2 + 20]
-    : paperSize
+  const svgViewBox = paperSize
     ? [paperPosition![0], paperPosition![1], paperSize[0], paperSize[1]]
     : [-radius, -radius, radius * 2, radius * 2]
 

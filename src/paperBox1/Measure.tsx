@@ -33,10 +33,11 @@ export function Measure({
       transform={` translate(${from[0]}, ${from[1]}) rotate(${
         d.angleXY() / DEG
       }) translate(0, ${offset * 10})`}
-      style={{ stroke: "#aaa" }}
+      className="measure"
     >
       {!hideRight && (
         <path
+          style={{ fill: "none" }}
           d={`M0,0
           l0,10
           M4,3
@@ -45,6 +46,7 @@ export function Measure({
         />
       )}
       <path
+        style={{ fill: "none" }}
         d={`
         M0,5
         H${(length - textBlank) / 2}
@@ -59,7 +61,6 @@ export function Measure({
       <text
         style={{
           stroke: "none",
-          fill: "#aaa",
           fontSize: 4,
           dominantBaseline: "middle",
           textAnchor: "middle",

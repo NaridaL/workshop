@@ -25,14 +25,14 @@ export function MeasureAngle({
   const largeArcFlag = Math.abs(toRel) > Math.PI ? "1" : "0"
   const sweepFlag = toRel > 0 ? "1" : "0"
   return (
-    <g>
+    <g className="measure">
       <path
+        style={{ fill: "none" }}
         d={`M${startV.x},${startV.y} A${radius},${radius},0,${largeArcFlag},${sweepFlag},${endV.x},${endV.y}`}
       />
       <text
         style={{
           stroke: "none",
-          fill: "#aaa",
           fontSize: 4,
           dominantBaseline: "middle",
           textAnchor: "middle",

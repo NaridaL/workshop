@@ -283,7 +283,7 @@ function infoClosestToLine(
        t = ((a - c)*b*(b*d) - (a - c)*d * (b*b)) / ((d*b)*(b*d) - (d*d) * (b*b))
        */
   if (isParallelToLine(th, line)) {
-    return { t: NaN, s: NaN, distance: th.distanceToLine(line) }
+    return { t: NaN, s: NaN, distance: 10 }
   }
   const a = line.anchor,
     b = line.dir1,

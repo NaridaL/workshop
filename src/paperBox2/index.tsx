@@ -1,5 +1,4 @@
 import { Alert } from "@mui/material"
-import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
 import CardMedia from "@mui/material/CardMedia"
@@ -10,22 +9,19 @@ import InputLabel from "@mui/material/InputLabel"
 import Link from "@mui/material/Link"
 import MenuItem from "@mui/material/MenuItem"
 import Select from "@mui/material/Select"
+import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
-import Tooltip from "@mui/material/Tooltip"
-import fileDownload from "js-file-download"
 import * as React from "react"
 import { ReactElement, useCallback, useState } from "react"
-import * as ReactDOMServer from "react-dom/server"
 
 import { useHashState } from "../common/useHashState"
 import { PaperSize } from "../paperBox1/common"
 import { ExportButtons } from "../paperBox1/ExportButtons"
 import { PaperAutocomplete } from "../paperBox1/PaperAutocomplete"
-import { Envelope } from "../paperEnvelope/Envelope"
-import { InsideFolds } from "./InsideFolds"
 import insideFoldsImg from "./insideFolds.jpg"
-import { OutsideFolds } from "./OutsideFolds"
+import { InsideFoldsSvg } from "./InsideFoldsSvg"
 import outsideFoldsLargeTemplateImg from "./outsideFoldsLargeTemplate.jpg"
+import { OutsideFoldsSvg } from "./OutsideFoldsSvg"
 
 export default (): ReactElement => {
   const [state, setState] = useHashState({
@@ -41,10 +37,12 @@ export default (): ReactElement => {
   )
   const [paperSize, setPaperSize] = useState(null as PaperSize | null)
 
-  const BaseDrawing: typeof OutsideFolds = {
-    inside: InsideFolds,
-    outside: OutsideFolds,
+  const BaseDrawing: typeof OutsideFoldsSvg = {
+    inside: InsideFoldsSvg,
+    outside: OutsideFoldsSvg,
   }[state.variant]
+
+  const theme = useTheme()
 
   const topLip = state.radius - state.topRadius
   const topOverlap = topLip - state.baseRadius
@@ -55,7 +53,7 @@ export default (): ReactElement => {
         <BaseDrawing
           {...state}
           paperSize={paperSize}
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "100%", margin: theme.spacing(1) }}
         />
       </Grid>
       <Grid

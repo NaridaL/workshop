@@ -13,9 +13,9 @@ import { Measure, SvgPrintContext } from "../paperBox1/Measure"
 import { MeasureAngle } from "../paperBox1/MeasureAngle"
 import { ValleyMountainLegend } from "../paperBox1/ValleyMountainLegend"
 import { Common } from "./Common"
-import { lookUpAngle } from "./InsideFolds"
+import { lookUpAngle } from "./InsideFoldsSvg"
 
-export const OutsideFolds = (props: {
+export const OutsideFoldsSvg = (props: {
   baseRadius: number
   topRadius: number
   radius: number

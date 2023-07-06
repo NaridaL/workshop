@@ -1,15 +1,11 @@
+import { useTheme } from "@mui/material/styles"
 import * as React from "react"
-import {
-  CSSProperties,
-  MutableRefObject,
-  ReactElement,
-  useContext,
-} from "react"
+import { CSSProperties, ReactElement } from "react"
 import { encodeSVGPath, SVGPathData } from "svg-pathdata"
 import { CommandA } from "svg-pathdata/lib/types"
 import { DEG } from "ts3dutils"
 import { INCH, PaperSize } from "../paperBox1/common"
-import { Measure, SvgPrintContext } from "../paperBox1/Measure"
+import { Measure } from "../paperBox1/Measure"
 
 export function EnvelopeDimensions(
   width: number,
@@ -27,7 +23,7 @@ export function EnvelopeDimensions(
   const envelopeWidth = Math.sin(45 * DEG) * (a - d - s) * 2
   return { a, d, r2, h, s, t, envelopeWidth }
 }
-export function Envelope({
+export function EnvelopeSvg({
   paperSize,
   envelopeHeight,
   overlap,
@@ -131,9 +127,9 @@ export function Envelope({
         </clipPath>
       </defs>
       <style>
-        {".valley {stroke-dasharray: 1,1;}"}
-        {".outline {stroke-dasharray: .1,1;}"}
-        {".mountain {stroke-dasharray: 10,2,1,1,1,2;}"}
+        {".valley {stroke-dasharray: 1,1;} "}
+        {".outline {stroke-dasharray: .1,1;} "}
+        {".mountain {stroke-dasharray: 10,2,1,1,1,2;} "}
       </style>
 
       <g clipPath="url(#page)">
