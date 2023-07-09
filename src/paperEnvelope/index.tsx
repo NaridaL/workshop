@@ -24,7 +24,7 @@ import { claspNames, EnvelopeDimensions, EnvelopeSvg } from "./EnvelopeSvg"
 export default (): ReactElement => {
   const [state, setState] = useHashState({
     overlap: 10,
-    envelopeHeight: 108,
+    envelopeHeight: 118,
     cornerRadius: 10,
     paperSize: PaperSizeToString(PAPER_SIZE_A4),
     claspId: "Hexagon",

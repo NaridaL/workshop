@@ -144,24 +144,20 @@ export const OutsideFoldsSvg = (props: {
             />
           )}
         </RotStep>
-        {!print && (
-          <>
-            <MeasureAngle
-              center={[basePolyRadius, 0]}
-              start={-creaseAngle}
-              toRel={creaseAngle}
-            />
-            <MeasureAngle
-              center={V(basePolyRadius, 0).plus(
-                V3.polar(topRadius - baseRadius, -creaseAngle),
-              )}
-              start={-creaseAngle * 2}
-              toRel={creaseAngle}
-            />
-            <Measure from={[radius, 0]} to={blueEndPoint} />
-            <Measure from={blueEndPoint} to={V3.polar(radius, -TAU / sides)} />
-          </>
-        )}
+        <MeasureAngle
+          center={[basePolyRadius, 0]}
+          start={-creaseAngle}
+          toRel={creaseAngle}
+        />
+        <MeasureAngle
+          center={V(basePolyRadius, 0).plus(
+            V3.polar(topRadius - baseRadius, -creaseAngle),
+          )}
+          start={-creaseAngle * 2}
+          toRel={creaseAngle}
+        />
+        <Measure from={[radius, 0]} to={blueEndPoint} />
+        <Measure from={blueEndPoint} to={V3.polar(radius, -TAU / sides)} />
         <ValleyMountainLegend
           transform={`translate(${-radius}, ${-radius})`}
           x={100}

@@ -6,6 +6,7 @@ import AppBar from "@mui/material/AppBar"
 import CssBaseline from "@mui/material/CssBaseline"
 import Drawer from "@mui/material/Drawer"
 import IconButton from "@mui/material/IconButton"
+import MuiLink from "@mui/material/Link"
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
@@ -74,6 +75,12 @@ const appGlobalStyles = (
           "*": {
             stroke: theme.palette.primary.main,
             fill: theme.palette.primary.main,
+          },
+        },
+        ".guide": {
+          "&, *": {
+            stroke: theme.palette.secondary.main,
+            fill: theme.palette.secondary.main,
           },
         },
       },
@@ -161,9 +168,11 @@ const App = () => {
           >
             <div>
               SHA1{" "}
-              <a href={"https://github.com/NaridaL/workshop/tree/" + GIT_HASH}>
+              <MuiLink
+                href={"https://github.com/NaridaL/workshop/tree/" + GIT_HASH}
+              >
                 {GIT_HASH!.substring(0, 6)}
-              </a>
+              </MuiLink>
             </div>
             <div>BUILT {BUILD_TIME.toISOString().substring(0, 16)}</div>
           </ListItem>

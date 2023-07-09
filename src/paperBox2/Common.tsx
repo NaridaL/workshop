@@ -3,7 +3,8 @@ import { CSSProperties, ReactElement, useContext } from "react"
 import { V } from "ts3dutils"
 
 import { dTpl, INCH, PaperSize } from "../paperBox1/common"
-import { Measure, SvgPrintContext } from "../paperBox1/Measure"
+import { Guide, Measure, SvgPrintContext } from "../paperBox1/Measure"
+import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 
 // https://math.stackexchange.com/a/885965/230980
 export function lookUpAngle(
@@ -57,15 +58,11 @@ export function Common({
       viewBox={svgViewBox.join(" ")}
       className="adrian"
     >
-      <style>
-        {".valley {stroke-dasharray: 1,1;}"}
-        {".outline {stroke-dasharray: .1,1;}"}
-        {".mountain {stroke-dasharray: 10,2,1,1,1,2;}"}
-      </style>
-      {!print && (
-        <g transform="translate(-20 -20) rotate(180)">
-          <path
-            d={dTpl`
+      <SvgCommonDefs />
+      <Guide transform="translate(-20 -20) rotate(180)">
+        <path
+          style={{ fill: "none" }}
+          d={dTpl`
           M${V(baseRadius - topLip, boxHeight * 0.99)}
           L${V(baseRadius, boxHeight)}
           L${V(baseRadius, 0)}
@@ -73,15 +70,14 @@ export function Common({
           L${V(-baseRadius, boxHeight)}
           L${V(topLip - baseRadius, boxHeight * 1.01)}
           `}
-          />
-          <Measure from={V(baseRadius, 0)} to={V(-baseRadius, 0)} />
-          <Measure from={V(baseRadius, boxHeight)} to={V(baseRadius, 0)} />
-          <Measure
-            from={V(topLip - baseRadius, boxHeight)}
-            to={V(0, boxHeight)}
-          />
-        </g>
-      )}
+        />
+        <Measure from={V(baseRadius, 0)} to={V(-baseRadius, 0)} />
+        <Measure from={V(baseRadius, boxHeight)} to={V(baseRadius, 0)} />
+        <Measure
+          from={V(topLip - baseRadius, boxHeight)}
+          to={V(0, boxHeight)}
+        />
+      </Guide>
 
       {!print && paperSize && (
         <rect

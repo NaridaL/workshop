@@ -1,10 +1,22 @@
 import * as React from "react"
-import { createContext, ReactElement, useContext } from "react"
+import { createContext, ReactElement, SVGProps, useContext } from "react"
 import { DEG, round10, V, V3 } from "ts3dutils"
 import { R2 } from "./common"
 
 export const SvgPrintContext = createContext(false)
 
+export function Guide({
+  children,
+  ...props
+}: { children: ReactElement[] } & SVGProps<SVGGElement>) {
+  const isSvgPrint = useContext(SvgPrintContext)
+  if (isSvgPrint) return null
+  return (
+    <g className="guide" {...props}>
+      {children}
+    </g>
+  )
+}
 export function Measure({
   from,
   to,

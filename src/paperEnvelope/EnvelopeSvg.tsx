@@ -1,11 +1,17 @@
 import sortBy from "lodash/sortBy"
 import * as React from "react"
-import { CSSProperties, ReactElement } from "react"
+import { CSSProperties, ReactElement, useContext } from "react"
 import { SVGPathData } from "svg-pathdata"
 import { CommandA } from "svg-pathdata/lib/types"
 import { DEG } from "ts3dutils"
-import { INCH, PaperSize, PaperSizeFromString } from "../paperBox1/common"
-import { Measure } from "../paperBox1/Measure"
+import {
+  INCH,
+  PAPER_SIZE_A4,
+  PAPER_SIZES,
+  PaperSize,
+} from "../paperBox1/common"
+import { Guide, Measure, SvgPrintContext } from "../paperBox1/Measure"
+import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 import claspsSvgString from "./clasps.inkscape.svg?raw"
 import * as path from "./svg"
 
@@ -61,6 +67,7 @@ export function EnvelopeDimensions(
   const foldedCenter = a / 2 - Math.SQRT1_2 * envelopeHeight
   return { a, d, r2, h, s, t, envelopeWidth, foldedCenter }
 }
+
 export function EnvelopeSvg({
   paperSize,
   envelopeHeight,
@@ -146,8 +153,9 @@ export function EnvelopeSvg({
     { type: SVGPathData.CLOSE_PATH },
   ]).encode()
 
-  const ref = PaperSizeFromString("A6")
-  const [refH, refW] = ref
+  const ref = PAPER_SIZES.find(([w, _h]) => w < envelopeHeight) ?? PAPER_SIZE_A4
+  const [refH, refW, refName] = ref!
+  const print = useContext(SvgPrintContext)
 
   return (
     <svg
@@ -163,58 +171,32 @@ export function EnvelopeSvg({
       viewBox={`0 0 ${width} ${height}`}
       className="adrian"
     >
-      <defs>
-        <pattern id="glue" patternUnits="userSpaceOnUse" width="4" height="4">
-          <path
-            d="M-1,1 l2,-2
-             M0,4 l4,-4
-             M3,5 l2,-2"
-            style={{ stroke: "#eee", strokeWidth: 1 }}
-          />
-        </pattern>
-        <clipPath id="page">
-          <rect width={width} height={height} />
-        </clipPath>
-      </defs>
-      <style>
-        {".valley {stroke-dasharray: 1,1;} "}
-        {".outline "}
-        {".mountain {stroke-dasharray: 10,2,1,1,1,2;} "}
-      </style>
-      <g clipPath="url(#page)">
-        {/*{!print && (*/}
-        {/* <rect width={100} height={height} fill="url(#glue)" stroke="none" />*/}
-        {/*)}*/}
-      </g>
+      <SvgCommonDefs />
       <path d={outline} className="outline" />
       <path d={valley} className="valley" />
-      <path
-        className="valley"
+      <g
         transform={`translate(${a - foldedCenter} ${
           a - foldedCenter
         }) rotate(135) scale(${claspScale}) translate(-24 -24)`}
-        d={clasp.bottomFold}
-      />
-      <path
-        className="outline"
-        transform={`translate(${a - foldedCenter} ${
-          a - foldedCenter
-        }) rotate(135) scale(${claspScale}) translate(-24 -24)`}
-        d={clasp.bottomCut}
-      />
+      >
+        <path className="valley" d={clasp.bottomFold} />
+        <path className="outline" d={clasp.bottomCut} />
+      </g>
       <path
         className="outline"
         transform={`translate(${foldedCenter} ${foldedCenter}) rotate(135) scale(${claspScale}) translate(-24 -24)`}
         d={clasp.topCut}
       />
-      <rect
-        className="guide"
-        width={refW}
-        height={refH}
+      <Guide
         transform={`translate(${a / 2} ${a / 2}) rotate(-45) translate(${
           -refW / 2
         } ${-refH / 2})`}
-      />
+      >
+        <text y={refH} style={{ fontSize: "xx-small" }}>
+          {refName}
+        </text>
+        <rect width={refW} height={refH} style={{ fill: "none" }} />
+      </Guide>
       <Measure from={[a - s, d]} to={[a - d, s]} />
       <Measure from={[d, a - s]} to={[a - s, d]} />
     </svg>

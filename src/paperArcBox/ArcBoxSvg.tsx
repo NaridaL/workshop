@@ -4,6 +4,7 @@ import { SVGPathData } from "svg-pathdata"
 import { CommandA } from "svg-pathdata/lib/types"
 import { INCH, PaperSize } from "../paperBox1/common"
 import { Measure, SvgPrintContext } from "../paperBox1/Measure"
+import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 
 export function ArcBoxSvg({
   paperSize,
@@ -117,27 +118,12 @@ export function ArcBoxSvg({
       className="adrian"
     >
       <defs>
-        <pattern id="glue" patternUnits="userSpaceOnUse" width="4" height="4">
-          <path
-            d="M-1,1 l2,-2
-             M0,4 l4,-4
-             M3,5 l2,-2"
-            style={{ stroke: "#eee", strokeWidth: 1 }}
-          />
-        </pattern>
         <clipPath id="page">
           <rect width={width} height={height} />
         </clipPath>
       </defs>
-      <style>
-        {".valley {stroke-dasharray: 1,1;} "}
-        {".outline {stroke-dasharray: .1,1;} "}
-        {".mountain {stroke-dasharray: 10,2,1,1,1,2;} "}
-      </style>
-
-      <g clipPath="url(#page)">
-        {!print && <path d={glue} fill="url(#glue)" stroke="none" />}
-      </g>
+      <SvgCommonDefs />
+      {!print && <path d={glue} fill="url(#glue)" stroke="none" />}
       <path d={outline} />
       <path d={fold} className="valley" />
       <g>

@@ -5,6 +5,7 @@ import { CommandA } from "svg-pathdata/lib/types"
 import { DEG } from "ts3dutils"
 import { INCH, PaperSize } from "../paperBox1/common"
 import { Measure } from "../paperBox1/Measure"
+import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 
 export function EnvelopeDimensions(
   width: number,
@@ -111,30 +112,7 @@ export function EnvelopeSvg({
       viewBox={`0 0 ${width} ${height}`}
       className="adrian"
     >
-      <defs>
-        <pattern id="glue" patternUnits="userSpaceOnUse" width="4" height="4">
-          <path
-            d="M-1,1 l2,-2
-             M0,4 l4,-4
-             M3,5 l2,-2"
-            style={{ stroke: "#eee", strokeWidth: 1 }}
-          />
-        </pattern>
-        <clipPath id="page">
-          <rect width={width} height={height} />
-        </clipPath>
-      </defs>
-      <style>
-        {".valley {stroke-dasharray: 1,1;} "}
-        {".outline {stroke-dasharray: .1,1;} "}
-        {".mountain {stroke-dasharray: 10,2,1,1,1,2;} "}
-      </style>
-
-      <g clipPath="url(#page)">
-        {/*{!print && (*/}
-        {/* <rect width={100} height={height} fill="url(#glue)" stroke="none" />*/}
-        {/*)}*/}
-      </g>
+      <SvgCommonDefs />
       <path d={outline} />
       <path d={valley} className="valley" />
       <Measure from={[a - s, d]} to={[a - d, s]} />
