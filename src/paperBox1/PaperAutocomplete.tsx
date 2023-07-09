@@ -2,7 +2,6 @@ import Autocomplete from "@mui/material/Autocomplete"
 import TextField from "@mui/material/TextField"
 import * as React from "react"
 import { forwardRef, ReactElement } from "react"
-import { MINUS } from "ts3dutils"
 import { PAPER_SIZES, PaperSize, PaperSizeFromDimensions } from "./common"
 
 export interface PaperAutocompleteProps<
@@ -32,10 +31,7 @@ export const PaperAutocomplete: PaperAutocomplete = forwardRef(
     let paperSize: PaperSize | null = null
     if (value) {
       const [a, b] = value
-      const [min, max] = a < b ? [a, b] : [b, a]
-      paperSize = PAPER_SIZES.find(
-        ([psWidth, psHeight]) => psWidth === min && psHeight === max,
-      ) ?? [min, max, "custom"]
+      paperSize = PaperSizeFromDimensions(a, b)
     }
     return (
       <Autocomplete

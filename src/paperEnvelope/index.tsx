@@ -128,6 +128,7 @@ export default (): ReactElement => {
             value={state.claspId}
             onChange={(e) => setPartialState({ claspId: e.target.value })}
             labelId="clasp-label"
+            label="Clasp"
           >
             {claspNames.map((n) => (
               <MenuItem value={n} key={n}>

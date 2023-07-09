@@ -1,5 +1,5 @@
 import clsx from "clsx"
-import { last } from "lodash"
+import last from "lodash/last"
 import React, { ReactElement, SVGAttributes } from "react"
 import seedrandom from "seedrandom"
 import {

@@ -1,9 +1,10 @@
+import sortBy from "lodash/sortBy"
 import * as React from "react"
 import { CSSProperties, ReactElement } from "react"
 import { SVGPathData } from "svg-pathdata"
 import { CommandA } from "svg-pathdata/lib/types"
 import { DEG } from "ts3dutils"
-import { INCH, PaperSize } from "../paperBox1/common"
+import { INCH, PaperSize, PaperSizeFromString } from "../paperBox1/common"
 import { Measure } from "../paperBox1/Measure"
 import claspsSvgString from "./clasps.inkscape.svg?raw"
 import * as path from "./svg"
@@ -12,36 +13,36 @@ const claspsSvg = new DOMParser().parseFromString(
   claspsSvgString,
   "image/svg+xml",
 ).documentElement
-console.log(claspsSvg)
-const claspGroups = Array.from(claspsSvg.children).filter(
-  (c) => c.tagName === "g" && c.id !== "guides",
-)
-const clasps = claspGroups.map((c) => {
-  const children = Array.from(c.children)
-  const name = c.getAttribute("inkscape:label")
-  function getPath(inkscapeLabel: string) {
-    const pathEl = children.find(
-      (c) =>
-        c.tagName === "path" &&
-        c.getAttribute("inkscape:label") === inkscapeLabel,
-    )!
-    if (pathEl?.getAttribute("transform")) {
-      console.error(name, pathEl)
-      throw new Error()
-    }
-    return pathEl?.getAttribute("d") ?? ""
-  }
 
-  return {
-    name: name,
-    bottomFold: getPath("bottomFold"),
-    bottomCut: getPath("bottomCut"),
-    topCut: getPath("topCut"),
-  }
-})
-export const claspNames = claspGroups.map(
-  (c) => c.getAttribute("inkscape:label")!,
+const clasps = sortBy(
+  Array.from(claspsSvg.children)
+    .filter((c) => c.tagName === "g" && c.id !== "guides")
+    .map((c) => {
+      const children = Array.from(c.children)
+      const name = c.getAttribute("inkscape:label")!
+      function getPath(inkscapeLabel: string) {
+        const pathEl = children.find(
+          (c) =>
+            c.tagName === "path" &&
+            c.getAttribute("inkscape:label") === inkscapeLabel,
+        )!
+        if (pathEl?.getAttribute("transform")) {
+          console.error(name, pathEl)
+          throw new Error()
+        }
+        return pathEl?.getAttribute("d") ?? ""
+      }
+
+      return {
+        name: name,
+        bottomFold: getPath("bottomFold"),
+        bottomCut: getPath("bottomCut"),
+        topCut: getPath("topCut"),
+      }
+    }),
+  (c) => c.name,
 )
+export const claspNames = clasps.map((c) => c.name)
 export function EnvelopeDimensions(
   width: number,
   height: number,
@@ -57,7 +58,8 @@ export function EnvelopeDimensions(
   // t is the y-distance from the top to where the diagonal cut at the bottom right starts.
   const t = Math.sin(45 * DEG) * 2 * envelopeHeight + d
   const envelopeWidth = Math.sin(45 * DEG) * (a - d - s) * 2
-  return { a, d, r2, h, s, t, envelopeWidth }
+  const foldedCenter = a / 2 - Math.SQRT1_2 * envelopeHeight
+  return { a, d, r2, h, s, t, envelopeWidth, foldedCenter }
 }
 export function EnvelopeSvg({
   paperSize,
@@ -78,7 +80,7 @@ export function EnvelopeSvg({
 
   const [width, height] = paperSize
 
-  const { a, d, r2, h, s, t } = EnvelopeDimensions(
+  const { a, d, r2, h, s, t, foldedCenter } = EnvelopeDimensions(
     width,
     height,
     overlap,
@@ -98,6 +100,9 @@ export function EnvelopeSvg({
     relative: false,
   })
 
+  const cutOffBottom = false
+  const claspScale = a / 210
+
   const outline = new SVGPathData([
     path.M(0, r),
     // top
@@ -111,12 +116,16 @@ export function EnvelopeSvg({
     path.L(a, s - h),
     cArc(r2, a - d, s),
     cArc(r2, a, s + h),
-    path.L(a, t - h),
     // bottom right cut
-    cArc(r2, a - d, t),
-    path.L(t, a - d),
+    ...(cutOffBottom
+      ? [
+          path.L(a, t - h),
+          cArc(r2, a - d, t),
+          path.L(t, a - d),
+          cArc(r2, t - h, a),
+        ]
+      : [path.L(a, a - r), cArc(r, a - r, a)]),
     // bottom
-    cArc(r2, t - h, a),
     path.L(s + h, a),
     cArc(r2, s, a - d),
     cArc(r2, s - h, a),
@@ -136,6 +145,9 @@ export function EnvelopeSvg({
     path.L(d, a - s),
     { type: SVGPathData.CLOSE_PATH },
   ]).encode()
+
+  const ref = PaperSizeFromString("A6")
+  const [refH, refW] = ref
 
   return (
     <svg
@@ -166,7 +178,7 @@ export function EnvelopeSvg({
       </defs>
       <style>
         {".valley {stroke-dasharray: 1,1;} "}
-        {".outline {stroke-dasharray: .1,1;} "}
+        {".outline "}
         {".mountain {stroke-dasharray: 10,2,1,1,1,2;} "}
       </style>
       <g clipPath="url(#page)">
@@ -174,20 +186,34 @@ export function EnvelopeSvg({
         {/* <rect width={100} height={height} fill="url(#glue)" stroke="none" />*/}
         {/*)}*/}
       </g>
-      <path d={outline} />
+      <path d={outline} className="outline" />
       <path d={valley} className="valley" />
       <path
         className="valley"
-        transform={`translate(${t} ${t}) rotate(135) translate(-24 -24)`}
+        transform={`translate(${a - foldedCenter} ${
+          a - foldedCenter
+        }) rotate(135) scale(${claspScale}) translate(-24 -24)`}
         d={clasp.bottomFold}
       />
       <path
-        transform={`translate(${t} ${t}) rotate(135) translate(-24 -24)`}
+        className="outline"
+        transform={`translate(${a - foldedCenter} ${
+          a - foldedCenter
+        }) rotate(135) scale(${claspScale}) translate(-24 -24)`}
         d={clasp.bottomCut}
       />
       <path
-        transform="translate(20 20) rotate(135) translate(-24 -24)"
+        className="outline"
+        transform={`translate(${foldedCenter} ${foldedCenter}) rotate(135) scale(${claspScale}) translate(-24 -24)`}
         d={clasp.topCut}
+      />
+      <rect
+        className="guide"
+        width={refW}
+        height={refH}
+        transform={`translate(${a / 2} ${a / 2}) rotate(-45) translate(${
+          -refW / 2
+        } ${-refH / 2})`}
       />
       <Measure from={[a - s, d]} to={[a - d, s]} />
       <Measure from={[d, a - s]} to={[a - s, d]} />
