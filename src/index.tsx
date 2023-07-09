@@ -36,6 +36,7 @@ const pages = [
   { title: "Circle Paper Box", module: "paperBox2" },
   { title: "Paper Envelope", module: "paperEnvelope" },
   { title: "Paper Arc Box", module: "paperArcBox" },
+  { title: "Paper Polygon Box", module: "paperPolygonBox" },
   { title: "Spirograph", module: "spirograph", hide: true },
   { title: "Tiles", module: "tiles", hide: true },
   { title: "SDFs", module: "sdfs", hide: true },

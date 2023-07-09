@@ -9,6 +9,10 @@ const config = (env: unknown, argv: any): Configuration => ({
   module: {
     rules: [
       {
+        resourceQuery: /raw/,
+        type: "asset/source",
+      },
+      {
         test: /\.tsx?$/,
         include: [path.resolve(__dirname, "src")],
         use: {
@@ -34,6 +38,7 @@ const config = (env: unknown, argv: any): Configuration => ({
         },
       },
       {
+        resourceQuery: { not: /raw/ },
         test: /\.(png|svg|jpg|jpeg|gif|ttf)$/i,
         type: "asset/resource",
       },

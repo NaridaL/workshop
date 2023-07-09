@@ -1,11 +1,7 @@
 import Card from "@mui/material/Card"
 import CardMedia from "@mui/material/CardMedia"
 import Divider from "@mui/material/Divider"
-import FormControl from "@mui/material/FormControl"
 import Grid from "@mui/material/Grid"
-import InputLabel from "@mui/material/InputLabel"
-import MenuItem from "@mui/material/MenuItem"
-import Select from "@mui/material/Select"
 import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
 import * as React from "react"
@@ -19,7 +15,7 @@ import {
 } from "../paperBox1/common"
 import { ExportButtons } from "../paperBox1/ExportButtons"
 import { PaperAutocomplete } from "../paperBox1/PaperAutocomplete"
-import { claspNames, EnvelopeDimensions, EnvelopeSvg } from "./EnvelopeSvg"
+import { EnvelopeDimensions, EnvelopeSvg } from "./EnvelopeSvg"
 
 export default (): ReactElement => {
   const [state, setState] = useHashState({
@@ -27,7 +23,6 @@ export default (): ReactElement => {
     envelopeHeight: 108,
     cornerRadius: 10,
     paperSize: PaperSizeToString(PAPER_SIZE_A4),
-    claspId: "Hexagon",
   })
   const setPartialState = useCallback(
     (update: Partial<typeof state>) => setState((s) => ({ ...s, ...update })),
@@ -122,20 +117,6 @@ export default (): ReactElement => {
           onChange={(e) => setPartialState({ overlap: +e.target.value })}
           label="Overlap"
         />
-        <FormControl variant="outlined" size="small">
-          <InputLabel id="clasp-label">Clasp</InputLabel>
-          <Select
-            value={state.claspId}
-            onChange={(e) => setPartialState({ claspId: e.target.value })}
-            labelId="clasp-label"
-          >
-            {claspNames.map((n) => (
-              <MenuItem value={n} key={n}>
-                {n}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
         <Divider />
         <ExportButtons
           baseFileName={`envelope-${paperSize[0]}-${state.envelopeHeight}-${state.overlap}`}
