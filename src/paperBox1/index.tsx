@@ -16,10 +16,10 @@ import { ReactElement, useCallback, useState } from "react"
 import { round10, TAU } from "ts3dutils"
 
 import { useHashState } from "../common/useHashState"
-import { PAPER_SIZE_A4, PaperSizeFromDimensions } from "./common"
 import { ExportButtons } from "./ExportButtons"
 import hexPrismBoxJpg from "./hexPrismBox.jpg"
 import { PaperAutocomplete } from "./PaperAutocomplete"
+import { PAPER_SIZE_A4, PaperSizeFromDimensions } from "./PaperSize"
 import { PrismBoxSvg } from "./PrismBoxSvg"
 
 export default (): ReactElement => {

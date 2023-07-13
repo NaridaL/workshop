@@ -2,8 +2,9 @@ import * as React from "react"
 import { CSSProperties, ReactElement, useContext } from "react"
 import { V } from "ts3dutils"
 
-import { dTpl, INCH, PaperSize } from "../paperBox1/common"
+import { dTpl, INCH } from "../paperBox1/common"
 import { Guide, Measure, SvgPrintContext } from "../paperBox1/Measure"
+import { PaperSize } from "../paperBox1/PaperSize"
 import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 
 // https://math.stackexchange.com/a/885965/230980

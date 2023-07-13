@@ -3,14 +3,16 @@ import * as React from "react"
 import { CSSProperties, ReactElement, useContext } from "react"
 import { SVGPathData } from "svg-pathdata"
 import { CommandA } from "svg-pathdata/lib/types"
-import { DEG } from "ts3dutils"
+import { DEG, round10 } from "ts3dutils"
+import { INCH } from "../paperBox1/common"
+import { Guide, Measure, SvgPrintContext } from "../paperBox1/Measure"
 import {
-  INCH,
   PAPER_SIZE_A4,
   PAPER_SIZES,
+  PAPER_SIZES_C,
   PaperSize,
-} from "../paperBox1/common"
-import { Guide, Measure, SvgPrintContext } from "../paperBox1/Measure"
+  PaperSizeFromDimensions,
+} from "../paperBox1/PaperSize"
 import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 import claspsSvgString from "./clasps.inkscape.svg?raw"
 import * as path from "./svg"
@@ -63,10 +65,29 @@ export function EnvelopeDimensions(
   const s = Math.sin(45 * DEG) * envelopeHeight + d
   // t is the y-distance from the top to where the diagonal cut at the bottom right starts.
   const t = Math.sin(45 * DEG) * 2 * envelopeHeight + d
-  const envelopeWidth = Math.sin(45 * DEG) * (a - d - s) * 2
+  const envelopeWidth = Math.SQRT2 * (a - overlap) - envelopeHeight
   const foldedCenter = a / 2 - Math.SQRT1_2 * envelopeHeight
   return { a, d, r2, h, s, t, envelopeWidth, foldedCenter }
 }
+
+export const presetsForOverlap = (overlap: number) =>
+  [
+    PAPER_SIZES_C[4],
+    PAPER_SIZES_C[5],
+    PAPER_SIZES_C[6],
+    PAPER_SIZES_C[7],
+    PAPER_SIZES_C[8],
+  ].map(([envelopeHeight, envelopeWidth, name]) => {
+    const a = Math.round(
+      (envelopeWidth + envelopeHeight) / Math.SQRT2 + overlap,
+    )
+    return {
+      envelopeHeight: envelopeHeight,
+      overlap: overlap,
+      paperSize: PaperSizeFromDimensions(a, a),
+      name: `${name} ${envelopeHeight}x${envelopeWidth}`,
+    }
+  })
 
 export function EnvelopeSvg({
   paperSize,
@@ -74,14 +95,14 @@ export function EnvelopeSvg({
   overlap,
   cornerRadius,
   style,
-  claspId = "Hex Slot",
+  claspIds,
 }: {
   envelopeHeight: number
   overlap: number
   cornerRadius: number
   style?: CSSProperties
   paperSize: PaperSize
-  claspId: string | undefined
+  claspIds: string[]
 }): ReactElement {
   const r = 10
 
@@ -93,7 +114,9 @@ export function EnvelopeSvg({
     overlap,
     envelopeHeight,
   )
-  const clasp = clasps.find((g) => g.name === claspId)!
+  const clasp = clasps.filter(
+    (g) => claspIds.includes("*") || claspIds.includes(g.name),
+  )!
 
   const cArc = (r: number, x: number, y: number): CommandA => ({
     type: SVGPathData.ARC,
@@ -172,21 +195,36 @@ export function EnvelopeSvg({
       className="adrian"
     >
       <SvgCommonDefs />
-      <path d={outline} className="outline" />
-      <path d={valley} className="valley" />
-      <g
-        transform={`translate(${a - foldedCenter} ${
-          a - foldedCenter
-        }) rotate(135) scale(${claspScale}) translate(-24 -24)`}
-      >
-        <path className="valley" d={clasp.bottomFold} />
-        <path className="outline" d={clasp.bottomCut} />
+      <g>
+        <path d={outline} className="outline" />
+        <path d={valley} className="valley" id="envelopeFold" />
       </g>
-      <path
-        className="outline"
-        transform={`translate(${foldedCenter} ${foldedCenter}) rotate(135) scale(${claspScale}) translate(-24 -24)`}
-        d={clasp.topCut}
-      />
+      {clasp.map((clasp) => (
+        <g id={`clasp-${clasp.name}`}>
+          <path
+            d={clasp.bottomCut}
+            className="outline"
+            transform={`translate(${a - foldedCenter} ${
+              a - foldedCenter
+            }) rotate(135) scale(${claspScale}) translate(-24 -24)`}
+          />
+          <path
+            d={clasp.topCut}
+            className="outline"
+            transform={`translate(${foldedCenter} ${foldedCenter}) rotate(135) scale(${claspScale}) translate(-24 -24)`}
+          />
+
+          <path
+            d={clasp.bottomFold}
+            className="valley"
+            transform={`translate(${a - foldedCenter} ${
+              a - foldedCenter
+            }) rotate(135) scale(${claspScale}) translate(-24 -24)`}
+            id="bottomFold"
+          />
+        </g>
+      ))}
+
       <Guide
         transform={`translate(${a / 2} ${a / 2}) rotate(-45) translate(${
           -refW / 2

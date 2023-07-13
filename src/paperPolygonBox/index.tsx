@@ -8,13 +8,13 @@ import * as React from "react"
 import { ReactElement, useCallback } from "react"
 import { round10 } from "ts3dutils"
 import { useHashState } from "../common/useHashState"
+import { ExportButtons } from "../paperBox1/ExportButtons"
+import { PaperAutocomplete } from "../paperBox1/PaperAutocomplete"
 import {
   PAPER_SIZE_A4,
   PaperSizeFromString,
   PaperSizeToString,
-} from "../paperBox1/common"
-import { ExportButtons } from "../paperBox1/ExportButtons"
-import { PaperAutocomplete } from "../paperBox1/PaperAutocomplete"
+} from "../paperBox1/PaperSize"
 import { EnvelopeDimensions, EnvelopeSvg } from "./EnvelopeSvg"
 
 export default (): ReactElement => {

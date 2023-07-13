@@ -1,6 +1,12 @@
 import debounce from "lodash/debounce"
 import mapValues from "lodash/mapValues"
 import { SetStateAction, useCallback, useEffect, useRef, useState } from "react"
+import {
+  PAPER_SIZE_A4,
+  PaperSize,
+  PaperSizeFromString,
+  PaperSizeToString,
+} from "../paperBox1/PaperSize"
 
 const parseHash = (hash: string): Record<string, string> => {
   return !hash
@@ -32,8 +38,15 @@ const objectToHash = (o: Record<string, string>): string => {
 const defaultDeserialize = (
   x: Record<string, string>,
 ): Record<string, unknown> =>
-  mapValues(x, (v) => {
-    if ("true" === v) {
+  mapValues(x, (v, key) => {
+    if ("paperSize" === key) {
+      try {
+        return PaperSizeFromString(v)
+      } catch (e) {
+        console.error(e)
+        return PAPER_SIZE_A4
+      }
+    } else if ("true" === v) {
       return true
     } else if ("false" === v) {
       return false
@@ -52,7 +65,9 @@ const defaultDeserialize = (
     }
   })
 const defaultSerialize = (x: Record<string, unknown>): Record<string, string> =>
-  mapValues(x, (v) => "" + v)
+  mapValues(x, (v, key) =>
+    key === "paperSize" ? PaperSizeToString(v as PaperSize) : "" + v,
+  )
 
 export function useHashState<S extends {}>(
   initialState: S | (() => S),

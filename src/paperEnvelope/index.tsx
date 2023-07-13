@@ -6,54 +6,56 @@ import Grid from "@mui/material/Grid"
 import InputLabel from "@mui/material/InputLabel"
 import MenuItem from "@mui/material/MenuItem"
 import Select from "@mui/material/Select"
-import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
 import * as React from "react"
-import { ReactElement, useCallback } from "react"
+import { ReactElement, useCallback, useMemo } from "react"
 import { round10 } from "ts3dutils"
 import { useHashState } from "../common/useHashState"
-import {
-  PAPER_SIZE_A4,
-  PaperSizeFromString,
-  PaperSizeToString,
-} from "../paperBox1/common"
 import { ExportButtons } from "../paperBox1/ExportButtons"
 import { PaperAutocomplete } from "../paperBox1/PaperAutocomplete"
-import { claspNames, EnvelopeDimensions, EnvelopeSvg } from "./EnvelopeSvg"
+import { PAPER_SIZE_A4 } from "../paperBox1/PaperSize"
+import {
+  claspNames,
+  EnvelopeDimensions,
+  EnvelopeSvg,
+  presetsForOverlap,
+} from "./EnvelopeSvg"
 
 export default (): ReactElement => {
   const [state, setState] = useHashState({
     overlap: 10,
     envelopeHeight: 118,
     cornerRadius: 10,
-    paperSize: PaperSizeToString(PAPER_SIZE_A4),
+    paperSize: PAPER_SIZE_A4,
     claspId: "Hexagon",
   })
   const setPartialState = useCallback(
     (update: Partial<typeof state>) => setState((s) => ({ ...s, ...update })),
     [setState],
   )
-  const paperSize = PaperSizeFromString(state.paperSize)
 
   const { envelopeWidth } = EnvelopeDimensions(
-    paperSize[0],
-    paperSize[1],
+    state.paperSize[0],
+    state.paperSize[1],
     state.overlap,
     state.envelopeHeight,
   )
 
-  const theme = useTheme()
+  const presets = useMemo(
+    () => presetsForOverlap(state.overlap),
+    [state.overlap],
+  )
 
   return (
     <Grid container style={{ width: "100%" }}>
-      <Grid item xs={12} md={10}>
+      <Grid item xs={12} md={10} padding={1}>
         <EnvelopeSvg
           {...state}
-          paperSize={paperSize}
+          claspIds={[state.claspId]}
+          paperSize={state.paperSize}
           style={{
             width: "100%",
             height: "100%",
-            margin: theme.spacing(1),
           }}
         />
       </Grid>
@@ -83,9 +85,9 @@ export default (): ReactElement => {
         </Card>
         <PaperAutocomplete
           label="Paper Size"
-          value={paperSize}
+          value={state.paperSize}
           disableClearance={true}
-          onChange={(v) => setPartialState({ paperSize: PaperSizeToString(v) })}
+          onChange={(v) => setPartialState({ paperSize: v })}
         />
         <TextField
           label="Envelope Height"
@@ -136,11 +138,48 @@ export default (): ReactElement => {
               </MenuItem>
             ))}
           </Select>
+        </FormControl>{" "}
+        <FormControl variant="outlined" size="small">
+          <InputLabel id="clasp-label">Preset</InputLabel>
+          <Select
+            value={
+              presets.find(
+                (x) =>
+                  x.envelopeHeight === state.envelopeHeight &&
+                  x.paperSize[0] === state.paperSize[0],
+              )?.name ?? ""
+            }
+            onChange={(e) => {
+              const matchingPreset = presets.find(
+                (p) => p.name === e.target.value,
+              )
+              matchingPreset &&
+                setPartialState({
+                  envelopeHeight: matchingPreset.envelopeHeight,
+                  overlap: matchingPreset.overlap,
+                  paperSize: matchingPreset.paperSize,
+                })
+            }}
+            labelId="clasp-label"
+            label="Preset"
+          >
+            {presets.map((p) => (
+              <MenuItem value={p.name} key={p.name}>
+                {p.name}
+              </MenuItem>
+            ))}
+          </Select>
         </FormControl>
         <Divider />
         <ExportButtons
-          baseFileName={`envelope-${paperSize[0]}-${state.envelopeHeight}-${state.overlap}`}
-          what={<EnvelopeSvg {...state} paperSize={paperSize} />}
+          baseFileName={`envelope-${state.paperSize[0]}-${state.envelopeHeight}-${state.overlap}-${state.claspId}`}
+          what={
+            <EnvelopeSvg
+              {...state}
+              paperSize={state.paperSize}
+              claspIds={[state.claspId]}
+            />
+          }
         />
       </Grid>
     </Grid>

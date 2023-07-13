@@ -2,8 +2,9 @@ import * as React from "react"
 import { CSSProperties, ReactElement, useContext } from "react"
 import { SVGPathData } from "svg-pathdata"
 import { CommandA } from "svg-pathdata/lib/types"
-import { INCH, PaperSize } from "../paperBox1/common"
+import { INCH } from "../paperBox1/common"
 import { Measure, SvgPrintContext } from "../paperBox1/Measure"
+import { PaperSize } from "../paperBox1/PaperSize"
 import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 
 export function ArcBoxSvg({

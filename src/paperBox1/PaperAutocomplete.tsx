@@ -2,7 +2,8 @@ import Autocomplete from "@mui/material/Autocomplete"
 import TextField from "@mui/material/TextField"
 import * as React from "react"
 import { forwardRef, ReactElement } from "react"
-import { PAPER_SIZES, PaperSize, PaperSizeFromDimensions } from "./common"
+import { PAPER_SIZES, PaperSizeFromDimensions } from "./PaperSize"
+import { PaperSize } from "./PaperSize"
 
 export interface PaperAutocompleteProps<
   DisableClearance extends boolean | undefined,
@@ -50,10 +51,14 @@ export const PaperAutocomplete: PaperAutocomplete = forwardRef(
                 onChange(null!)
               }
             } else {
-              const match = /(\d+(?:\.\d+)?).*?(\d+(?:\.\d+)?)/.exec(newValue)
+              const match = /(\d+(?:\.\d+)?)\D*?(\d+(?:\.\d+)?)?\D*$/.exec(
+                newValue,
+              )
               if (match) {
                 const [, widthStr, heightStr] = match
-                onChange(PaperSizeFromDimensions(+widthStr, +heightStr))
+                onChange(
+                  PaperSizeFromDimensions(+widthStr, +(heightStr || widthStr)),
+                )
               }
             }
           } else {
@@ -68,4 +73,4 @@ export const PaperAutocomplete: PaperAutocomplete = forwardRef(
       />
     )
   },
-)
+) as PaperAutocomplete

@@ -3,8 +3,9 @@ import { CSSProperties, ReactElement } from "react"
 import { SVGPathData } from "svg-pathdata"
 import { CommandA } from "svg-pathdata/lib/types"
 import { DEG } from "ts3dutils"
-import { INCH, PaperSize } from "../paperBox1/common"
+import { INCH } from "../paperBox1/common"
 import { Measure } from "../paperBox1/Measure"
+import { PaperSize } from "../paperBox1/PaperSize"
 import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 
 export function EnvelopeDimensions(

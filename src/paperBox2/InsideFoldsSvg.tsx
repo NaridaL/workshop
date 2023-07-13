@@ -4,13 +4,13 @@ import { newtonIterate1d, TAU, V, V3 } from "ts3dutils"
 
 import {
   dTpl,
-  PaperSize,
   radiusFromCenterToSide,
   RegularPolygon,
   RotStep,
 } from "../paperBox1/common"
 import { Measure, SvgPrintContext } from "../paperBox1/Measure"
 import { MeasureAngle } from "../paperBox1/MeasureAngle"
+import { PaperSize } from "../paperBox1/PaperSize"
 import { Common } from "./Common"
 
 // https://math.stackexchange.com/a/885965/230980
