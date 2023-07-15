@@ -5,6 +5,7 @@ import { CommandA } from "svg-pathdata/lib/types"
 import { INCH } from "../paperBox1/common"
 import { Measure, SvgPrintContext } from "../paperBox1/Measure"
 import { PaperSize } from "../paperBox1/PaperSize"
+import * as path from "../paperBox1/svg"
 import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 
 export function ArcBoxSvg({
@@ -76,7 +77,7 @@ export function ArcBoxSvg({
 
   const glue = new SVGPathData([
     // tab
-    { type: SVGPathData.MOVE_TO, x: 2 * w, y: rise, relative: false },
+    path.M(2 * w, rise),
     cArc(radius, 2 * w + tabWidth, rise + tabDescent, 0),
     {
       type: SVGPathData.LINE_TO,
@@ -85,7 +86,7 @@ export function ArcBoxSvg({
       relative: false,
     },
     cArc(radius, 2 * w, h + rise, 0),
-    { type: SVGPathData.CLOSE_PATH },
+    path.Z(),
   ]).encode()
 
   const fold = new SVGPathData([
@@ -100,7 +101,7 @@ export function ArcBoxSvg({
     },
     cArc(radius, w, h + rise, 0),
     cArc(radius, 0, h + rise, 0),
-    { type: SVGPathData.MOVE_TO, x: w, y: rise, relative: false },
+    path.M(w, rise),
     { type: SVGPathData.LINE_TO, x: w, y: h + rise, relative: false },
   ]).encode()
 
@@ -124,7 +125,7 @@ export function ArcBoxSvg({
         </clipPath>
       </defs>
       <SvgCommonDefs />
-      {!print && <path d={glue} fill="url(#glue)" stroke="none" />}
+      {!print && <path d={glue} className="glue" />}
       <path d={outline} />
       <path d={fold} className="valley" />
       <g>

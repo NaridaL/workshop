@@ -48,11 +48,6 @@ export function InsideFoldsSvg(props: {
   const creaseAngle = TAU / sides / 2
   const innerAngleToC = lookUpAngle(radius, creaseAngle, basePolyRadius)
   const print = useContext(SvgPrintContext)
-  function highlight(color: string) {
-    // The colors mainly serve to make the code more readable, i.e. you know
-    // which code makes which line. When printing, no colors.
-    return print ? {} : { stroke: color }
-  }
 
   const redStartPoint = V(basePolyRadius, 0).plus(
     V3.polar(topRadius - baseRadius, creaseAngle),
@@ -62,6 +57,8 @@ export function InsideFoldsSvg(props: {
   const redEndpoint = redLine(
     newtonIterate1d((t) => redLine(t).length() - radius, 1, 4),
   )
+  // The colors mainly serve to make the code more readable, i.e. you know
+  // which code makes which line. When printing, no colors.
   return (
     <Common {...props}>
       <g className="fold">
@@ -107,8 +104,7 @@ export function InsideFoldsSvg(props: {
             d={dTpl`
                 M${basePolyRadius},0
                 H${radius}`}
-            className="mountain"
-            style={highlight("green")}
+            className="mountain green-stroke"
           />
           <path
             d={dTpl`
@@ -116,15 +112,13 @@ export function InsideFoldsSvg(props: {
                 L${V3.polar(radius, innerAngleToC)}
                 M${basePolyRadius},0
                 L${redStartPoint}`}
-            className="valley"
-            style={highlight("blue")}
+            className="valley blue-stroke"
           />
           <path
             d={dTpl`
                 M${redStartPoint}
                 L${V3.polar(radius, -innerAngleToC)}`}
-            className="mountain"
-            style={highlight("blue")}
+            className="mountain blue-stroke"
           />
           <path
             d={dTpl`
@@ -132,8 +126,7 @@ export function InsideFoldsSvg(props: {
                 L${V3.polar(basePolyRadius, -TAU / sides).plus(
                   V3.polar(topRadius - baseRadius, -TAU / sides / 2),
                 )}`}
-            className="valley"
-            style={highlight("hotpink")}
+            className="valley pink-stroke"
           />
           <path
             d={dTpl`
@@ -141,15 +134,13 @@ export function InsideFoldsSvg(props: {
                   V3.polar(topRadius - baseRadius, -TAU / sides / 2),
                 )}
                 L${V3.polar(topPolyRadius, -TAU / sides)}`}
-            className="mountain"
-            style={highlight("orange")}
+            className="mountain orange-stroke"
           />
           <path
             d={dTpl`
                 M${redStartPoint}
                 L${redEndpoint}`}
-            className="valley"
-            style={highlight("red")}
+            className="valley red-stroke"
           />
         </RotStep>
       </g>

@@ -86,7 +86,8 @@ export function useHashState<S extends {}>(
     const mergedState = deserialize(
       Object.assign(serialize(state), parseHash(document.location.hash)),
     ) as S
-    history.pushState(
+    console.log("replaceState")
+    history.replaceState(
       undefined,
       document.title,
       objectToHash(serialize(mergedState)),
@@ -96,7 +97,9 @@ export function useHashState<S extends {}>(
   }, [deserialize, initialState, serialize])
   const [state, setState] = useState<S>(createInitialState)
   const updateHashRef = useRef<(newState: S) => void>()
+  useEffect(() => updateHashRef.current?.(state), [state])
   if (!updateHashRef.current) {
+    console.log("pushState")
     updateHashRef.current = debounce(function (newState: S) {
       history.pushState(
         undefined,
@@ -105,7 +108,6 @@ export function useHashState<S extends {}>(
       )
     }, wait)
   }
-  useEffect(() => updateHashRef.current!(state), [state])
 
   useEffect(() => {
     const onHashChange: (e: HashChangeEvent) => void = () => {

@@ -31,14 +31,9 @@ export const OutsideFoldsSvg = (props: {
   // the green, imagine an isosceles triangle with red as the base
   const d = (topRadius - baseRadius) / 2 / Math.cos(creaseAngle)
   const lastPolyAngle = lookUpAngle(radius, 2 * creaseAngle, basePolyRadius + d)
-  const print = useContext(SvgPrintContext)
 
-  function stroke(color: string) {
-    // The colors mainly serve to make the code more readable, i.e. you
-    // know which code makes which line. When printing, no colors.
-    return print ? {} : { stroke: color }
-  }
-
+  // The colors mainly serve to make the code more readable, i.e. you
+  // know which code makes which line. When printing, no colors.
   const blueStart = V(basePolyRadius, 0).plus(
     V3.polar(topRadius - baseRadius, -creaseAngle),
   )
@@ -56,7 +51,7 @@ export const OutsideFoldsSvg = (props: {
           sides={sides}
           className="valley"
         />
-        <circle r={radius} className="outline" />
+        <circle r={radius} className="cut" />
         <Measure
           offset={-0.5}
           from={[0, 0]}
@@ -87,8 +82,7 @@ export const OutsideFoldsSvg = (props: {
                 L${V(basePolyRadius, 0).plus(
                   V3.polar(topRadius - baseRadius, -creaseAngle),
                 )}`}
-            className="mountain"
-            style={stroke("red")}
+            className="mountain red-stroke"
           />
           <path
             d={dTpl`
@@ -96,8 +90,7 @@ export const OutsideFoldsSvg = (props: {
                 L${V(basePolyRadius, 0).plus(
                   V3.polar(topRadius - baseRadius, -creaseAngle),
                 )}`}
-            className="mountain"
-            style={stroke("orange")}
+            className="mountain orange-stroke"
           />
           <path
             d={dTpl`
@@ -105,8 +98,7 @@ export const OutsideFoldsSvg = (props: {
                   V3.polar(topRadius - baseRadius, -creaseAngle),
                 )}
                 L${V3.polar(topPolyRadius, -TAU / sides)}`}
-            className="valley"
-            style={stroke("orange")}
+            className="valley orange-stroke"
           />
           <path
             d={dTpl`
@@ -114,8 +106,7 @@ export const OutsideFoldsSvg = (props: {
                   V3.polar(topRadius - baseRadius, -creaseAngle),
                 )}
                 L${blueEndPoint}`}
-            className="mountain"
-            style={stroke("blue")}
+            className="mountain blue-stroke"
           />
           <path
             d={dTpl`
@@ -124,23 +115,21 @@ export const OutsideFoldsSvg = (props: {
               radius,
               -TAU / sides,
             )}`}
-            className="outline"
+            className="cut"
           />
 
           <path
             d={dTpl`
                 M${V(basePolyRadius, 0)}
                 H${radius}`}
-            className="valley"
-            style={stroke("green")}
+            className="valley green-stroke"
           />
           {paperSize && (
             <path
               d={dTpl`
                 M0,0
                 H${baseRadius / 2}`}
-              className="valley"
-              style={stroke("purple")}
+              className="valley pink"
             />
           )}
         </RotStep>

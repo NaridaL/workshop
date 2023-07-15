@@ -69,11 +69,13 @@ export function RotStep({
     <>
       <g id={id}>{children}</g>
       {arrayRange(0, count - 1).map((i) => (
-        <use
-          key={i}
-          xlinkHref={"#" + id}
+        <g
+          id={`${id}-${i}`}
+          key={`${id}-${i}`}
           transform={`rotate(${(i + 1) * stepDeg} 0 0)`}
-        />
+        >
+          {children}
+        </g>
       ))}
     </>
   )

@@ -9,8 +9,10 @@ import {
   INCH,
   radiusFromSideWidth,
 } from "./common"
-import { Measure, SvgPrintContext } from "./Measure"
+import { Guide, Measure, SvgPrintContext } from "./Measure"
 import { MeasureAngle } from "./MeasureAngle"
+import * as path from "./svg"
+import { SvgCommonDefs } from "./SvgCommonDefs"
 
 export function PrismBoxSvg({
   height,
@@ -96,32 +98,13 @@ export function PrismBoxSvg({
   const mountain = encodeSVGPath([
     // verts in bottom lip
     ...arrayRange(0, sides + 1).flatMap((i) => [
-      {
-        type: SVGPathData.MOVE_TO,
-        relative: false,
-        x: i * sideWidth,
-        y: height - bottomLip,
-      },
-      {
-        type: SVGPathData.LINE_TO,
-        relative: true,
-        x: Math.sin(theta) * bottomLip,
-        y: bottomLip,
-      },
+      path.M(i * sideWidth, height - bottomLip),
+      path.l(Math.sin(theta) * bottomLip, bottomLip),
     ]),
     // verts in top lip
     ...arrayRange(0, sides).flatMap((i) => [
-      {
-        type: SVGPathData.MOVE_TO,
-        relative: false,
-        x: (i + 1) * sideWidth,
-        y: 0,
-      },
-      {
-        type: SVGPathData.VERT_LINE_TO,
-        relative: false,
-        y: topLip,
-      },
+      path.M((i + 1) * sideWidth, 0),
+      path.V(topLip),
     ]),
   ])
   const boxTop = -boxHeight - 10 - radius
@@ -144,15 +127,8 @@ export function PrismBoxSvg({
       viewBox={svgViewBox.join(" ")}
       className="adrian"
     >
+      <SvgCommonDefs />
       <defs>
-        <pattern id="glue" patternUnits="userSpaceOnUse" width="4" height="4">
-          <path
-            d="M-1,1 l2,-2
-             M0,4 l4,-4
-             M3,5 l2,-2"
-            style={{ stroke: "#eee", strokeWidth: 1 }}
-          />
-        </pattern>
         <clipPath id="page">
           <rect width={width} height={height} />
         </clipPath>
@@ -160,12 +136,7 @@ export function PrismBoxSvg({
 
       <g clipPath="url(#page)">
         {!print && (
-          <rect
-            width={rightTabWidth}
-            height={height}
-            fill="url(#glue)"
-            stroke="none"
-          />
+          <rect width={rightTabWidth} height={height} className="glue" />
         )}
         <rect width={width} height={height} />
         <path d={valley} style={{ strokeDasharray: "1,1" }} />
@@ -241,84 +212,68 @@ export function PrismBoxSvg({
       >
         {fmtdeg(creaseAngle)}
       </MeasureAngle>
-      {!print && (
-        <g
-          transform={`translate(200, ${boxHeight * 2})`}
-          style={{ stroke: "blue" }}
+      <Guide transform={`translate(200, ${boxHeight * 2})`}>
+        <rect
+          transform="translate(0, -0)"
+          x={-centerToSide}
+          y={-boxHeight - 10 - radius}
+          width={boxWidth}
+          height={boxHeight}
+          style={{ fill: "none" }}
+        />
+        {/* verts */}
+        <path
+          d={`${arrayRange(2, sides / 2)
+            .map((i) => {
+              const p = V3.polar(
+                radius,
+                (TAU / sides) * i + (Math.PI - TAU / sides / 2),
+              )
+              return "M" + p.x + "," + boxTop + " v" + boxHeight
+            })
+            .join(" ")} `}
+        />
+        <Measure
+          from={[-centerToSide, boxTop]}
+          to={[-centerToSide, boxTop + boxHeight]}
         >
-          <rect
-            transform="translate(0, -0)"
-            x={-centerToSide}
-            y={-boxHeight - 10 - radius}
-            width={boxWidth}
-            height={boxHeight}
-          />
-          {/* verts */}
-          <path
-            d={`${arrayRange(2, sides / 2)
-              .map((i) => {
-                const p = V3.polar(
-                  radius,
-                  (TAU / sides) * i + (Math.PI - TAU / sides / 2),
-                )
-                return "M" + p.x + "," + boxTop + " v" + boxHeight
-              })
-              .join(" ")} `}
-          />
-          <Measure
-            from={[-centerToSide, boxTop]}
-            to={[-centerToSide, boxTop + boxHeight]}
-          >
-            {"" + round10(boxHeight, -1)}
-          </Measure>
-          <Measure
-            from={[-centerToSide, boxTop + boxHeight]}
-            to={[-centerToSide + boxWidth, boxTop + boxHeight]}
-          >
-            {"" + round10(boxWidth, -1)}
-          </Measure>
-          {/* polygon base */}
-          <path
-            d={`${arrayRange(0, sides)
-              .map((i) => {
-                const p = V3.polar(
-                  radius,
-                  (TAU / sides) * i + (Math.PI - TAU / sides / 2),
-                )
-                return (0 === i ? "M" : "L") + p.x + "," + p.y
-              })
-              .join(" ")} Z`}
-          />
-          <path
-            d={encodeSVGPath([
-              ...arrayRange(0, sides).flatMap((i) => {
-                const p = V3.polar(
-                  radius,
-                  (TAU / sides) * i + (Math.PI - TAU / sides / 2),
-                )
-                const r = V3.polar(
-                  bottomLip / Math.cos(creaseAngle + theta),
-                  (TAU / sides) * i + -TAU / sides / 2 + theta,
-                )
-                return [
-                  {
-                    type: SVGPathData.MOVE_TO,
-                    relative: false,
-                    x: p.x,
-                    y: p.y,
-                  },
-                  {
-                    type: SVGPathData.LINE_TO,
-                    relative: true,
-                    x: r.x,
-                    y: r.y,
-                  },
-                ]
-              }),
-            ])}
-          />
-        </g>
-      )}
+          {"" + round10(boxHeight, -1)}
+        </Measure>
+        <Measure
+          from={[-centerToSide, boxTop + boxHeight]}
+          to={[-centerToSide + boxWidth, boxTop + boxHeight]}
+        >
+          {"" + round10(boxWidth, -1)}
+        </Measure>
+        {/* polygon base */}
+        <path
+          d={`${arrayRange(0, sides)
+            .map((i) => {
+              const p = V3.polar(
+                radius,
+                (TAU / sides) * i + (Math.PI - TAU / sides / 2),
+              )
+              return (0 === i ? "M" : "L") + p.x + "," + p.y
+            })
+            .join(" ")} Z`}
+          style={{ fill: "none" }}
+        />
+        <path
+          d={encodeSVGPath([
+            ...arrayRange(0, sides).flatMap((i) => {
+              const p = V3.polar(
+                radius,
+                (TAU / sides) * i + (Math.PI - TAU / sides / 2),
+              )
+              const r = V3.polar(
+                bottomLip / Math.cos(creaseAngle + theta),
+                (TAU / sides) * i + -TAU / sides / 2 + theta,
+              )
+              return [path.M(p.x, p.y), path.l(r.x, r.y)]
+            }),
+          ])}
+        />
+      </Guide>
     </svg>
   )
 }

@@ -13,9 +13,9 @@ import {
   PaperSize,
   PaperSizeFromDimensions,
 } from "../paperBox1/PaperSize"
+import * as path from "../paperBox1/svg"
 import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 import claspsSvgString from "./clasps.inkscape.svg?raw"
-import * as path from "./svg"
 
 const claspsSvg = new DOMParser().parseFromString(
   claspsSvgString,
@@ -36,7 +36,7 @@ const clasps = sortBy(
         )!
         if (pathEl?.getAttribute("transform")) {
           console.error(name, pathEl)
-          throw new Error()
+          throw new Error(`Can't find path ${inkscapeLabel} in ${name}!`)
         }
         return pathEl?.getAttribute("d") ?? ""
       }
@@ -168,12 +168,21 @@ export function EnvelopeSvg({
     path.Z(),
   ]).encode()
 
+  const glue = new SVGPathData([
+    path.M(a - 2 * d, s + h),
+    cArc(r2, a - d, s),
+    cArc(r2, a, s + h),
+    path.L(a, 2 * s),
+    cArc(r2, a - 2 * d, 2 * s - h),
+    path.Z(),
+  ]).encode()
+
   const valley = new SVGPathData([
     path.M(a - s, d),
     path.L(a - d, s),
     path.L(s, a - d),
     path.L(d, a - s),
-    { type: SVGPathData.CLOSE_PATH },
+    path.Z(),
   ]).encode()
 
   const ref = PAPER_SIZES.find(([w, _h]) => w < envelopeHeight) ?? PAPER_SIZE_A4
@@ -196,21 +205,21 @@ export function EnvelopeSvg({
     >
       <SvgCommonDefs />
       <g>
-        <path d={outline} className="outline" />
+        <path d={outline} className="cut" />
         <path d={valley} className="valley" id="envelopeFold" />
       </g>
       {clasp.map((clasp) => (
         <g id={`clasp-${clasp.name}`}>
           <path
             d={clasp.bottomCut}
-            className="outline"
+            className="cut"
             transform={`translate(${a - foldedCenter} ${
               a - foldedCenter
             }) rotate(135) scale(${claspScale}) translate(-24 -24)`}
           />
           <path
             d={clasp.topCut}
-            className="outline"
+            className="cut"
             transform={`translate(${foldedCenter} ${foldedCenter}) rotate(135) scale(${claspScale}) translate(-24 -24)`}
           />
 
@@ -234,6 +243,10 @@ export function EnvelopeSvg({
           {refName}
         </text>
         <rect width={refW} height={refH} style={{ fill: "none" }} />
+      </Guide>
+      <Guide>
+        <path d={glue} className="glue" />
+        <path d={glue} className="glue" transform="matrix(0 1 1 0 0 0)" />
       </Guide>
       <Measure from={[a - s, d]} to={[a - d, s]} />
       <Measure from={[d, a - s]} to={[a - s, d]} />

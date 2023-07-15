@@ -23,13 +23,12 @@ export default (): ReactElement => {
     radius: 80,
     height: 114,
     tabWidth: 12,
-    paperSize: PaperSizeToString(PAPER_SIZE_A4),
+    paperSize: PAPER_SIZE_A4,
   })
   const setPartialState = useCallback(
     (update: Partial<typeof state>) => setState((s) => ({ ...s, ...update })),
     [setState],
   )
-  const paperSize = PaperSizeFromString(state.paperSize)
 
   const theme = useTheme()
 
@@ -38,7 +37,7 @@ export default (): ReactElement => {
       <Grid item xs={12} md={10}>
         <ArcBoxSvg
           {...state}
-          paperSize={paperSize}
+          paperSize={state.paperSize}
           style={{
             width: "100%",
             height: "100%",
@@ -72,9 +71,9 @@ export default (): ReactElement => {
         </Card>
         <PaperAutocomplete
           label="Paper Size"
-          value={paperSize}
+          value={state.paperSize}
           disableClearance={true}
-          onChange={(v) => setPartialState({ paperSize: PaperSizeToString(v) })}
+          onChange={(v) => setPartialState({ paperSize: v })}
         />
         <TextField
           label="Radius"
@@ -115,7 +114,7 @@ export default (): ReactElement => {
         <Divider />
         <ExportButtons
           baseFileName={`arcBox-${state.width}-${state.height}-${state.radius}-${state.tabWidth}`}
-          what={<ArcBoxSvg {...state} paperSize={paperSize} />}
+          what={<ArcBoxSvg {...state} paperSize={state.paperSize} />}
         />
       </Grid>
     </Grid>

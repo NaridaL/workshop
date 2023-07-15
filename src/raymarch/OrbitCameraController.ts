@@ -8,6 +8,31 @@ const ACTIONS = ["zoomIn", "zoomOut", "left", "right", "up", "down"] as const
  * You can't use the keyboard events directly to move the camera, as they are
  * not fired often enough. Instead, we track which keys are down and tick()
  * should be called in the render loop.
+ *
+ * You need to make a DOM element "focusable" for the key events to work.
+ *
+ * Example to use this in a react-controlled component:
+ * ```js
+ * const [lookAt, setLookAt] = useState(M4.identity)
+ * const svgRef = useRef<SVGSVGElement>()
+ * useEffect(() => {
+ *   const camController = new OrbitCameraController((v) =>
+ *     setLookAt(OrbitCameraController.getLookAt(v)),
+ *   )
+ *   camController.setState([0, 0.1, 200])
+ *   camController.registerListeners(svgRef.current)
+ *   let cancel = false
+ *   function tick() {
+ *     camController!.tick()
+ *     if (!cancel) requestAnimationFrame(tick)
+ *   }
+ *   requestAnimationFrame(tick)
+ *   return () => {
+ *     cancel = true
+ *     camController?.unregisterListeners()
+ *   }
+ * }, [])
+ * ```
  */
 export class OrbitCameraController {
   private lastPos = V3.O
@@ -27,7 +52,7 @@ export class OrbitCameraController {
   private dist = 10
 
   constructor(
-    public readonly onChange?: (newState: OrbitCameraState) => void,
+    public readonly onCameraChange?: (newState: OrbitCameraState) => void,
     private readonly keys = {
       zoomIn: "w",
       zoomOut: "s",
@@ -39,7 +64,6 @@ export class OrbitCameraController {
   ) {}
 
   setState = (m: M4 | OrbitCameraState): void => {
-    console.log("setStaet")
     ;[this.udRot, this.rot, this.dist] =
       OrbitCameraController.toOrbitCameraState(m)
   }
@@ -99,7 +123,7 @@ export class OrbitCameraController {
       this.dist += dDist
       this.rot += dRot
       this.udRot = newUDRot
-      this.onChange?.(this.ss)
+      this.onCameraChange?.(this.ss)
     }
   }
 
@@ -117,7 +141,7 @@ export class OrbitCameraController {
       if (newUDRot !== this.udRot || dRot !== 0) {
         this.udRot = newUDRot
         this.rot += dRot
-        this.onChange?.(this.ss)
+        this.onCameraChange?.(this.ss)
         e.stopImmediatePropagation()
         e.preventDefault()
       }
@@ -131,7 +155,7 @@ export class OrbitCameraController {
       this.dist = newDist
       e.stopImmediatePropagation()
       e.preventDefault()
-      this.onChange?.(this.ss)
+      this.onCameraChange?.(this.ss)
     }
   }
 

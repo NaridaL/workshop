@@ -62,28 +62,6 @@ const appGlobalStyles = (
       "#root": {
         backgroundColor: theme.palette.background.default,
       },
-
-      "svg.adrian": {
-        "*": {
-          stroke: theme.palette.text.primary,
-        },
-        text: {
-          stroke: "none",
-          fill: theme.palette.text.primary,
-        },
-        ".measure": {
-          "*": {
-            stroke: theme.palette.primary.main,
-            fill: theme.palette.primary.main,
-          },
-        },
-        ".guide": {
-          "&, *": {
-            stroke: theme.palette.secondary.main,
-            fill: theme.palette.secondary.main,
-          },
-        },
-      },
     })}
   />
 )
@@ -98,7 +76,14 @@ const ThemedApp = () => {
     () =>
       createTheme({
         palette: {
-          mode: prefersDarkMode ? "dark" : "light",
+          // mode: prefersDarkMode ? "dark" : "light",
+          // mode: "dark",
+          primary: {
+            main: "#fe5f55",
+          },
+          secondary: {
+            main: "#f0b67f",
+          },
           // primary: { main: "#F26430" },
           // secondary: { main: "#685369" },
           // primary: { main: "#840032" },
