@@ -2,7 +2,6 @@ import * as React from "react"
 import { CSSProperties, ReactElement, useContext } from "react"
 import { SVGPathData } from "svg-pathdata"
 import { CommandA } from "svg-pathdata/lib/types"
-import { INCH } from "../paperBox1/common"
 import { Measure, SvgPrintContext } from "../paperBox1/Measure"
 import { PaperSize } from "../paperBox1/PaperSize"
 import * as path from "../paperBox1/svg"
@@ -109,9 +108,6 @@ export function ArcBoxSvg({
     <svg
       xmlns="http://www.w3.org/2000/svg"
       style={{
-        fill: "none",
-        stroke: "#123456",
-        strokeWidth: (2 * INCH) / 300,
         ...style,
       }}
       width={width + "mm"}
@@ -126,7 +122,7 @@ export function ArcBoxSvg({
       </defs>
       <SvgCommonDefs />
       {!print && <path d={glue} className="glue" />}
-      <path d={outline} />
+      <path d={outline} className="cut" />
       <path d={fold} className="valley" />
       <g>
         <Measure from={[w / 2, 0]} to={[w / 2, h + 2 * rise]} offset={-0.5} />
@@ -136,6 +132,7 @@ export function ArcBoxSvg({
           from={[1.5 * w, radius]}
           to={[2 * w, rise]}
           offset={-0.5}
+          R
           hideRight={true}
         />
       </g>

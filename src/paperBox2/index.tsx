@@ -138,7 +138,7 @@ export default (): ReactElement => {
           label="Sides"
         />
         {state.variant === "inside" && topOverlap > 0 && (
-          <Alert severity="warning">
+          <Alert severity="error">
             For the inside folds variant, you want no (or even negative) overlap
             at the top.
           </Alert>

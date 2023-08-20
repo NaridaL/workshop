@@ -1,10 +1,9 @@
 import * as React from "react"
 import { CSSProperties, ReactElement, useContext } from "react"
 import { V } from "ts3dutils"
-
-import { dTpl, INCH } from "../paperBox1/common"
 import { Guide, Measure, SvgPrintContext } from "../paperBox1/Measure"
 import { PaperSize } from "../paperBox1/PaperSize"
+import { encode, L, M } from "../paperBox1/svg"
 import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 
 // https://math.stackexchange.com/a/885965/230980
@@ -48,12 +47,7 @@ export function Common({
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      style={{
-        fill: "none",
-        stroke: "#123456",
-        strokeWidth: (2 * INCH) / 300,
-        ...style,
-      }}
+      style={style}
       width={svgViewBox[2] + "mm"}
       height={svgViewBox[3] + "mm"}
       viewBox={svgViewBox.join(" ")}
@@ -63,14 +57,14 @@ export function Common({
       <Guide transform="translate(-20 -20) rotate(180)">
         <path
           style={{ fill: "none" }}
-          d={dTpl`
-          M${V(baseRadius - topLip, boxHeight * 0.99)}
-          L${V(baseRadius, boxHeight)}
-          L${V(baseRadius, 0)}
-          L${V(-baseRadius, 0)}
-          L${V(-baseRadius, boxHeight)}
-          L${V(topLip - baseRadius, boxHeight * 1.01)}
-          `}
+          d={encode(
+            M(V(baseRadius - topLip, boxHeight * 0.99)),
+            L(V(baseRadius, boxHeight)),
+            L(V(baseRadius, 0)),
+            L(V(-baseRadius, 0)),
+            L(V(-baseRadius, boxHeight)),
+            L(V(topLip - baseRadius, boxHeight * 1.01)),
+          )}
         />
         <Measure from={V(baseRadius, 0)} to={V(-baseRadius, 0)} />
         <Measure from={V(baseRadius, boxHeight)} to={V(baseRadius, 0)} />

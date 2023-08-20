@@ -45,6 +45,11 @@ export const SvgCommonDefs = () => {
         </pattern>
       </defs>
       <style>{`
+      .adrian * {
+        stroke: black;
+        stroke-width: .05mm;
+        fill: none;
+      }
       .mountain, .mountain * { stroke-dasharray: 10,2,1,1,1,2; }
       .valley, .valley * { stroke-dasharray: 1,1; }
       .cut, .cut * { stroke: 1; }

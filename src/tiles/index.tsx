@@ -73,7 +73,6 @@ const tilesStyles = ({
         return prev
       }, {}),
       ".svgg": {
-        fill: "none",
         // strokeDasharray: "120 120",
         // strokeDashoffset: 120,
         "& > *": {

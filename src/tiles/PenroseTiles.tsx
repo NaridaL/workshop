@@ -14,7 +14,8 @@ import {
   V,
   V3,
 } from "ts3dutils"
-import { dTpl, sideWidthFromCenterToSide } from "../paperBox1/common"
+import { sideWidthFromCenterToSide } from "../paperBox1/common"
+import { A, encode, L, M, Z } from "../paperBox1/svg"
 
 const COS18 = Math.cos(18 * DEG)
 const SIN18 = Math.sin(18 * DEG)
@@ -38,10 +39,13 @@ function IrregularPolygon({
       {...props}
       style={{ animation: "inherit" }}
       className="c1 s2"
-      d={dTpl`M${extraPoint}${cornersDeg.map(
-        ([r, angle], i) =>
-          (i === 0 ? "L" : "L") + dTpl`${V3.polar(r, angle * DEG)}`,
-      )}Z`}
+      d={encode(
+        M(extraPoint),
+        ...cornersDeg.map(([r, angle], i) =>
+          (i === 0 ? L : L)(V3.polar(r, angle * DEG)),
+        ),
+        Z(),
+      )}
     />
   )
 }
@@ -205,12 +209,12 @@ export function Penrose({
               <path
                 style={{ animation: "inherit", stroke: "red" }}
                 className=""
-                d={dTpl`M${r0}A0.2 0.2  0 0 0 ${r1}`}
+                d={encode(M(r0), A(0.2, 0.2, 0, 0, 0, r1))}
               />
               <path
                 style={{ animation: "inherit", stroke: "blue" }}
                 className=""
-                d={dTpl`M${b0}A0.2 0.2 0 0 1 ${b1}`}
+                d={encode(M(b0), A(0.2, 0.2, 0, 0, 1, b1))}
               />
             </>
           )}
@@ -235,12 +239,12 @@ export function Penrose({
               <path
                 style={{ animation: "inherit", stroke: "red" }}
                 className=""
-                d={dTpl`M${R0}A0.8 0.8  0 0 0 ${R1}`}
+                d={encode(M(R0), A(0.8, 0.8, 0, 0, 0, R1))}
               />
               <path
                 style={{ animation: "inherit", stroke: "blue" }}
                 className=""
-                d={dTpl`M${B0}A0.2 0.2 0 0 0 ${B1}`}
+                d={encode(M(B0), A(0.2, 0.2, 0, 0, 0, B1))}
               />
             </>
           )}

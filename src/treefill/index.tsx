@@ -16,7 +16,10 @@ class QuadTreeFill {
   private readonly grid: boolean[]
   private readonly heads: Head[] = []
 
-  constructor(public readonly width: number, public readonly height: number) {
+  constructor(
+    public readonly width: number,
+    public readonly height: number,
+  ) {
     this.grid = new Array(width * height)
   }
 

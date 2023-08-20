@@ -3,10 +3,10 @@ import { ReactElement, SVGProps } from "react"
 import { arrayRange, int, TAU, V3 } from "ts3dutils"
 import {
   centerToSideFromSideWidth,
-  dTpl,
   radiusFromSideWidth,
   sideWithFromRadius,
 } from "../paperBox1/common"
+import { encode, L, M, Z } from "../paperBox1/svg"
 
 export function RegularPolygon({
   sides,
@@ -30,11 +30,13 @@ export function RegularPolygon({
   const { x, y } = V3.polar(c, startAngle - TAU / sides / 2)
   return (
     <path
-      d={dTpl`
-        M${x},${y}
-        ${arrayRange(0, sides).map(
-          (i) => dTpl`L${V3.polar(radius!, startAngle + i * (TAU / sides))}`,
-        )}Z`}
+      d={encode(
+        M(x, y),
+        ...arrayRange(0, sides).map((i) =>
+          L(V3.polar(radius!, startAngle + i * (TAU / sides))),
+        ),
+        Z(),
+      )}
       {...props}
     />
   )

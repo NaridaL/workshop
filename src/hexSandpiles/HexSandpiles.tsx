@@ -100,7 +100,10 @@ const loadFont = (url: string): Promise<Font> =>
 class HexSand {
   readonly data: Uint8Array
 
-  public constructor(public readonly w: int, public readonly h: int) {
+  public constructor(
+    public readonly w: int,
+    public readonly h: int,
+  ) {
     this.data = new Uint8Array(w * h)
   }
 

@@ -249,7 +249,10 @@ function quickhull(gl: TSGLContext) {
     ),
   )
   const zBases = [0, 1, 2].map((i) =>
-    tree.getTransform(zAssemblies[i]).transformPoint(V(-2.5, 0, 0)).xy(),
+    tree
+      .getTransform(zAssemblies[i])
+      .transformPoint(V(-2.5, 0, 0))
+      .xy(),
   ) as [V3, V3, V3]
 
   function fixJoints() {

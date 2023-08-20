@@ -21,12 +21,14 @@ export function Measure({
   from,
   to,
   children,
+  R,
   hideRight = false,
   offset = 0,
 }: {
   from: R2 | V3
   to: R2 | V3
   children?: string
+  R?: boolean
   hideRight?: boolean
   offset?: number
 }): ReactElement | null {
@@ -37,7 +39,7 @@ export function Measure({
   const isSvgPrint = useContext(SvgPrintContext)
   if (isSvgPrint) return null
   if (length < 0.05) return null
-  children ||= "" + round10(length, -1)
+  children ||= (R ? "R" : "") + round10(length, -1)
   const textBlank = 3 * children.length
 
   return (

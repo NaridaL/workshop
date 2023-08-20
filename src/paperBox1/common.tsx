@@ -1,6 +1,7 @@
 import * as React from "react"
 import { ReactElement, ReactNode, SVGProps } from "react"
 import { arrayRange, DEG, int, raddd, round10, TAU, V3 } from "ts3dutils"
+import { encode, L, M, Z } from "./svg"
 
 export const INCH = 25.4
 export const fmtdeg = (x: raddd): string => "" + round10(x / DEG, -1) + "°"
@@ -41,14 +42,15 @@ export function RegularPolygon({
   if (undefined === radius) {
     radius = radiusFromSideWidth(sides, sideLength!)
   }
-  const { x, y } = V3.polar(radius, startAngle)
   return (
     <path
-      d={dTpl`
-        M${x},${y}
-        ${arrayRange(0, sides).map(
-          (i) => dTpl`L${V3.polar(radius!, startAngle + i * (TAU / sides))}`,
-        )}Z`}
+      d={encode(
+        M(V3.polar(radius, startAngle)),
+        ...arrayRange(0, sides).map((i) =>
+          L(V3.polar(radius!, startAngle + i * (TAU / sides))),
+        ),
+        Z(),
+      )}
       {...props}
     />
   )
@@ -79,26 +81,6 @@ export function RotStep({
       ))}
     </>
   )
-}
-
-export function dTpl(
-  strings: TemplateStringsArray,
-  ...exps: (number | V3 | string | string[])[]
-): string {
-  const format = (x: number | V3 | string | string[]): string =>
-    "number" === typeof x
-      ? "" + x
-      : "string" === typeof x
-      ? x
-      : Array.isArray(x)
-      ? x.map(format).join(" ")
-      : x.x + "," + x.y
-  let result = strings[0]
-  for (let i = 0; i < exps.length; i++) {
-    result += format(exps[i])
-    result += strings[i + 1]
-  }
-  return result
 }
 
 export const openInNewTab = (url: string): void => {

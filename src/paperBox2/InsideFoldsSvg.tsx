@@ -3,7 +3,6 @@ import { CSSProperties, ReactElement, useContext } from "react"
 import { newtonIterate1d, TAU, V, V3 } from "ts3dutils"
 
 import {
-  dTpl,
   radiusFromCenterToSide,
   RegularPolygon,
   RotStep,
@@ -11,6 +10,7 @@ import {
 import { Measure, SvgPrintContext } from "../paperBox1/Measure"
 import { MeasureAngle } from "../paperBox1/MeasureAngle"
 import { PaperSize } from "../paperBox1/PaperSize"
+import { encode, H, L, M } from "../paperBox1/svg"
 import { Common } from "./Common"
 
 // https://math.stackexchange.com/a/885965/230980
@@ -101,45 +101,46 @@ export function InsideFoldsSvg(props: {
         />
         <RotStep id="foo" count={sides} stepDeg={360 / sides}>
           <path
-            d={dTpl`
-                M${basePolyRadius},0
-                H${radius}`}
+            d={encode(M(basePolyRadius, 0), H(radius))}
             className="mountain green-stroke"
           />
           <path
-            d={dTpl`
-                M${basePolyRadius},0
-                L${V3.polar(radius, innerAngleToC)}
-                M${basePolyRadius},0
-                L${redStartPoint}`}
+            d={encode(
+              M(basePolyRadius, 0),
+              L(V3.polar(radius, innerAngleToC)),
+              M(basePolyRadius, 0),
+              L(redStartPoint),
+            )}
             className="valley blue-stroke"
           />
           <path
-            d={dTpl`
-                M${redStartPoint}
-                L${V3.polar(radius, -innerAngleToC)}`}
+            d={encode(M(redStartPoint), L(V3.polar(radius, -innerAngleToC)))}
             className="mountain blue-stroke"
           />
           <path
-            d={dTpl`
-                M${topPolyRadius},0
-                L${V3.polar(basePolyRadius, -TAU / sides).plus(
+            d={encode(
+              M(topPolyRadius, 0),
+              L(
+                V3.polar(basePolyRadius, -TAU / sides).plus(
                   V3.polar(topRadius - baseRadius, -TAU / sides / 2),
-                )}`}
+                ),
+              ),
+            )}
             className="valley pink-stroke"
           />
           <path
-            d={dTpl`
-                M${V3.polar(basePolyRadius, -TAU / sides).plus(
+            d={encode(
+              M(
+                V3.polar(basePolyRadius, -TAU / sides).plus(
                   V3.polar(topRadius - baseRadius, -TAU / sides / 2),
-                )}
-                L${V3.polar(topPolyRadius, -TAU / sides)}`}
+                ),
+              ),
+              L(V3.polar(topPolyRadius, -TAU / sides)),
+            )}
             className="mountain orange-stroke"
           />
           <path
-            d={dTpl`
-                M${redStartPoint}
-                L${redEndpoint}`}
+            d={encode(M(redStartPoint), L(redEndpoint))}
             className="valley red-stroke"
           />
         </RotStep>

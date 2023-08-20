@@ -6,7 +6,6 @@ import { arrayRange, DEG, round10, TAU, V, V3 } from "ts3dutils"
 import {
   centerToSideFromSideWidth,
   fmtdeg,
-  INCH,
   radiusFromSideWidth,
 } from "./common"
 import { Guide, Measure, SvgPrintContext } from "./Measure"
@@ -117,9 +116,6 @@ export function PrismBoxSvg({
     <svg
       xmlns="http://www.w3.org/2000/svg"
       style={{
-        fill: "none",
-        stroke: "#123456",
-        strokeWidth: (2 * INCH) / 300,
         ...style,
       }}
       width={svgViewBox[2] + "mm"}

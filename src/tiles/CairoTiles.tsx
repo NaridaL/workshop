@@ -2,7 +2,7 @@ import clsx from "clsx"
 import React, { ReactElement, SVGAttributes } from "react"
 import seedrandom from "seedrandom"
 import { arrayRange, DEG, int, V3 } from "ts3dutils"
-import { dTpl } from "../paperBox1/common"
+import { encode, L, M, Z } from "../paperBox1/svg"
 
 export function CairoTiles({
   x: w,
@@ -32,18 +32,19 @@ export function CairoTiles({
           id="tile"
           style={{ animation: "inherit" }}
           className="c0"
-          d={dTpl`${[
-            [270, 0.5],
-            [300, SQRT4_3 / 2],
-            [15, Math.SQRT2 / 2],
-            [90, SQRT4_3 / 2],
-            [165, Math.SQRT2 / 2],
-            [240, SQRT4_3 / 2],
-          ].map(
-            ([angle, r], i) =>
-              (i === 0 ? "M" : "L") +
-              dTpl`${V3.polar((r * a) / 10, angle * DEG)}`,
-          )}Z`}
+          d={encode(
+            ...[
+              [270, 0.5],
+              [300, SQRT4_3 / 2],
+              [15, Math.SQRT2 / 2],
+              [90, SQRT4_3 / 2],
+              [165, Math.SQRT2 / 2],
+              [240, SQRT4_3 / 2],
+            ].map(([angle, r], i) =>
+              (i === 0 ? M : L)(V3.polar((r * a) / 10, angle * DEG)),
+            ),
+            Z(),
+          )}
         />
       </defs>
       {arrayRange(0, w).flatMap((i) =>

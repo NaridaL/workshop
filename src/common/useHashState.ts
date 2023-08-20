@@ -18,10 +18,13 @@ const parseHash = (hash: string): Record<string, string> => {
           const [key, value] = part.split("=")
           return [decodeURIComponent(key), decodeURIComponent(value)]
         })
-        .reduce((obj, [key, value]) => {
-          obj[key] = value
-          return obj
-        }, {} as Record<string, string>)
+        .reduce(
+          (obj, [key, value]) => {
+            obj[key] = value
+            return obj
+          },
+          {} as Record<string, string>,
+        )
 }
 const objectToHash = (o: Record<string, string>): string => {
   return (
