@@ -1,3 +1,4 @@
+import last from "lodash/last"
 import { SVGPathData } from "svg-pathdata"
 import {
   CommandA,
@@ -9,7 +10,7 @@ import {
   CommandV,
   SVGCommand,
 } from "svg-pathdata/lib/types"
-import { V3 } from "ts3dutils"
+import { V3, V as VV } from "ts3dutils"
 
 export function H(x: number): CommandH {
   return { type: SVGPathData.HORIZ_LINE_TO, relative: false, x: x }
@@ -82,12 +83,14 @@ export const m = (x: number, y: number) => ({
   y,
   relative: true,
 })
+
 export function L(p: V3): CommandL
 export function L(x: number, y: number): CommandL
 export function L(a1: number | V3, a2?: number) {
   const [x, y] = a2 === undefined ? [(a1 as V3).x, (a1 as V3).y] : [a1, a2]
   return { type: SVGPathData.LINE_TO, x, y, relative: false }
 }
+
 export const l = (x: number, y: number): CommandL => ({
   type: SVGPathData.LINE_TO,
   x,
@@ -97,6 +100,32 @@ export const l = (x: number, y: number): CommandL => ({
 
 export const Z = () => ({ type: SVGPathData.CLOSE_PATH })
 
-export const encode = (...path: SVGCommand[]): string => {
-  return new SVGPathData(path).round(3).encode()
+export const encode = (...path: (SVGCommand | DynamicCommands)[]): string => {
+  const modPath: SVGCommand[] = []
+  let lastX = 0,
+    lastY = 0
+  for (const c of path) {
+    if ("function" === typeof c) {
+      for (const c2 of c(lastX, lastY)) {
+        modPath.push(c2)
+      }
+    } else {
+      modPath.push(c)
+    }
+    const lastC = last(modPath)!
+    if ("x" in lastC) lastX = lastC.x
+    if ("y" in lastC) lastY = lastC.y
+  }
+  return new SVGPathData(modPath).round(3).encode()
+}
+export type DynamicCommands = (x: number, y: number) => SVGCommand[]
+
+export function Corner(rad: number, x: number, y: number): DynamicCommands {
+  return (prevX, prevY) => {
+    const prev = VV(prevX, prevY)
+    const p1 = VV(x, y)
+    const dir1 = prev.to(p1).toLength(rad)
+    const p2 = VV(p1.x + dir1.y, p1.y - dir1.x)
+    return [L(p1.minus(dir1)), A(rad, rad, 0, 0, 0, p2)]
+  }
 }
