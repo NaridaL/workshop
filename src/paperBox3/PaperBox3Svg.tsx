@@ -20,33 +20,22 @@ export function lookUpAngle(
 }
 
 export function PaperBox3Svg({
-  baseRadius,
-  topRadius,
-  radius,
+  width,
+  height,
+  length,
+  tabWidth,
   style,
   paperSize,
-  children,
 }: {
-  baseRadius: number
-  topRadius: number
-  radius: number
+  width: number
+  height: number
+  length: number
+  tabWidth: number
   style?: CSSProperties
   paperSize: PaperSize | null
-  children: ReactElement | ReactElement[]
 }): ReactElement {
-  const paperPosition = paperSize && [
-    Math.min(-20, radius - paperSize[0]),
-    Math.min(-20, radius - paperSize[1]),
-  ]
-
-  const boxHeight = topRadius - baseRadius
-  const length = 60
-  const width = 40
-  const height = 20
   const rad = 4
-  const topLip = radius - topRadius
 
-  const tabWidth = 10
   const print = useContext(SvgPrintContext)
   const svgViewBox = [
     -tabWidth - 1,
@@ -140,11 +129,11 @@ export function PaperBox3Svg({
       return svgPathData.commands
     }
   }
+  const gg = 4
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      style={style}
       width={svgViewBox[2] + "mm"}
       height={svgViewBox[3] + "mm"}
       viewBox={svgViewBox.join(" ")}
@@ -155,13 +144,13 @@ export function PaperBox3Svg({
         d={encode(
           // left tab
           M(0, 0),
-          L(-10, 0),
-          L(-10, length),
+          L(-tabWidth, 0),
+          L(-tabWidth, length),
           L(0, length),
           // bottom tab
           L(0, length + height),
-          L(0, length + height + tabWidth),
-          L(width, length + height + tabWidth),
+          Corner(rad, 0, length + height + tabWidth),
+          Corner(rad, width, length + height + tabWidth),
           L(width, length + height),
           L(width, length),
           // middle
@@ -180,8 +169,8 @@ export function PaperBox3Svg({
           L(0, 0),
           // notches
           M(width + height, -height),
-          L(width + height + 4, -height),
-          M(2 * width + height - 4, -height),
+          L(width + height + gg, -height),
+          M(2 * width + height - gg, -height),
           L(2 * width + height, -height),
         )}
         className="cut"
@@ -191,11 +180,21 @@ export function PaperBox3Svg({
           M(0, 0),
           L(0, length),
           L(width, length),
+          L(width + height, length),
+          L(width + height, 0),
+          M(width, length),
           L(width, 0),
-          M(width + height, length),
           L(width + height, 0),
           L(2 * width + height, 0),
+          L(2 * width + 2 * height, 0),
+          M(2 * width + height, 0),
           L(2 * width + height, length),
+          L(2 * width + 2 * height, length),
+
+          M(gg, length + height),
+          L(width - gg, length + height),
+          M(width + height + gg, -height),
+          L(2 * width + height - gg, -height),
         )}
         className="valley"
       />

@@ -23,10 +23,10 @@ import { PaperBox3Svg } from "./PaperBox3Svg"
 export default (): ReactElement => {
   const [state, setState] = useHashState({
     variant: "inside" as "inside" | "outside",
-    baseRadius: 30,
-    topRadius: 65,
-    radius: 100,
-    sides: 8,
+    width: 60,
+    height: 50,
+    length: 100,
+    tabWidth: 8,
   })
   const setPartialState = useCallback(
     (update: Partial<typeof state>) => setState((s) => ({ ...s, ...update })),
@@ -71,11 +71,7 @@ export default (): ReactElement => {
               paddingTop: "100%", // 1:1
             }}
           />
-          <CardContent>
-            Helper to build a box from a circular piece of paper. The Inside
-            Folds variant has more complicated folds but has a cleaner overall
-            look.
-          </CardContent>
+          <CardContent></CardContent>
         </Card>
         <FormControl variant="outlined" size="small">
           <InputLabel id="variant-label">Variant</InputLabel>
@@ -98,36 +94,36 @@ export default (): ReactElement => {
           size="small"
           type="number"
           inputProps={{ step: 1 }}
-          value={state.baseRadius}
-          onChange={(e) => setPartialState({ baseRadius: +e.target.value })}
-          label="baseRadius"
+          value={state.width}
+          onChange={(e) => setPartialState({ width: +e.target.value })}
+          label="width"
         />
         <TextField
           variant="outlined"
           size="small"
           type="number"
           inputProps={{ step: 1 }}
-          value={state.topRadius}
-          onChange={(e) => setPartialState({ topRadius: +e.target.value })}
-          label="topRadius"
+          value={state.height}
+          onChange={(e) => setPartialState({ height: +e.target.value })}
+          label="height"
         />
         <TextField
           variant="outlined"
           size="small"
           type="number"
           inputProps={{ step: 1 }}
-          value={state.radius}
-          onChange={(e) => setPartialState({ radius: +e.target.value })}
-          label="Radius"
+          value={state.length}
+          onChange={(e) => setPartialState({ length: +e.target.value })}
+          label="length"
         />
         <TextField
           variant="outlined"
           size="small"
           type="number"
           inputProps={{ step: 1, min: 4, max: 32 }}
-          value={state.sides}
-          onChange={(e) => setPartialState({ sides: +e.target.value })}
-          label="Sides"
+          value={state.tabWidth}
+          onChange={(e) => setPartialState({ tabWidth: +e.target.value })}
+          label="tabWidth"
         />
         {state.variant === "inside" && topOverlap > 0 && (
           <Alert severity="error">
