@@ -82,7 +82,7 @@
     "sleep-promise": "9.1.0",
     "source-map": "^0.7.4",
     "source-map-js": "^1.0.2",
-    "source-map-loader": "4.0.1",
+    "source-map-loader": "5.0.0",
     "sucrase": "3.34.0",
     "svg-pathdata": "6.0.3",
     "svg-to-pdfkit": "0.1.8",
