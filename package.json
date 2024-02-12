@@ -57,7 +57,7 @@
     "@typescript-eslint/parser": "6.2.1",
     "aesthetically": "0.0.6",
     "blob-stream": "0.1.3",
-    "chai": "4.3.7",
+    "chai": "5.1.0",
     "chroma.ts": "1.0.10",
     "copy-webpack-plugin": "11.0.0",
     "eslint": "8.46.0",
