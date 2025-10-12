@@ -145,7 +145,7 @@ export default function (): ReactElement {
   return (
     <Grid container style={{ minHeight: "calc(100vh - 65px)" }} spacing={1}>
       {tilesStyles({ ...state, shapeLengths })}
-      <Grid item xs={12} md={10} ref={svgContainerRef}>
+      <Grid size={{ xs: 12, md: 10 }} ref={svgContainerRef}>
         <Pattern
           viewBox="0 0 20 20"
           randomClassCount={RANDOM_CLASS_COUNT}
@@ -162,15 +162,13 @@ export default function (): ReactElement {
       </Grid>
 
       <Grid
-        item
-        xs={12}
-        md={2}
+        size={{ xs: 12, md: 2 }}
         container
         spacing={1}
         alignItems="flex-start"
         style={{ height: 200 }}
       >
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Select
             value={state.type}
             fullWidth
@@ -185,7 +183,7 @@ export default function (): ReactElement {
             })}
           </Select>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Select
             value={state.animation}
             fullWidth
@@ -208,7 +206,7 @@ export default function (): ReactElement {
             ))}
           </Select>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Select
             value={state.strokeLinejoin}
             fullWidth
@@ -224,7 +222,7 @@ export default function (): ReactElement {
             ))}
           </Select>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Select
             value={state.strokeLinecap}
             fullWidth
@@ -240,12 +238,12 @@ export default function (): ReactElement {
             ))}
           </Select>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Button fullWidth onClick={() => setX((x) => x + 1)}>
             Replay
           </Button>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             variant="outlined"
             size="small"
@@ -255,10 +253,8 @@ export default function (): ReactElement {
             label="a"
           />
         </Grid>
-        <Grid item xs={12}>
-          {shapeLengths}
-        </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>{shapeLengths}</Grid>
+        <Grid size={{ xs: 12 }}>
           <FormControlLabel
             control={
               <Checkbox
@@ -270,7 +266,7 @@ export default function (): ReactElement {
             label="fill"
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <FormControlLabel
             control={
               <Checkbox
@@ -282,7 +278,7 @@ export default function (): ReactElement {
             label="ordered"
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             variant="outlined"
             size="small"

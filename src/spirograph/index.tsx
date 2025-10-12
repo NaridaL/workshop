@@ -1,190 +1,307 @@
+import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
 import CardMedia from "@mui/material/CardMedia"
-import Divider from "@mui/material/Divider"
 import Grid from "@mui/material/Grid"
 import { useTheme } from "@mui/material/styles"
-import TextField from "@mui/material/TextField"
 import * as React from "react"
-import { ReactElement, useCallback, useEffect, useRef } from "react"
-import { SVGPathData } from "svg-pathdata"
-import { SVGCommand } from "svg-pathdata/lib/types"
-import { DEG, M4, V3 } from "ts3dutils"
-import { useHashState } from "../common/useHashState"
-import { INCH } from "../paperBox1/common"
-import { ExportButtons } from "../paperBox1/ExportButtons"
-import * as path from "../paperBox1/svg"
-import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
-import { OrbitCameraController } from "../raymarch/OrbitCameraController"
+import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
+import { DEG, M4, mod, PI, V, V3 } from "ts3dutils"
+import { BoundNumberField } from "../common/BoundNumberField"
+import { lookUpAngle, lookUpRadius } from "../paperBox2/InsideFoldsSvg"
 
-function gcd(a: number, b: number): number {
-  return !b ? a : gcd(b, a % b)
+class Circle {
+  constructor(public readonly radius: number) {}
+
+  angleForDistance(distance: number) {
+    return distance / this.radius
+  }
+
+  radiusForAngle(angle: number) {
+    return this.radius
+  }
 }
 
-function lcm(a: number, b: number): number {
-  return (a * b) / gcd(a, b)
+/**
+ * @param t 0 .. 2PI
+ */
+type ShapeFunc = (t: number) => [x: V3, dx: V3]
+
+function _circle(radius: number): ShapeFunc {
+  return function (x: number) {
+    const angle = x / radius
+    return [V3.polar(radius, angle), V3.polar(1, angle + PI / 2)]
+  }
 }
 
-export default (): ReactElement => {
-  const [state, setState] = useHashState({
-    R: 100,
-    r: 10,
-    d: 20,
-    cam: OrbitCameraController.toShortString([0.1, 0.1, 400]),
-  })
-  const setPartialState = useCallback(
-    (update: Partial<typeof state>) => setState((s) => ({ ...s, ...update })),
+function _squarcle(radius: number, d: number): ShapeFunc {
+  const alpha = lookUpAngle(radius, 45 * DEG, d)
+  const sideLength = alpha * 2 * radius
+  console.log(sideLength, alpha / DEG)
+  return function (x: number) {
+    const quarterCount = Math.floor(x / sideLength)
+    let quarterRest = x % sideLength
+    if (quarterRest > sideLength / 2) quarterRest -= sideLength
+    return [
+      // M4.rotateZ(quarterCount * (Math.PI / 2)).transformVector(
+      V(d - radius, 0).plus(V3.polar(radius, quarterRest / radius)),
+      // ),
+    ]
+  }
+}
+
+function wavyCircle(
+  radius: number,
+  waveCount: number,
+  waveHeight: number,
+): ShapeFunc {
+  return function (t: number) {
+    const angle = t / radius
+    const angle_dt = 1 / radius
+    const wave = Math.sin(angle * waveCount) * waveHeight
+    const wave_dt =
+      Math.cos(angle * waveCount) * waveHeight * angle_dt * waveCount
+    return [
+      V3.polar(radius + wave, angle),
+      V3.polar(wave_dt, angle).plus(V3.polar(radius + wave, angle + PI / 2)),
+    ]
+
+    ///new V3(radius * Math.cos(phi), radius * Math.sin(phi), z)
+    // x = r(t) cos(t)
+    // y = r(t) sin(t)
+    // dx/dt = r' cos(t) - r sin(t)
+    // dy/dt = r' sin(t) + r cos(t)
+  }
+}
+
+function _polygon(
+  sides: number,
+  radius: number,
+  cornerRadius: number,
+): ShapeFunc {
+  const anglePerSide = (2 * PI) / sides
+  const sideLength = 2 * Math.sin(anglePerSide / 2) * (1 - cornerRadius)
+  const h2 = Math.tan(anglePerSide / 2) * (radius - cornerRadius)
+  const tCornerStart = Math.atan(h2 / radius)
+  const tCornerEnd = anglePerSide - tCornerStart
+  const cornerCenter = V(radius - cornerRadius, h2, 0)
+  const cornerXFactor = (anglePerSide / 2 - tCornerStart) / (PI / anglePerSide)
+  return function (xOriginal: number) {
+    let t = xOriginal
+    // Mirror about t axis
+    // if (t > PI) {
+    //   t = 2 * PI - t
+    // }
+    // Which side are we on
+    // if (t > anglePerSide)
+    //   t -= anglePerSide
+    t = mod(t, anglePerSide)
+    if (t > tCornerEnd) t -= anglePerSide
+    const rot = M4.rotateZ(xOriginal - t)
+    let pos: V3, dir: V3
+    if (t < tCornerStart) {
+      pos = V(radius, radius * Math.tan(t), 0)
+      dir = V(0, radius, 0)
+    } else {
+      const tCorner01 = (t - tCornerStart) / (tCornerEnd - tCornerStart)
+      pos = cornerCenter.plus(V3.polar(cornerRadius, tCorner01 * anglePerSide))
+      dir = V3.polar(1, tCorner01 * anglePerSide + PI / 2)
+    }
+    return [rot.transformPoint(pos), rot.transformVector(dir)]
+  }
+}
+
+class Squarcle {
+  constructor(
+    /**
+     * side of the side curvature
+     */
+    public readonly radius: number,
+    /**
+     * Distance center to closest point on side
+     */
+    public readonly d: number,
+  ) {}
+
+  sideLength() {
+    const alpha = lookUpAngle(this.radius, 45 * DEG, this.d)
+    return alpha * 2 * this.radius
+  }
+
+  angleForDistance(distance: number) {
+    const sideLength = this.sideLength()
+    const quarterCount = Math.floor(distance / sideLength)
+    let quarterRest = distance % sideLength
+    if (quarterRest > sideLength / 2) quarterRest -= sideLength
+    const alpha = quarterRest / this.radius
+
+    return (quarterCount * PI) / 2 + alpha
+  }
+
+  radiusForAngle(angle: number) {
+    angle = angle % (PI / 2)
+    if (angle > PI / 4) angle = angle - PI / 2
+    return lookUpRadius(angle, 45 * DEG, this.d)
+  }
+}
+
+const line2 = (s: number) => {
+  const outerRadius = 1.5
+  const shapeAngle = shape.angleForDistance(s * outerRadius)
+  const shapeRadius = shape.radiusForAngle(s / outerRadius)
+  const shapeCenter = V3.polar(outerRadius - shapeRadius, s)
+  return [
+    //
+    // V3.polar(outerRadius, Math.min(s, TAU)),
+    // shapeCenter,
+    shape(s)[0],
+    // V3.polar(shapeRadius, shapeAngle),
+    // shapeCenter.plus(V3.polar(0.2, shapeAngle)),
+    shapeCenter.plus(V3.polar(-0.2, shapeAngle)),
+    // shapeCenter.plus(V3.polar(0.2, innerCircleAngle)),
+    // shapeCenter.plus(V3.polar(0.4, innerCircleAngle + TAU / 3)),
+    // shapeCenter.plus(V3.polar(0.4, innerCircleAngle + (2 * TAU) / 3)),
+  ]
+}
+
+function getShapePoints(shape: (t: number) => [V3, V3], d: number): [V3, V3][] {
+  const points: [V3, V3][] = []
+  for (let i = 0; i < d; i++) {
+    const t = (i * 2 * PI) / d
+    points.push(shape(t))
+  }
+  return points
+}
+
+// const shape = _circle(1 / 3.14)
+// const shape = new Squarcle(0.5, 0.4)
+// const _shape = _circle(2)
+// const shape = _squarcle(2, 1.8)
+function paintAxes(context: CanvasRenderingContext2D) {
+  context.beginPath()
+  context.strokeStyle = "black"
+  context.lineWidth = 0.01
+  context.moveTo(-1, 0)
+  context.lineTo(1, 0)
+  context.moveTo(0, -1)
+  context.lineTo(0, 1)
+  context.stroke()
+}
+
+let d = 10
+
+function startAnim(
+  context: CanvasRenderingContext2D,
+  colors: string[],
+  shape: ShapeFunc,
+) {
+  console.log("startAnum", colors, context)
+  // context.rect(100, 100, 100, 100)
+  context.lineWidth = 0.005
+  context.fillStyle = "white"
+  context.rect(0, 0, context.canvas.width, context.canvas.height)
+  context.fill()
+  const scale = Math.min(context.canvas.width, context.canvas.height)
+  context.scale(scale, scale)
+  context.translate(0.5, 0.5)
+  context.scale(0.25, 0.25)
+  let lastTime = 0
+  let stop = false
+  const ps = getShapePoints(shape, 500)
+
+  function paint(highResTimeStamp: number) {
+    context.fillStyle = "white"
+    context.rect(-10, -10, 20, 20)
+    context.fill()
+    lastTime ||= highResTimeStamp
+    paintAxes(context)
+    context.beginPath()
+    context.moveTo(ps[0][0].x, ps[0][0].y)
+    context.strokeStyle = "red"
+    for (let i = 0; i < (ps.length * d) / 100; i++) {
+      const [x] = ps[i]
+      context.lineTo(x.x, x.y)
+    }
+    context.stroke()
+    context.beginPath()
+    context.lineWidth = 0.004
+    context.strokeStyle = "pink"
+    for (let i = 0; i < (ps.length * d) / 100; i += 4) {
+      const [x, dx] = ps[i]
+      context.moveTo(x.x, x.y)
+      context.lineTo(x.x + 0.1 * dx.y, x.y - 0.1 * dx.x)
+    }
+    context.stroke()
+    // for (; lastTime < highResTimeStamp; lastTime += 1) {
+    //   const s = lastTime / 1000.0
+    //   const newPoints = _shape(s)
+    //
+    //   for (let i = 0; i < lastPoints.length; i++) {
+    //     const newPoint = newPoints[i]
+    //     const lastPoint = lastPoints[i]
+    //     if (lastPoint.distanceTo(newPoint) > 0.0001) {
+    //       context.beginPath()
+    //       context.strokeStyle = colors[i]
+    //       // context.moveTo(lastPoint.x, lastPoint.y)
+    //       context.lineTo(newPoint.x, newPoint.y)
+    //       context.stroke()
+    //       lastPoints[i] = newPoint
+    //     }
+    //   }
+    // }
+    !stop && requestAnimationFrame(paint)
+  }
+
+  requestAnimationFrame(paint)
+  return () => {
+    stop = true
+    console.log("stop")
+  }
+}
+
+export default function (): ReactElement {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [state, setState] = useState({ d: 100, polygonSides: 4, reset: false })
+  const setStatePartial = useCallback(
+    (o) => setState((s) => ({ ...s, ...o })),
     [setState],
   )
 
-  const lookAt = OrbitCameraController.getLookAt(
-    OrbitCameraController.fromShortString(state.cam),
-  )
-  const svgRef = useRef<SVGSVGElement>()
+  const reset = useCallback(() => {
+    setState((s) => ({ ...s, reset: !s.reset }))
+  }, [])
+
   useEffect(() => {
-    const camController = new OrbitCameraController((v) =>
-      setPartialState({ cam: OrbitCameraController.toShortString(v) }),
-    )
-    camController.setState(OrbitCameraController.fromShortString(state.cam))
-    camController.registerListeners(svgRef.current!)
-    let cancel = false
-    function tick() {
-      camController!.tick()
-      if (!cancel) requestAnimationFrame(tick)
-    }
-    requestAnimationFrame(tick)
-    return () => {
-      cancel = true
-      camController?.unregisterListeners()
-    }
-  }, [setPartialState])
-
-  const torusSpiral = (R: number, r: number, n: number) => (a: number) => {
-    const a1 = a / n
-    const a2 = a
-    const xyP = V3.polar(r, a2)
-    return [
-      M4.translate(R).rotateY(a1).transformPoint(xyP),
-      M4.rotateY(a1).transformVector(V3.polar(1, a2)),
-    ]
-  }
-
-  // gl.perspective(70, gl.canvas.width / gl.canvas.height, 0.1, 1000)
-  // gl.lookAt(, V3.O, V3.Y)
-  // const perspective = M4.lookAt(V(0, 0.5, 2.2), V3.O, V3.Y)
-
-  function AxesGizmoSvg({ mat }: { mat: M4 }) {
-    const O = mat.transformPoint(V3.O)
-    const X = mat.transformPoint(V3.X)
-    const Y = mat.transformPoint(V3.Y)
-    const Z = mat.transformPoint(V3.Z)
-    return (
-      <>
-        <line x1={O.x} y1={O.y} x2={X.x} y2={X.y} style={{ stroke: "red" }} />
-        <line x1={O.x} y1={O.y} x2={Y.x} y2={Y.y} style={{ stroke: "green" }} />
-        <line x1={O.x} y1={O.y} x2={Z.x} y2={Z.y} style={{ stroke: "blue" }} />
-      </>
-    )
-  }
+    d = state.d
+  }, [state.d])
 
   const theme = useTheme()
-  const R = state.R
-  const r = state.r
-  const d = state.d
-  const perspective = lookAt
-    .transform(M4.perspective(90, 1, 10, 1000))
-    .scale(200, -200, 1)
-  const normalMatrix = perspective.inversed().transposed().normalized2()
-  console.log("normalMatrix", normalMatrix.toString())
-  // const foos: SVGCommand[] = [path.M(R + r - d, 0)]
-  // const N = lcm(R, r) / R
-  // for (let i = 0; i < t % (N * 360); i++) {
-  //   const angle = i * DEG
-  //   const p = V3.polar(R + r, angle).minus(V3.polar(d, (angle * (R + r)) / r))
-  //   foos.push(path.L(p.x, p.y))
-  // }
-  // const aaa = t * DEG
-  // const oc = V3.polar(R + r, aaa)
-  // const p = V3.polar(R + r, aaa).minus(V3.polar(d, (aaa * (R + r)) / r))
 
-  const ts = torusSpiral(R, r, 60)
-  const foos: SVGCommand[] = [path.M(R + r - d, 0)]
-  const norms: SVGCommand[] = [path.M(R + r - d, 0)]
-  for (let i = 0; i < 360 * 60 * DEG; i += 10 * DEG) {
-    const angle = i
-    const [tsp, tsn] = ts(angle)
-    const p = perspective.transformPoint(tsp)
-    const eps = 1e-4
-    const dp = perspective
-      .transformPoint(ts(angle + eps)[0])
-      .minus(p)
-      .div(eps)
-      .times(d / 100)
-    const pMinusDp = p.minus(dp)
-    const transformedNormal = normalMatrix.transformVector(tsn, false)
-    const transformedNormal2 = transformedNormal.xy().toLength(10)
-    // norms.push(
-    //   path.M(p.x, p.y),
-    //   path.l(transformedNormal2.x, transformedNormal2.y),
-    // )
-    // norms.push(path.M(p.x, p.y), path.L(pMinusDp.x, pMinusDp.y))
-    if (transformedNormal.z <= 0) {
-      // foos.push(path.S(pMinusDp.x, pMinusDp.y, p.x, p.y))
-      foos.push(path.L(p.x, p.y))
-    } else {
-      foos.push(path.M(p.x, p.y))
-    }
-  }
-
-  const what = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      ref={svgRef}
-      className="adrian"
-      width={"512"}
-      height={"512"}
-      style={{
-        fill: "none",
-        stroke: "#123456",
-        strokeWidth: (2 * INCH) / 300,
-        width: "100%",
-        height: "100%",
-      }}
-      viewBox="-256 -256 512 512"
-    >
-      <SvgCommonDefs />
-      <AxesGizmoSvg mat={perspective.scale(25)} />
-      {/*<rect width={100} height={100} />*/}
-      <path
-        d={new SVGPathData(foos).encode()}
-        className="cut"
-        style={{ fill: "none" }}
-      />
-      <path
-        d={new SVGPathData(norms).encode()}
-        className="cut"
-        style={{ fill: "green", stroke: "green" }}
-      />
-      {/*<circle r={R} style={{ fill: "none", stroke: "red" }} />*/}
-      {/*<circle*/}
-      {/*  cx={oc.x}*/}
-      {/*  cy={oc.y}*/}
-      {/*  r={r}*/}
-      {/*  style={{ fill: "none", stroke: "orange" }}*/}
-      {/*/>*/}
-      {/*<Measure from={[0, 0]} to={[R, 0]} />*/}
-      {/*<Measure from={oc} to={p} />*/}
-    </svg>
-  )
-
+  useEffect(() => {
+    const canvas = canvasRef.current!
+    canvas.height = devicePixelRatio * canvas.offsetHeight
+    canvas.width = devicePixelRatio * canvas.offsetWidth
+    const context = canvas.getContext("2d")!
+    return startAnim(
+      context,
+      [
+        theme.palette.primary.main,
+        theme.palette.secondary.main,
+        "red",
+        "blue",
+        "black",
+      ],
+      // _polygon(state.polygonSides, 1, 0.5),
+      wavyCircle(1, 5, 0.2),
+    )
+  }, [theme.palette, state.reset, state.polygonSides])
   return (
-    <Grid container style={{ width: "100%" }}>
-      <Grid item xs={12} md={10}>
-        {what}
+    <Grid container style={{ minHeight: "100vh" }}>
+      <Grid size={{ xs: 12, md: 10 }}>
+        <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
       </Grid>
+      <Grid></Grid>
       <Grid
-        item
-        xs={12}
-        md={2}
+        size={{ xs: 12, md: 2 }}
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -205,36 +322,19 @@ export default (): ReactElement => {
             }}
           />
         </Card>
-        <TextField
-          label="R"
-          variant="outlined"
-          size="small"
-          type="number"
-          inputProps={{ min: 25, step: 1 }}
-          value={state.R}
-          onChange={(e) => setPartialState({ R: +e.target.value })}
+        <BoundNumberField
+          state={state}
+          prop="d"
+          setStatePartial={setStatePartial}
+          inputProps={{ min: 0, step: 1, type: "number", max: 100 }}
         />
-        <TextField
-          variant="outlined"
-          size="small"
-          type="number"
-          inputProps={{ min: -100, step: 1 }}
-          value={state.r}
-          onChange={(e) => setPartialState({ r: +e.target.value })}
-          label="r"
+        <BoundNumberField
+          state={state}
+          prop="polygonSides"
+          setStatePartial={setStatePartial}
+          inputProps={{ min: 3, step: 1, type: "number" }}
         />
-        <TextField
-          variant="outlined"
-          size="small"
-          type="number"
-          inputProps={{ min: 0, step: 1 }}
-          value={state.d}
-          onChange={(e) => setPartialState({ d: +e.target.value })}
-          label="d"
-        />
-        <Divider />
-        <ExportButtons what={what} baseFileName="donut" />
-        {/*{N} {N * 360}*/}
+        <Button onClick={reset}>Reset</Button>
       </Grid>
     </Grid>
   )

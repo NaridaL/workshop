@@ -70,7 +70,7 @@ export default (): ReactElement => {
         "demoTri",
         "demoArc",
       ].map((frag) => (
-        <Grid key={frag} item xs={12} md={6} lg={4}>
+        <Grid key={frag} item size={{ xs: 12, md: 6, lg: 4 }}>
           <Demo2D frag={frag} sx={{ height: 300 }} animate={true} state={{}} />
         </Grid>
       ))}

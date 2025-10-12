@@ -6,7 +6,7 @@ import CircularProgress from "@mui/material/CircularProgress"
 import Fab from "@mui/material/Fab"
 import ListItem from "@mui/material/ListItem"
 import ListItemText from "@mui/material/ListItemText"
-import Menu from "@mui/material/Menu/Menu"
+import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import Select from "@mui/material/Select"
 import { Theme, useTheme } from "@mui/material/styles"
@@ -223,8 +223,8 @@ export class SimpleCanvasRenderer {
   private readonly planeMesh!: Mesh & {
     LINES: number[]
     TRIANGLES: number[]
-    normals: any[]
-    coords: any[]
+    normals: V3[]
+    coords: V3[]
   }
   private shader!: Shader<{}, {}>
 

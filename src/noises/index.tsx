@@ -647,7 +647,7 @@ export default (): ReactElement => {
           // "julias",
           // "test2",
         ].map((frag, i) => (
-          <Grid item xs={12} key={i}>
+          <Grid size={{ xs: 12 }} key={i}>
             <ShadertoyLikeDemo
               sx={{ height: 400 }}
               animate={true}
@@ -660,9 +660,7 @@ export default (): ReactElement => {
       </Grid>
 
       <Grid
-        item
-        xs={12}
-        md={3}
+        size={{ xs: 12, md: 3 }}
         sx={{
           display: "flex",
           flexDirection: "column",

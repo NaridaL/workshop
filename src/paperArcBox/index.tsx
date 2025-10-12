@@ -34,7 +34,7 @@ export default (): ReactElement => {
 
   return (
     <Grid container style={{ width: "100%" }}>
-      <Grid item xs={12} md={10}>
+      <Grid size={{ xs: 12, md: 10 }}>
         <ArcBoxSvg
           {...state}
           paperSize={state.paperSize}
@@ -46,9 +46,7 @@ export default (): ReactElement => {
         />
       </Grid>
       <Grid
-        item
-        xs={12}
-        md={2}
+        size={{ xs: 12, md: 2 }}
         sx={{
           display: "flex",
           flexDirection: "column",

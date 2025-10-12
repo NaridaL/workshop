@@ -48,7 +48,7 @@ export default (): ReactElement => {
 
   return (
     <Grid container style={{ width: "100%" }}>
-      <Grid item xs={12} md={10} padding={1}>
+      <Grid size={{ xs: 12, md: 10 }} padding={1}>
         <EnvelopeSvg
           {...state}
           claspIds={[state.claspId]}
@@ -60,9 +60,7 @@ export default (): ReactElement => {
         />
       </Grid>
       <Grid
-        item
-        xs={12}
-        md={2}
+        size={{ xs: 12, md: 2 }}
         sx={{
           display: "flex",
           flexDirection: "column",

@@ -32,14 +32,16 @@
         }
       }
     ],
-    "plugins": ["prettier-plugin-glsl"]
+    "plugins": [
+      "prettier-plugin-glsl"
+    ]
   },
   "devDependencies": {
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
-    "@loadable/component": "5.15.3",
-    "@mui/icons-material": "5.14.3",
-    "@mui/material": "5.14.3",
+    "@loadable/component": "^5.16.7",
+    "@mui/icons-material": "7.3.4",
+    "@mui/material": "7.3.4",
     "@sucrase/webpack-loader": "2.0.0",
     "@types/blob-stream": "0.1.30",
     "@types/chai": "4.3.5",
@@ -90,9 +92,12 @@
     "tsgl": "1.1.9",
     "typescript": "5.1.6",
     "val-loader": "5.0.1",
+    "@mui/x-charts": "^8.14.0",
     "webgl-strict-types": "1.0.5",
-    "webpack": "5.88.2",
+    "webpack": "^5.102.1",
     "webpack-cli": "5.1.4",
-    "webpack-dev-server": "4.15.1"
+    "webpack-dev-server": "^5.2.2"
+  },
+  "dependencies": {
   }
 }

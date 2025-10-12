@@ -1,25 +1,18 @@
 import { Checkbox } from "@mui/material"
 import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
-import CardContent from "@mui/material/CardContent"
 import CardMedia from "@mui/material/CardMedia"
 import Grid from "@mui/material/Grid"
 import MenuItem from "@mui/material/MenuItem"
 import Select from "@mui/material/Select"
 import { useTheme } from "@mui/material/styles"
-import aesthetically from "aesthetically"
-import * as chroma from "chroma.ts"
 import * as React from "react"
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
-import { Mesh, Shader, Texture, TSGL2Context, TSGLContext } from "tsgl"
 
 import { BoundNumberField } from "../common/BoundNumberField"
-import { FPSController } from "../common/FPSController"
-import { memoizeLast } from "../common/memoizeLast"
 import { useHashState } from "../common/useHashState"
 import { FlyCameraController } from "../raymarch/FlyCameraController"
 import { OrbitCameraController } from "../raymarch/OrbitCameraController"
-import openSansRegularPng from "./OpenSans-Regular.png"
 import {
   ReactGlCanvas,
   RendererConstructor,
@@ -27,7 +20,7 @@ import {
 } from "./SimpleCanvasRenderer"
 
 function normfig(s: string) {
-  return aesthetically.format(s, "monospace")
+  return s
 }
 
 const initialState = {
@@ -141,7 +134,7 @@ export default (): ReactElement => {
 
   return (
     <Grid container style={{ height: "99%" }} spacing={2} padding={2}>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <GenericDemo
           frag="demoTemple"
           sx={{ height: 500 }}
@@ -149,7 +142,7 @@ export default (): ReactElement => {
           state={state}
         />
       </Grid>
-      <Grid item xs={12} md={6} lg={4}>
+      <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <Checkbox
           checked={state.animate}
           onChange={(_, animate) => setStatePartial({ animate })}
@@ -182,7 +175,7 @@ export default (): ReactElement => {
           inputProps={{ step: 0.05 }}
         />
       </Grid>
-      {/*<Grid item xs={12} md={6} lg={4}>*/}
+      {/*<Grid size={{ xs: 12, md: 6 , lg: 4 }}>*/}
       {/*  <GenericDemo*/}
       {/*    frag="fractals"*/}
       {/*    sx={{ height: 300 }}*/}

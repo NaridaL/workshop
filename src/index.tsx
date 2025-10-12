@@ -98,7 +98,7 @@ const ThemedApp = () => {
         //   fontFamily: "Fira Sans",
         // },
       }),
-    [prefersDarkMode],
+    [],
   )
 
   return (

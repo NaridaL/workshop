@@ -63,7 +63,7 @@ export default (): ReactElement => {
         "demoPlatonic",
         "demoLego",
       ].map((frag) => (
-        <Grid key={frag} item xs={12} md={6} lg={4}>
+        <Grid key={frag} item size={{ xs: 12, md: 6, lg: 4 }}>
           <Demo3D
             frag="demo3d"
             replacer={frag}

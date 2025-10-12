@@ -7,7 +7,6 @@ import OutlinedInput from "@mui/material/OutlinedInput"
 import Select, { SelectProps } from "@mui/material/Select"
 import { useTheme } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
-import aesthetically from "aesthetically"
 import * as chroma from "chroma.ts"
 import { debounce } from "lodash"
 import * as React from "react"
@@ -307,7 +306,7 @@ function makeShader(desc): string {
 }
 
 function normfig(s: string) {
-  return aesthetically.format(s, "monospace")
+  return s
 }
 
 interface _XSphere {
@@ -787,7 +786,7 @@ export default (): ReactElement => {
 
   return (
     <Grid container style={{ height: "99%" }}>
-      <Grid item xs={12} md={9}>
+      <Grid size={{ xs: 12, md: 9 }}>
         <div style={{ height: "100%" }}>
           <canvas
             ref={canvasRef}
@@ -803,9 +802,7 @@ export default (): ReactElement => {
         </div>
       </Grid>
       <Grid
-        item
-        xs={12}
-        md={3}
+        size={{ xs: 12, md: 3 }}
         sx={{
           display: "flex",
           flexDirection: "column",
