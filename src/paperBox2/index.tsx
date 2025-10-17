@@ -103,7 +103,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1 }}
+          slotProps={{ htmlInput: { step: 1 } }}
           value={state.baseRadius}
           onChange={(e) => setPartialState({ baseRadius: +e.target.value })}
           label="baseRadius"
@@ -112,7 +112,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1 }}
+          slotProps={{ htmlInput: { step: 1 } }}
           value={state.topRadius}
           onChange={(e) => setPartialState({ topRadius: +e.target.value })}
           label="topRadius"
@@ -121,7 +121,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1 }}
+          slotProps={{ htmlInput: { step: 1 } }}
           value={state.radius}
           onChange={(e) => setPartialState({ radius: +e.target.value })}
           label="Radius"
@@ -130,7 +130,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1, min: 4, max: 32 }}
+          slotProps={{ htmlInput: { step: 1, min: 4, max: 32 } }}
           value={state.sides}
           onChange={(e) => setPartialState({ sides: +e.target.value })}
           label="Sides"

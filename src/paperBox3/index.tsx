@@ -91,7 +91,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1 }}
+          slotProps={{ htmlInput: { step: 1 } }}
           value={state.width}
           onChange={(e) => setPartialState({ width: +e.target.value })}
           label="width"
@@ -100,7 +100,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1 }}
+          slotProps={{ htmlInput: { step: 1 } }}
           value={state.height}
           onChange={(e) => setPartialState({ height: +e.target.value })}
           label="height"
@@ -109,7 +109,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1 }}
+          slotProps={{ htmlInput: { step: 1 } }}
           value={state.length}
           onChange={(e) => setPartialState({ length: +e.target.value })}
           label="length"
@@ -118,7 +118,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1, min: 4, max: 32 }}
+          slotProps={{ htmlInput: { step: 1, min: 4, max: 32 } }}
           value={state.tabWidth}
           onChange={(e) => setPartialState({ tabWidth: +e.target.value })}
           label="tabWidth"

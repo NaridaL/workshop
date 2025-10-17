@@ -157,22 +157,22 @@ export default (): ReactElement => {
         <BoundNumberField
           {...{ state, setStatePartial }}
           prop="a"
-          inputProps={{ step: 0.05 }}
+          slotProps={{ htmlInput: { step: 0.05 } }}
         />
         <BoundNumberField
           {...{ state, setStatePartial }}
           prop="b"
-          inputProps={{ step: 0.05 }}
+          slotProps={{ htmlInput: { step: 0.05 } }}
         />
         <BoundNumberField
           {...{ state, setStatePartial }}
           prop="c"
-          inputProps={{ step: 0.05 }}
+          slotProps={{ htmlInput: { step: 0.05 } }}
         />
         <BoundNumberField
           {...{ state, setStatePartial }}
           prop="d"
-          inputProps={{ step: 0.05 }}
+          slotProps={{ htmlInput: { step: 0.05 } }}
         />
       </Grid>
       {/*<Grid size={{ xs: 12, md: 6 , lg: 4 }}>*/}

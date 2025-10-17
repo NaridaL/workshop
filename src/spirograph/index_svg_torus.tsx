@@ -16,14 +16,6 @@ import * as path from "../paperBox1/svg"
 import { SvgCommonDefs } from "../paperBox1/SvgCommonDefs"
 import { OrbitCameraController } from "../raymarch/OrbitCameraController"
 
-function gcd(a: number, b: number): number {
-  return !b ? a : gcd(b, a % b)
-}
-
-function lcm(a: number, b: number): number {
-  return (a * b) / gcd(a, b)
-}
-
 export default (): ReactElement => {
   const [state, setState] = useHashState({
     R: 100,
@@ -206,7 +198,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: 25, step: 1 }}
+          slotProps={{ htmlInput: { min: 25, step: 1 } }}
           value={state.R}
           onChange={(e) => setPartialState({ R: +e.target.value })}
         />
@@ -214,7 +206,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: -100, step: 1 }}
+          slotProps={{ htmlInput: { min: -100, step: 1 } }}
           value={state.r}
           onChange={(e) => setPartialState({ r: +e.target.value })}
           label="r"
@@ -223,7 +215,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: 0, step: 1 }}
+          slotProps={{ htmlInput: { min: 0, step: 1 } }}
           value={state.d}
           onChange={(e) => setPartialState({ d: +e.target.value })}
           label="d"

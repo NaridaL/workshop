@@ -366,7 +366,7 @@ function SphereEditor({
       <TextField
         value={value.radius}
         onChange={onRadiusChange}
-        inputProps={{ type: "number" }}
+        slotProps={{ htmlInput: { type: "number" } }}
       />
     </div>
   )
@@ -408,7 +408,7 @@ function ExpandEditor({
         value={value.by}
         onChange={onByChange}
         type="number"
-        inputProps={{}}
+        slotProps={{ htmlInput: {} }}
       />
     </div>
   )
@@ -450,7 +450,7 @@ function Vec3Editor({
           name={"" + i}
           value={value[i]}
           onChange={onElChange}
-          inputProps={{ type: "number" }}
+          slotProps={{ htmlInput: { type: "number" } }}
         />
       ))}
     </>
@@ -511,7 +511,7 @@ function DonutEditor({
           name={i}
           value={value[i]}
           onChange={onElChange}
-          inputProps={{ type: "number" }}
+          slotProps={{ htmlInput: { type: "number" } }}
         />
       ))}
     </div>
@@ -546,7 +546,7 @@ function OctahedronEditor({
           name={i}
           value={value[i]}
           onChange={onElChange}
-          inputProps={{ type: "number" }}
+          slotProps={{ htmlInput: { type: "number" } }}
         />
       ))}
     </div>
@@ -825,22 +825,22 @@ export default (): ReactElement => {
         <BoundNumberField
           {...{ state, setStatePartial }}
           prop="a"
-          inputProps={{ step: 0.05 }}
+          slotProps={{ htmlInput: { step: 0.05 } }}
         />{" "}
         <BoundNumberField
           {...{ state, setStatePartial }}
           prop="b"
-          inputProps={{ step: 0.05 }}
+          slotProps={{ htmlInput: { step: 0.05 } }}
         />
         <BoundNumberField
           {...{ state, setStatePartial }}
           prop="c"
-          inputProps={{ step: 0.05 }}
+          slotProps={{ htmlInput: { step: 0.05 } }}
         />{" "}
         <BoundNumberField
           {...{ state, setStatePartial }}
           prop="d"
-          inputProps={{ step: 0.05 }}
+          slotProps={{ htmlInput: { step: 0.05 } }}
         />
         <RenderButton dim={[1920, 1080]}>render hd</RenderButton>
         <RenderButton dim={[3840, 2160]}>render 4k</RenderButton>

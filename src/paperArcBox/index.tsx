@@ -78,7 +78,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: 25, step: 1 }}
+          slotProps={{ htmlInput: { min: 25, step: 1 } }}
           value={state.radius}
           onChange={(e) => setPartialState({ radius: +e.target.value })}
         />
@@ -87,7 +87,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: 0, step: 1 }}
+          slotProps={{ htmlInput: { min: 0, step: 1 } }}
           value={state.width}
           onChange={(e) => setPartialState({ width: +e.target.value })}
         />
@@ -96,7 +96,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: 0, step: 1 }}
+          slotProps={{ htmlInput: { min: 0, step: 1 } }}
           value={state.height}
           onChange={(e) => setPartialState({ height: +e.target.value })}
         />
@@ -105,7 +105,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: 0, step: 1 }}
+          slotProps={{ htmlInput: { min: 0, step: 1 } }}
           value={state.tabWidth}
           onChange={(e) => setPartialState({ tabWidth: +e.target.value })}
         />

@@ -282,7 +282,7 @@ export default function (): ReactElement {
           <TextField
             variant="outlined"
             size="small"
-            inputProps={{ step: 0.005 }}
+            slotProps={{ htmlInput: { step: 0.005 } }}
             type="number"
             value={state.strokeWidth}
             onChange={(e) => setPartial({ strokeWidth: +e.target.value })}

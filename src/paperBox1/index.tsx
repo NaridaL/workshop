@@ -154,7 +154,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1, min: 3, max: 16 }}
+          slotProps={{ htmlInput: { step: 1, min: 3, max: 16 } }}
           value={state.sides}
           onChange={(e) => updateState({ sides: +e.target.value })}
           label="Sides"
@@ -163,7 +163,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1, min: 1 }}
+          slotProps={{ htmlInput: { step: 1, min: 1 } }}
           value={state.sideWidth}
           onChange={(e) => updateState({ sideWidth: +e.target.value })}
           InputProps={{
@@ -175,7 +175,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ step: 1, min: 0 }}
+          slotProps={{ htmlInput: { step: 1, min: 0 } }}
           value={state.theta}
           onChange={(e) => updateState({ theta: +e.target.value })}
           InputProps={{
@@ -188,10 +188,12 @@ export default (): ReactElement => {
           disabled={lockTopLip}
           size="small"
           type="number"
-          inputProps={{
-            step: 1,
-            min: 0,
-            max: topLipMax,
+          slotProps={{
+            htmlInput: {
+              step: 1,
+              min: 0,
+              max: topLipMax,
+            },
           }}
           value={state.topLip}
           onChange={(e) => updateState({ topLip: +e.target.value })}
@@ -218,7 +220,7 @@ export default (): ReactElement => {
           disabled={lockBottomLip}
           size="small"
           type="number"
-          inputProps={{ step: 1, min: 0 }}
+          slotProps={{ htmlInput: { step: 1, min: 0 } }}
           value={state.bottomLip}
           onChange={(e) => updateState({ bottomLip: +e.target.value })}
           InputProps={{

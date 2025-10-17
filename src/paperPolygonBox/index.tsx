@@ -85,7 +85,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: 25, step: 1 }}
+          slotProps={{ htmlInput: { min: 25, step: 1 } }}
           value={state.envelopeHeight}
           onChange={(e) => setPartialState({ envelopeHeight: +e.target.value })}
         />
@@ -101,7 +101,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: 0, step: 1 }}
+          slotProps={{ htmlInput: { min: 0, step: 1 } }}
           value={state.cornerRadius}
           onChange={(e) => setPartialState({ cornerRadius: +e.target.value })}
           label="Corner Radius"
@@ -110,7 +110,7 @@ export default (): ReactElement => {
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: 0, step: 1 }}
+          slotProps={{ htmlInput: { min: 0, step: 1 } }}
           value={state.overlap}
           onChange={(e) => setPartialState({ overlap: +e.target.value })}
           label="Overlap"
