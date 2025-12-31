@@ -5,7 +5,8 @@ import CardMedia from "@mui/material/CardMedia"
 import Grid from "@mui/material/Grid"
 import MenuItem from "@mui/material/MenuItem"
 import Select from "@mui/material/Select"
-import { useTheme } from "@mui/material/styles"
+import { Theme, useTheme } from "@mui/material/styles"
+import { SxProps } from "@mui/system"
 import * as React from "react"
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
 
@@ -39,7 +40,7 @@ function GenericDemo({
   state,
 }: {
   frag: string
-  sx: any
+  sx?: SxProps<Theme> | undefined
   animate: boolean
   state: {}
   replacer?: string

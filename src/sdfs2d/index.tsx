@@ -1,4 +1,6 @@
 import Grid from "@mui/material/Grid"
+import { Theme } from "@mui/material/styles"
+import { SxProps } from "@mui/system"
 import * as React from "react"
 import { ReactElement, useCallback } from "react"
 import { Texture } from "tsgl"
@@ -18,7 +20,7 @@ function Demo2D({
   state,
 }: {
   frag: string
-  sx: any
+  sx?: SxProps<Theme> | undefined
   animate: boolean
   state: {}
   replacer?: string

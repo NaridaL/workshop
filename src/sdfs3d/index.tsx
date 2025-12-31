@@ -1,4 +1,6 @@
 import Grid from "@mui/material/Grid"
+import { Theme } from "@mui/material/styles"
+import { SxProps } from "@mui/system"
 import React, { ReactElement, useCallback } from "react"
 import {
   GenericDemo,
@@ -15,7 +17,7 @@ function Demo3D({
   replacer,
 }: {
   frag: string
-  sx: any
+  sx?: SxProps<Theme> | undefined
   animate: boolean
   state: {}
   replacer?: string

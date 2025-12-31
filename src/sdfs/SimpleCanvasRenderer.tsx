@@ -60,7 +60,7 @@ export function GenericDemo({
   focusable,
   rendererRef,
 }: {
-  sx: SxProps<Theme>
+  sx?: SxProps<Theme> | undefined
   animate: boolean
   state: {}
   focusable?: boolean
