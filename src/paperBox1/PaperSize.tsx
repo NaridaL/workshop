@@ -57,6 +57,7 @@ export const PAPER_SIZES: PaperSize[] = [
   [75, 75, "Origami 7.5cm"],
   [215.9, 279.4, "Letter"],
   [215.9, 355.6, "Legal"],
+  [205, 292, "Cricut A4"],
 ]
 
 export const ALL_PAPER_SIZES: PaperSize[] = [

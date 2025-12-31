@@ -49,6 +49,20 @@ export function PrismBoxSvg({
 
   const print = useContext(SvgPrintContext)
 
+  let lastDiagonalEnd = V(
+    sides * sideWidth + Math.tan(creaseAngle + theta) * bottomLip,
+    height,
+  )
+  if (lastDiagonalEnd.x > width) {
+    lastDiagonalEnd = V(
+      width,
+      height -
+        bottomLip +
+        (width - sides * sideWidth) *
+          Math.tan(0.5 * Math.PI - creaseAngle - theta),
+    )
+  }
+
   const valley = encodeSVGPath([
     // bottom lip horizontal
     {
@@ -78,12 +92,12 @@ export function PrismBoxSvg({
         x: i * sideWidth,
         y: height - bottomLip,
       },
-      {
-        type: SVGPathData.LINE_TO,
-        relative: false,
-        x: i * sideWidth + Math.tan(creaseAngle + theta) * bottomLip,
-        y: height,
-      },
+      i === sides
+        ? path.L(lastDiagonalEnd)
+        : path.L(
+            i * sideWidth + Math.tan(creaseAngle + theta) * bottomLip,
+            height,
+          ),
     ]),
     // top lip
     {
@@ -130,20 +144,13 @@ export function PrismBoxSvg({
         </clipPath>
       </defs>
 
-      <g clipPath="url(#page)">
+      <g>
         {!print && (
           <rect width={rightTabWidth} height={height} className="glue" />
         )}
         <rect width={width} height={height} />
         <path d={valley} style={{ strokeDasharray: "1,1" }} />
         <path d={mountain} style={{ strokeDasharray: "10,2,1,1,1,2" }} />
-        {arrayRange(0, sides).map((i) => {
-          const pos = V(i * sideWidth, height - bottomLip).plus(
-            V3.polar(radius, 90 * DEG - creaseAngle - theta),
-          )
-
-          return <circle key={i} cx={pos.x} cy={pos.y} r={0.5} stroke="black" />
-        })}
       </g>
       <Measure from={[0, 0]} to={[0, topLip]}>
         topLip
